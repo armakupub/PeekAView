@@ -1,0 +1,17 @@
+{
+    "UI_PAV_ModName": "Peek a View",
+    "UI_PAV_EnableLabel": "Включить",
+    "UI_PAV_EnableTooltip": "Главный переключатель всех функций PeekAView. Когда выключен, игра отображает срезы стен точно как в ваниле.",
+    "UI_PAV_RangeLabel": "Радиус срезов",
+    "UI_PAV_RangeTooltip": "Расстояние вокруг игрока для проецирования срезов стен, в клетках. 5 соответствует ваниле; 20 — полный расширенный радиус PeekAView.",
+    "UI_PAV_FixB42Label": "Исправить баг B42 с исчезающими стенами",
+    "UI_PAV_FixB42Tooltip": "Исправляет баг ванильного B42, при котором стены исчезают на верхнем этаже, когда рядом находятся построенные игроком лестницы или полы.",
+    "UI_PAV_DrivingSpeedSection": "PeekAView при вождении",
+    "UI_PAV_DrivingSpeedLabel": "Активен до",
+    "UI_PAV_DrivingSpeedTooltip": "При вождении PeekAView остаётся активным до этой скорости, а затем отключается, чтобы вы могли нормально видеть транспорт и препятствия. Установите 0, чтобы всегда отключать PeekAView в транспорте. 35 km/h покрывает типичную городскую езду.",
+    "UI_PAV_DrivingSpeedDescription": "0 km/h = PeekAView всегда выключен в транспорте.",
+    "UI_PAV_EnabledText": "PeekAView: ВКЛ",
+    "UI_PAV_DisabledText": "PeekAView: ВЫКЛ",
+    "UI_optionscreen_binding_PeekAView": "PeekAView",
+    "UI_optionscreen_binding_PeekAView Toggle": "Переключить PeekAView"
+}

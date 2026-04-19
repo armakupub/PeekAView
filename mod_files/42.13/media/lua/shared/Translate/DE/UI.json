@@ -1,0 +1,17 @@
+{
+    "UI_PAV_ModName": "Peek a View",
+    "UI_PAV_EnableLabel": "Aktiviert",
+    "UI_PAV_EnableTooltip": "Hauptschalter für alle PeekAView-Funktionen. Bei Aus rendert das Spiel Cutaways exakt wie Vanilla.",
+    "UI_PAV_RangeLabel": "Cutaway-Reichweite",
+    "UI_PAV_RangeTooltip": "Wie weit um den Spieler herum Wand-Cutaways projiziert werden, in Feldern. 5 entspricht Vanilla; 20 ist die volle erweiterte Reichweite von PeekAView.",
+    "UI_PAV_FixB42Label": "B42 Wandverschwinde-Fehler beheben",
+    "UI_PAV_FixB42Tooltip": "Behebt einen Vanilla-B42-Fehler, bei dem Wände im Obergeschoss verschwinden, wenn spielergebaute Treppen oder Böden daneben stehen.",
+    "UI_PAV_DrivingSpeedSection": "PeekAView beim Fahren",
+    "UI_PAV_DrivingSpeedLabel": "Aktiv bis",
+    "UI_PAV_DrivingSpeedTooltip": "Beim Fahren bleibt PeekAView bis zu dieser Geschwindigkeit aktiv und schaltet sich dann ab, damit du Verkehr und Hindernisse normal sehen kannst. 0 = PeekAView beim Fahren immer aus. 35 km/h deckt normale Stadtgeschwindigkeiten ab.",
+    "UI_PAV_DrivingSpeedDescription": "0 km/h = PeekAView ist beim Fahren immer aus.",
+    "UI_PAV_EnabledText": "PeekAView: AN",
+    "UI_PAV_DisabledText": "PeekAView: AUS",
+    "UI_optionscreen_binding_PeekAView": "PeekAView",
+    "UI_optionscreen_binding_PeekAView Toggle": "PeekAView umschalten"
+}

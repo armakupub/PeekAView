@@ -1,0 +1,17 @@
+{
+    "UI_PAV_ModName": "Peek a View",
+    "UI_PAV_EnableLabel": "Etkinleştir",
+    "UI_PAV_EnableTooltip": "Tüm PeekAView özelliklerinin ana anahtarı. Kapalıyken oyun, duvar kesimlerini vanilla ile tamamen aynı şekilde işler.",
+    "UI_PAV_RangeLabel": "Kesim mesafesi",
+    "UI_PAV_RangeTooltip": "Oyuncunun etrafında duvar kesimlerinin yansıtılacağı mesafe, karo cinsinden. 5 vanilla ızgarasına karşılık gelir; 20 PeekAView'in tam genişletilmiş mesafesidir.",
+    "UI_PAV_FixB42Label": "B42 Duvar Kaybolma Hatasını Düzelt",
+    "UI_PAV_FixB42Tooltip": "Oyuncunun yaptığı merdivenler veya zeminler yan tarafta olduğunda üst kattaki duvarların kaybolduğu vanilla B42 hatasını düzeltir.",
+    "UI_PAV_DrivingSpeedSection": "Sürüş sırasında PeekAView",
+    "UI_PAV_DrivingSpeedLabel": "Şu hıza kadar aktif",
+    "UI_PAV_DrivingSpeedTooltip": "Sürüş sırasında PeekAView bu hıza kadar aktif kalır ve ardından kapanır, böylece trafiği ve engelleri normal şekilde görebilirsiniz. Araçtayken PeekAView'i her zaman devre dışı bırakmak için 0 olarak ayarlayın. 35 km/h tipik şehir sürüşünü kapsar.",
+    "UI_PAV_DrivingSpeedDescription": "0 km/h = Araçtayken PeekAView her zaman kapalı.",
+    "UI_PAV_EnabledText": "PeekAView: AÇIK",
+    "UI_PAV_DisabledText": "PeekAView: KAPALI",
+    "UI_optionscreen_binding_PeekAView": "PeekAView",
+    "UI_optionscreen_binding_PeekAView Toggle": "PeekAView'i Değiştir"
+}

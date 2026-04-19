@@ -1,0 +1,17 @@
+{
+    "UI_PAV_ModName": "Peek a View",
+    "UI_PAV_EnableLabel": "启用",
+    "UI_PAV_EnableTooltip": "所有 PeekAView 功能的总开关。关闭时游戏按原版方式渲染墙体切除。",
+    "UI_PAV_RangeLabel": "切除范围",
+    "UI_PAV_RangeTooltip": "在玩家周围投射墙体切除的距离（以格为单位）。5 等同于原版；20 是 PeekAView 的完整扩展范围。",
+    "UI_PAV_FixB42Label": "修复 B42 墙体消失错误",
+    "UI_PAV_FixB42Tooltip": "修复 B42 原版错误：当玩家建造的楼梯或地板位于旁边时，上层的墙会消失。",
+    "UI_PAV_DrivingSpeedSection": "驾驶时的 PeekAView",
+    "UI_PAV_DrivingSpeedLabel": "启用至",
+    "UI_PAV_DrivingSpeedTooltip": "驾驶时 PeekAView 在此速度以下保持启用，超过后自动关闭，以便正常观察交通与障碍。设为 0 时，乘坐车辆时始终关闭 PeekAView。35 km/h 可覆盖典型的城市驾驶速度。",
+    "UI_PAV_DrivingSpeedDescription": "0 km/h = 乘坐车辆时 PeekAView 始终关闭。",
+    "UI_PAV_EnabledText": "PeekAView：开",
+    "UI_PAV_DisabledText": "PeekAView：关",
+    "UI_optionscreen_binding_PeekAView": "PeekAView",
+    "UI_optionscreen_binding_PeekAView Toggle": "切换 PeekAView"
+}

@@ -1,0 +1,17 @@
+{
+    "UI_PAV_ModName": "Peek a View",
+    "UI_PAV_EnableLabel": "Włącz",
+    "UI_PAV_EnableTooltip": "Główny przełącznik wszystkich funkcji PeekAView. Gdy wyłączony, gra renderuje przycięcia ścian dokładnie jak vanilla.",
+    "UI_PAV_RangeLabel": "Zasięg przycięć",
+    "UI_PAV_RangeTooltip": "Odległość wokół gracza, na którą projektowane są przycięcia ścian, w polach. 5 odpowiada vanilla; 20 to pełny rozszerzony zasięg PeekAView.",
+    "UI_PAV_FixB42Label": "Napraw błąd znikania ścian B42",
+    "UI_PAV_FixB42Tooltip": "Naprawia błąd vanilla B42, w którym ściany znikają na wyższym piętrze, gdy obok nich znajdują się schody lub podłogi zbudowane przez gracza.",
+    "UI_PAV_DrivingSpeedSection": "PeekAView podczas jazdy",
+    "UI_PAV_DrivingSpeedLabel": "Aktywny do",
+    "UI_PAV_DrivingSpeedTooltip": "Podczas jazdy PeekAView pozostaje aktywny do tej prędkości, a następnie wyłącza się, dzięki czemu można normalnie widzieć ruch i przeszkody. Ustaw na 0, aby zawsze wyłączać PeekAView w pojeździe. 35 km/h obejmuje typową jazdę miejską.",
+    "UI_PAV_DrivingSpeedDescription": "0 km/h = PeekAView zawsze wyłączony w pojeździe.",
+    "UI_PAV_EnabledText": "PeekAView: WŁ.",
+    "UI_PAV_DisabledText": "PeekAView: WYŁ.",
+    "UI_optionscreen_binding_PeekAView": "PeekAView",
+    "UI_optionscreen_binding_PeekAView Toggle": "Przełącz PeekAView"
+}

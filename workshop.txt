@@ -1,0 +1,44 @@
+version=1
+title=Peek a View
+description=No more peek-a-boo zombies.
+description=
+description=In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible from further away, even when the camera is pointing straight at it. Peek a View pushes those ranges out: houses start fading sooner, and view-blocking fences get culled from further away.
+description=
+description=What this mod does:
+description=- Cutaway range: configurable from 5 (vanilla) to 20 tiles.
+description=- Driving-speed gate: auto-disables above a configurable km/h while driving, to prevent lag and FPS drops on lower-end hardware.
+description=- B42 bug fix: under certain conditions, player-built structures cause render glitches on nearby vanilla walls. PeekAView's extended range made the bug easier to spot, so it's fixed at the source. Toggle off to observe the vanilla bug.
+description=- Only the camera-facing side is affected: no see-through-rooms, no line-of-sight bypass. Zombies behind you stay occluded, exactly like vanilla.
+description=
+description=Options (adjustable in-game):
+description=Options -> Mods -> Peek a View
+description=- Enable: master switch
+description=- Cutaway Range: 5 (vanilla) to 20 tiles
+description=- Fix B42 Wall-Hiding Bug: on/off
+description=- PeekAView while driving: active up to N km/h, 0 = always off in a vehicle
+description=
+description=Hotkey: F8 toggles the mod on/off (green/red halo confirms). Rebindable under "[PeekAView]" in PZ's keybind menu.
+description=
+description=How it works:
+description=Four Java patches via ZombieBuddy. IsoCell.GetSquaresAroundPlayerSquare enlarges the point-of-interest fan from ~5 tiles to up to 20, with a wall-adjacency filter and a line-of-sight filter so only POIs in front of the first wall/window/door from the player are kept. FBORenderCutaways.cutawayVisit deduplicates redundant per-POI calls within a single render pass. The B42 adjacency-kill bug is handled by two targeted patches on FBORenderCutaways$OrphanStructures: shouldCutaway gets a per-cluster distance gate, and isAdjacentToOrphanStructure flips its return to false when the queried tile is a real vanilla building. The unrelated shouldRenderBuildingSquare branches (buildings-to-collapse cutaway, basement) stay completely untouched.
+description=
+description=Requirements:
+description=- Build 42.13 or later
+description=- ZombieBuddy: https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853
+description=
+description=Why ZombieBuddy?
+description=This is a Java mod. Changing the behavior of a compiled PZ method isn't achievable with a standard Lua mod, and using ZombieBuddy keeps the patch working across minor PZ updates. ZombieBuddy must be installed and enabled separately. In multiplayer, it has to be installed before joining the server.
+description=
+description=Compatibility:
+description=- Singleplayer and multiplayer (client-side rendering only, no server changes required)
+description=- Before adding the mod, make a backup of your save. To remove it later, disable PeekAView from inside the running game first, then quit and uninstall.
+description=- Localized in 12 languages: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+description=
+description=Source code: https://github.com/armakupub/PeekAView
+description=
+description=---
+description=More mods: Pass Through Window (https://steamcommunity.com/sharedfiles/filedetails/?id=3698600535), Auto Fast Forward Walk To (https://steamcommunity.com/sharedfiles/filedetails/?id=3700497455)
+description=
+description=Mod ID: PeekAView
+tags=
+visibility=private

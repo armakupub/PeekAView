@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+
+# Local JDK download (~220 MB, re-downloadable)
+tools/
+
+# Per-machine build config (see build.local.example)
+build.local
+
+# Local-only working notes
+TODO.md
+screenshot/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

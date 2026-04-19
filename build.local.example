@@ -1,0 +1,16 @@
+# Per-machine build configuration. Copy to build.local (gitignored) and edit.
+#
+# build.local is sourced by build.sh before the build runs. All variables
+# exported or set here override the defaults.
+
+# Project Zomboid install directory — must contain projectzomboid.jar.
+# Default Steam install on Windows:
+PZ_DIR="C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid"
+
+# Examples for non-default locations:
+# PZ_DIR="C:/Games/Steam/steamapps/common/ProjectZomboid"
+# PZ_DIR="D:/SteamLibrary/steamapps/common/ProjectZomboid"
+
+# Where to install the built mod for local testing. Defaults to
+# "$USERPROFILE/Zomboid/mods/PeekAView" if not set.
+# MOD_INSTALL_ROOT="$USERPROFILE/Zomboid/mods/PeekAView"

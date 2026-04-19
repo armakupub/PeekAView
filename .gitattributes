@@ -1,0 +1,12 @@
+* text=auto
+
+# Shell scripts must stay LF — CRLF breaks bash shebang parsing on Windows checkouts.
+*.sh text eol=lf
+
+# PZ reads Lua and JSON as text; keep them normalized but let OS dictate on checkout.
+*.lua text
+*.json text
+
+# Binary assets
+*.png binary
+*.jar binary

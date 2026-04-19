@@ -1,0 +1,17 @@
+{
+    "UI_PAV_ModName": "Peek a View",
+    "UI_PAV_EnableLabel": "Activer",
+    "UI_PAV_EnableTooltip": "Interrupteur principal de toutes les fonctions PeekAView. Désactivé, le jeu affiche les coupes de murs exactement comme en vanilla.",
+    "UI_PAV_RangeLabel": "Portée des coupes",
+    "UI_PAV_RangeTooltip": "Distance autour du joueur pour projeter les coupes de murs, en tuiles. 5 correspond à la trame vanilla ; 20 est la portée étendue complète de PeekAView.",
+    "UI_PAV_FixB42Label": "Corriger le bug B42 des murs invisibles",
+    "UI_PAV_FixB42Tooltip": "Corrige un bug vanilla B42 où les murs disparaissent à l'étage supérieur lorsque des escaliers ou sols construits par le joueur se trouvent à côté.",
+    "UI_PAV_DrivingSpeedSection": "PeekAView en conduisant",
+    "UI_PAV_DrivingSpeedLabel": "Actif jusqu'à",
+    "UI_PAV_DrivingSpeedTooltip": "En conduisant, PeekAView reste actif jusqu'à cette vitesse puis se désactive pour que vous puissiez voir la circulation et les obstacles normalement. Réglez sur 0 pour toujours désactiver PeekAView dans un véhicule. 35 km/h couvre la conduite urbaine typique.",
+    "UI_PAV_DrivingSpeedDescription": "0 km/h = PeekAView toujours désactivé en véhicule.",
+    "UI_PAV_EnabledText": "PeekAView : ACTIVÉ",
+    "UI_PAV_DisabledText": "PeekAView : DÉSACTIVÉ",
+    "UI_optionscreen_binding_PeekAView": "PeekAView",
+    "UI_optionscreen_binding_PeekAView Toggle": "Basculer PeekAView"
+}

@@ -1,0 +1,17 @@
+{
+    "UI_PAV_ModName": "Peek a View",
+    "UI_PAV_EnableLabel": "활성화",
+    "UI_PAV_EnableTooltip": "모든 PeekAView 기능의 마스터 스위치. 꺼져 있으면 게임은 바닐라와 동일하게 컷어웨이를 렌더링합니다.",
+    "UI_PAV_RangeLabel": "컷어웨이 범위",
+    "UI_PAV_RangeTooltip": "플레이어 주변에 벽 컷어웨이를 투영하는 거리(타일 단위). 5는 바닐라 래스터와 같으며, 20은 PeekAView의 전체 확장 범위입니다.",
+    "UI_PAV_FixB42Label": "B42 벽 사라짐 버그 수정",
+    "UI_PAV_FixB42Tooltip": "플레이어가 만든 계단이나 바닥이 옆에 있을 때 위층 벽이 사라지는 바닐라 B42 버그를 수정합니다.",
+    "UI_PAV_DrivingSpeedSection": "운전 중 PeekAView",
+    "UI_PAV_DrivingSpeedLabel": "이 속도까지 활성",
+    "UI_PAV_DrivingSpeedTooltip": "운전 중 PeekAView는 이 속도까지 활성화되며 초과하면 꺼져서 교통과 장애물을 정상적으로 볼 수 있습니다. 0으로 설정하면 차량에 탑승 중일 때 PeekAView가 항상 비활성화됩니다. 35 km/h는 일반적인 도심 주행을 포함합니다.",
+    "UI_PAV_DrivingSpeedDescription": "0 km/h = 차량에 탑승 중일 때 PeekAView 항상 꺼짐.",
+    "UI_PAV_EnabledText": "PeekAView: 켜짐",
+    "UI_PAV_DisabledText": "PeekAView: 꺼짐",
+    "UI_optionscreen_binding_PeekAView": "PeekAView",
+    "UI_optionscreen_binding_PeekAView Toggle": "PeekAView 토글"
+}
