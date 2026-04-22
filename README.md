@@ -33,8 +33,9 @@ Open `Options → Mods → Peek a View`:
 | Setting | Range / Default | What it does |
 |---|---|---|
 | Enable | on | Master toggle |
-| Cutaway range | 5–20 tiles, default 20 | How far walls, fences, and buildings start turning transparent |
+| Cutaway range | 5–20 tiles, default 15 | How far walls, fences, and buildings start turning transparent |
 | Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ) |
+| Active only in nimble stance | off | When on, PeekAView only enables while you are in nimble stance (holding right-click to aim) |
 | Max driving speed | 0–120 km/h, default 35 | Above this speed, cutaway turns off. `0` = always off in a vehicle; `120` = always on. |
 
 **F8** toggles the master Enable switch in-game (green/red halo confirms). Rebindable under `[PeekAView]` in PZ's keybind menu.

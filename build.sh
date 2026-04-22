@@ -54,6 +54,11 @@ mapfile -t SOURCES < <(find "$SRC_DIR" -name '*.java')
     -d "$CLASSES_DIR" \
     "${SOURCES[@]}"
 
+# --- Bundle LICENSE into jar (root + META-INF for tooling conventions) ---
+mkdir -p "$CLASSES_DIR/META-INF"
+cp "$PROJECT_ROOT/LICENSE" "$CLASSES_DIR/LICENSE"
+cp "$PROJECT_ROOT/LICENSE" "$CLASSES_DIR/META-INF/LICENSE"
+
 # --- Package jar ---
 echo "[build] Packaging jar..."
 "$JAR" --create --file "$JAR_OUT" -C "$CLASSES_DIR" .

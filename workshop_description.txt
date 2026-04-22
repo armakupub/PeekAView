@@ -1,42 +1,63 @@
-Peek a View
-
 No more peek-a-boo zombies.
 
-In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible from further away, even when the camera is pointing straight at it. Peek a View pushes those ranges out: houses start fading sooner, and view-blocking fences get culled from further away.
+In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. [b]Peek a View[/b] closes that gap: houses start fading sooner and view-blocking fences get culled from further away, so what reaches your screen matches (mostly) what your character can see.
 
-What this mod does:
-- Cutaway range: configurable from 5 (vanilla) to 20 tiles.
-- Driving-speed gate: auto-disables above a configurable km/h while driving, to prevent lag and FPS drops on lower-end hardware.
-- B42 bug fix: under certain conditions, player-built structures cause render glitches on nearby vanilla walls. PeekAView's extended range made the bug easier to spot, so it's fixed at the source. Toggle off to observe the vanilla bug.
-- Only the camera-facing side is affected: no see-through-rooms, no line-of-sight bypass. Zombies behind you stay occluded, exactly like vanilla.
+[h1]What this mod does[/h1]
+[list]
+[*]Extends the cutaway range from vanilla's ~5 tiles up to 20 (configurable).
+[*]Fixes a B42 render bug where player-built structures cause nearby vanilla walls to disappear.
+[*]Auto-disables above a configurable driving speed, to keep FPS smooth on lower-end hardware.
+[*]Stays vanilla-style: houses fade by range, walls and fences on the camera-facing side — same mechanics as vanilla, just triggered from further away. No see-through walls, no line-of-sight bypass.
+[/list]
 
-Options (adjustable in-game):
-Options → Mods → Peek a View
-- Enable: master switch
-- Cutaway Range: 5 (vanilla) to 20 tiles
-- Fix B42 Wall-Hiding Bug: on/off
-- PeekAView while driving: active up to N km/h, 0 = always off in a vehicle
+[h1]Options[/h1]
+Options -> Mods -> Peek a View
+[list]
+[*][b]Enable[/b]: master toggle
+[*][b]Active only in nimble stance[/b]: only while holding right-click to aim a weapon
+[*][b]Cutaway Range[/b]: 5 to 20 tiles
+[*][b]Fix B42 Wall-Hiding Bug[/b]: on/off
+[*][b]PeekAView while driving[/b]: active up to N km/h (0 = always off in a vehicle)
+[/list]
 
-Hotkey: F8 toggles the mod on/off (green/red halo confirms). Rebindable under "[PeekAView]" in PZ's keybind menu.
+[h1]Hotkey[/h1]
+[b]F8[/b] toggles the mod on/off (green/red halo confirms). Rebindable under [noparse][PeekAView][/noparse] in Options -> Keybind.
 
-How it works:
-Four Java patches via ZombieBuddy. IsoCell.GetSquaresAroundPlayerSquare enlarges the point-of-interest fan from ~5 tiles to up to 20, with a wall-adjacency filter and a line-of-sight filter so only POIs in front of the first wall/window/door from the player are kept. FBORenderCutaways.cutawayVisit deduplicates redundant per-POI calls within a single render pass. The B42 adjacency-kill bug is handled by two targeted patches on FBORenderCutaways$OrphanStructures: shouldCutaway gets a per-cluster distance gate, and isAdjacentToOrphanStructure flips its return to false when the queried tile is a real vanilla building. The unrelated shouldRenderBuildingSquare branches (buildings-to-collapse cutaway, basement) stay completely untouched.
+[h1]How it works[/h1]
+Four Java patches, loaded at runtime via ZombieBuddy. The main one enlarges the range PZ uses to decide which walls to fade, plus two filters: one keeps the extra range pointed at actual walls, the other makes sure only things in front of the first wall/window/door from the player fade — so no see-through walls. A second patch cuts out redundant work the engine does once per point of interest, keeping the extended range cheap at 20 tiles. Two small patches fix the B42 wall-hiding bug (player-built stairs/floors making nearby vanilla walls vanish) without touching the normal fading behavior.
 
-Requirements:
-- Build 42.13 or later
-- ZombieBuddy: https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853
+[h1]Requirements[/h1]
+[list]
+[*]Build 42.13 or later
+[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]Workshop page[/url]
+[/list]
 
-Why ZombieBuddy?
-This is a Java mod. Changing the behavior of a compiled PZ method isn't achievable with a standard Lua mod, and using ZombieBuddy keeps the patch working across minor PZ updates. ZombieBuddy must be installed and enabled separately. In multiplayer, it has to be installed before joining the server.
+[h1]Why ZombieBuddy?[/h1]
+This is a Java mod. Changing the behavior of a compiled PZ method isn't achievable with a standard Lua mod, and using ZombieBuddy keeps the patch working across minor PZ updates. It's a one-time install — once ZombieBuddy is in your mod list, any ZombieBuddy-based mod can be added without further setup. In multiplayer, ZombieBuddy has to be installed before joining the server.
 
-Compatibility:
-- Singleplayer and multiplayer (client-side rendering only, no server changes required)
-- Before adding the mod, make a backup of your save. To remove it later, disable PeekAView from inside the running game first, then quit and uninstall.
-- Localized in 12 languages: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[h1]Source & transparency[/h1]
+Both PeekAView and ZombieBuddy are MIT-licensed and fully open source. If you'd rather not trust the Workshop binary, you can read every line or build the mod yourself from source. The patches only touch specific PZ rendering classes — no file I/O, no network access, nothing outside PZ's own code.
+[list]
+[*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
+[*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
+[/list]
 
-Source code: https://github.com/armakupub/PeekAView
+[h1]Trade-offs[/h1]
+PeekAView changes the visual experience of vanilla PZ on purpose — worth knowing what you're signing up for.
+[list]
+[*]Not the look TIS intended. The extended cutaway range is a deliberate departure from the visual style the devs shipped. If you prefer the vanilla look, this mod isn't for you.
+[*]Occasional flickering in dense city blocks with complex geometry. When many buildings stack along the camera axis, a single wall may fade in and out for a frame or two as the player moves.
+[*]Extra per-frame cost. The larger radius means more work each render pass. On lower-end hardware this is most noticeable while driving — the driving-speed gate exists for exactly this reason and can be dialed down or turned off. Outside the car, dropping the cutaway range by just a few tiles already helps noticeably if you see slowdowns.
+[/list]
 
----
-More mods: Pass Through Window (https://steamcommunity.com/sharedfiles/filedetails/?id=3698600535), Auto Fast Forward Walk To (https://steamcommunity.com/sharedfiles/filedetails/?id=3700497455)
+[h1]Compatibility[/h1]
+[list]
+[*]Singleplayer and multiplayer (client-side rendering only, no server changes required)
+[*]Before adding the mod, make a backup of your save. To remove it later, disable PeekAView from inside the running game first, then quit and uninstall.
+[*]Localized in 12 languages: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[/list]
 
+[hr][/hr]
+
+Workshop ID: 3710281407
 Mod ID: PeekAView

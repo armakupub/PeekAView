@@ -14,7 +14,7 @@ public class PeekAViewMod {
 
     public static final int MIN_RANGE = 5;
     public static final int MAX_RANGE = 20;
-    public static final int DEFAULT_RANGE = MAX_RANGE;
+    public static final int DEFAULT_RANGE = 15;
 
     public static final int MAX_DRIVING_SPEED_CAP = 120;
     public static final int DEFAULT_DRIVING_SPEED_THRESHOLD = 35;
@@ -24,6 +24,7 @@ public class PeekAViewMod {
     public static volatile int range = DEFAULT_RANGE;
     public static volatile boolean fixB42Adjacency = true;
     public static volatile int maxDrivingSpeedKmh = DEFAULT_DRIVING_SPEED_THRESHOLD;
+    public static volatile boolean aimStanceOnly = false;
 
     public static void setEnabled(boolean v) {
         enabled = v;
@@ -45,6 +46,10 @@ public class PeekAViewMod {
         maxDrivingSpeedKmh = clamped;
     }
 
+    public static void setAimStanceOnly(boolean v) {
+        aimStanceOnly = v;
+    }
+
     // Authoritative gate for every patch's enter/exit. Reads the currently
     // rendering player via IsoCamera.frameState.playerIndex (set per-pass
     // by the engine, distinct per split-screen player).
@@ -54,6 +59,7 @@ public class PeekAViewMod {
         if (pIdx < 0 || pIdx >= IsoPlayer.MAX) return true;
         IsoPlayer p = IsoPlayer.players[pIdx];
         if (p == null) return true;
+        if (aimStanceOnly && !p.isAiming()) return false;
         BaseVehicle vehicle = p.getVehicle();
         if (vehicle == null) return true;
         int threshold = maxDrivingSpeedKmh;

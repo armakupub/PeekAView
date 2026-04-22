@@ -18,29 +18,32 @@ enableOpt.onChangeApply = function(self, value)
     ModJava.setEnabled(value)
 end
 
+local aimStanceOnlyOpt = modOptions:addTickBox(
+    "aimStanceOnly",
+    getText("UI_PAV_AimStanceOnlyLabel"),
+    false,
+    getText("UI_PAV_AimStanceOnlyTooltip"))
+aimStanceOnlyOpt.onChangeApply = function(self, value)
+    ModJava.setAimStanceOnly(value)
+end
+
 local rangeOpt = modOptions:addSlider(
     "range",
     getText("UI_PAV_RangeLabel"),
     5, 20, 1,
-    20,
+    15,
     getText("UI_PAV_RangeTooltip"))
 rangeOpt.onChangeApply = function(self, value)
     ModJava.setRange(value)
 end
 
-local fixB42Opt = modOptions:addTickBox(
-    "fixB42",
-    getText("UI_PAV_FixB42Label"),
-    true,
-    getText("UI_PAV_FixB42Tooltip"))
-fixB42Opt.onChangeApply = function(self, value)
-    ModJava.setFixB42Adjacency(value)
-end
+modOptions:addDescription("UI_PAV_RangePerformanceDescription")
+
+modOptions:addDescription("UI_PAV_Spacer")
 
 -- Driving-speed threshold. 0 = mod off in any vehicle; higher = active
 -- up to that km/h. Range 0-120 covers vanilla car top speeds; step 5
 -- gives 25 slider positions on clean integer values.
-modOptions:addTitle(getText("UI_PAV_DrivingSpeedSection"))
 
 local drivingSpeedOpt = modOptions:addSlider(
     "drivingSpeed",
@@ -82,6 +85,17 @@ drivingSpeedOpt.onChangeApply = function(self, value)
     ModJava.setMaxDrivingSpeedKmh(value)
 end
 
+modOptions:addDescription("UI_PAV_Spacer")
+
+local fixB42Opt = modOptions:addTickBox(
+    "fixB42",
+    getText("UI_PAV_FixB42Label"),
+    true,
+    getText("UI_PAV_FixB42Tooltip"))
+fixB42Opt.onChangeApply = function(self, value)
+    ModJava.setFixB42Adjacency(value)
+end
+
 -- PZAPI.ModOptions:load() only auto-runs on first Options-screen open.
 -- Load+push on OnGameBoot so patches see saved values from frame one.
 -- Idempotent with MainOptions' later load.
@@ -90,6 +104,7 @@ local function syncToJava()
     ModJava.setEnabled(enableOpt:getValue())
     ModJava.setRange(rangeOpt:getValue())
     ModJava.setFixB42Adjacency(fixB42Opt:getValue())
+    ModJava.setAimStanceOnly(aimStanceOnlyOpt:getValue())
     ModJava.setMaxDrivingSpeedKmh(drivingSpeedOpt:getValue())
 end
 
@@ -99,4 +114,5 @@ PeekAView.syncToJava = syncToJava
 PeekAView.enableOpt = enableOpt
 PeekAView.rangeOpt = rangeOpt
 PeekAView.fixB42Opt = fixB42Opt
+PeekAView.aimStanceOnlyOpt = aimStanceOnlyOpt
 PeekAView.drivingSpeedOpt = drivingSpeedOpt

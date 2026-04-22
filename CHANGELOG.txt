@@ -1,0 +1,10 @@
+Peek a View - Changelog
+=======================
+
+1.0.0 - 2026-04-22
+  - First stable release.
+  - Default cutaway range lowered from 20 to 15 tiles.
+  - New option "Active only in nimble stance" (default off): when enabled,
+    PeekAView only kicks in while you are in nimble stance (holding
+    right-click to aim a weapon), and turns off as soon as you lower it.
+    (implemented on user request)

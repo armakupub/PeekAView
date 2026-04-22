@@ -22,11 +22,14 @@ module load.
 | Widget | Key | Range / Default | Setter |
 |--------|-----|-----------------|--------|
 | TickBox | `enable` | default `true` | `ModJava.setEnabled(v)` |
-| Slider | `range` | 5–20, step 1, default 20 | `ModJava.setRange(v)` |
-| TickBox | `fixB42` | default `true` | `ModJava.setFixB42Adjacency(v)` |
-| Title | `UI_PAV_DrivingSpeedSection` | — | — |
+| TickBox | `aimStanceOnly` | default `false` | `ModJava.setAimStanceOnly(v)` |
+| Slider | `range` | 5–20, step 1, default 15 | `ModJava.setRange(v)` |
+| Description | `UI_PAV_RangePerformanceDescription` | — | — |
+| Description | `UI_PAV_Spacer` | — | — |
 | Slider | `drivingSpeed` | 0–120, step 5, default 35 | `ModJava.setMaxDrivingSpeedKmh(v)` |
 | Description | `UI_PAV_DrivingSpeedDescription` | — | — |
+| Description | `UI_PAV_Spacer` | — | — |
+| TickBox | `fixB42` | default `true` | `ModJava.setFixB42Adjacency(v)` |
 
 ### Driving-speed slider UX
 
@@ -112,8 +115,11 @@ label is `PT-BR`.
 Keys:
 - `UI_PAV_ModName`
 - `UI_PAV_EnableLabel` / `UI_PAV_EnableTooltip`
+- `UI_PAV_AimStanceOnlyLabel` / `UI_PAV_AimStanceOnlyTooltip`
 - `UI_PAV_RangeLabel` / `UI_PAV_RangeTooltip`
+- `UI_PAV_RangePerformanceDescription`
+- `UI_PAV_DrivingSpeedLabel` / `UI_PAV_DrivingSpeedTooltip` / `UI_PAV_DrivingSpeedDescription`
 - `UI_PAV_FixB42Label` / `UI_PAV_FixB42Tooltip`
-- `UI_PAV_DrivingSpeedSection` / `UI_PAV_DrivingSpeedLabel` / `UI_PAV_DrivingSpeedTooltip` / `UI_PAV_DrivingSpeedDescription`
+- `UI_PAV_Spacer` (single space, used via `addDescription` as vertical separator)
 - `UI_PAV_EnabledText` / `UI_PAV_DisabledText` (halo toggle text)
 - `UI_optionscreen_binding_PeekAView` / `UI_optionscreen_binding_PeekAView Toggle`

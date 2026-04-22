@@ -22,7 +22,7 @@ state.
 |------|-------|---------|
 | `MIN_RANGE` | 5 | Vanilla raster envelope floor |
 | `MAX_RANGE` | 20 | Upper bound; also the size the per-player raster arrays are allocated for in `Patch_IsoCell` |
-| `DEFAULT_RANGE` | 20 | |
+| `DEFAULT_RANGE` | 15 | |
 | `MAX_DRIVING_SPEED_CAP` | 120 | km/h; above every vanilla car's top speed, so max slider = "always on while driving" |
 | `DEFAULT_DRIVING_SPEED_THRESHOLD` | 35 | km/h; above Sunday Driver's ~30 km/h soft-cap + small overshoot headroom |
 
@@ -38,6 +38,7 @@ tolerate a one-frame lag.
 | `range` | int | `DEFAULT_RANGE` |
 | `fixB42Adjacency` | boolean | `true` |
 | `maxDrivingSpeedKmh` | int | `DEFAULT_DRIVING_SPEED_THRESHOLD` |
+| `aimStanceOnly` | boolean | `false` |
 
 ## Setters
 
@@ -46,6 +47,7 @@ tolerate a one-frame lag.
   `Patch_IsoCell.Patch_GetSquaresAroundPlayerSquare.invalidateCache()`.
 - `setFixB42Adjacency(boolean)`
 - `setMaxDrivingSpeedKmh(int)` — clamps to `[0, MAX_DRIVING_SPEED_CAP]`.
+- `setAimStanceOnly(boolean)`
 
 ## Gate: `isActiveForCurrentRenderPlayer()`
 
@@ -57,10 +59,11 @@ Semantics:
 1. `!enabled` → `false`.
 2. Invalid `IsoCamera.frameState.playerIndex` → `true` (safe default = mod
    active; vanilla fallback lives at the patch level).
-3. No `IsoPlayer`, no vehicle → `true`.
-4. `maxDrivingSpeedKmh == 0` while in any vehicle → `false` (always off
+3. `aimStanceOnly && !player.isAiming()` → `false`.
+4. No `IsoPlayer`, no vehicle → `true`.
+5. `maxDrivingSpeedKmh == 0` while in any vehicle → `false` (always off
    in a vehicle).
-5. Otherwise `|vehicle speed km/h| < threshold`.
+6. Otherwise `|vehicle speed km/h| < threshold`.
 
 Reads currently-rendering player via `IsoCamera.frameState.playerIndex`,
 set by the engine before each per-player render call. In split-screen

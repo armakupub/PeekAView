@@ -34,3 +34,4 @@ change. Thrashes in split-screen but correct.
 - Driving: speed gate flips mod off above threshold without flicker
 - B42 fix: player-built stair next to vanilla wall no longer hides the wall
 - `fixB42Adjacency` toggle OFF: vanilla adjacency-kill bug reappears (confirms patch is the reason it's gone)
+- `aimStanceOnly` toggle ON: mod is off until RMB is held, snaps on/off in sync with the aim stance
