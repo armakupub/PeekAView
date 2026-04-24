@@ -90,6 +90,7 @@ local function syncToJava()
     ModJava.setEnabled(enableOpt:getValue())
     ModJava.setRange(rangeOpt:getValue())
     ModJava.setFixB42Adjacency(fixB42Opt:getValue())
+    ModJava.setAimStanceOnly(aimStanceOnlyOpt:getValue())
     ModJava.setMaxDrivingSpeedKmh(drivingSpeedOpt:getValue())
 end
 
@@ -102,7 +103,7 @@ Idempotent with `MainOptions`' later load.
 
 ```lua
 PeekAView.syncToJava = syncToJava
-PeekAView.enableOpt / rangeOpt / fixB42Opt / drivingSpeedOpt
+PeekAView.enableOpt / rangeOpt / fixB42Opt / aimStanceOnlyOpt / drivingSpeedOpt
 ```
 
 ## Translations

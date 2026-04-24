@@ -61,7 +61,7 @@ Semantics:
    active; vanilla fallback lives at the patch level).
 3. `aimStanceOnly && !player.isAiming()` → `false`.
 4. No `IsoPlayer`, no vehicle → `true`.
-5. `maxDrivingSpeedKmh == 0` while in any vehicle → `false` (always off
+5. `maxDrivingSpeedKmh <= 0` while in any vehicle → `false` (always off
    in a vehicle).
 6. Otherwise `|vehicle speed km/h| < threshold`.
 

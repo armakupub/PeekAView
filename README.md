@@ -2,13 +2,20 @@
 
 Project Zomboid mod — extends the wall and building cutaway range so zombies hiding in your line of sight stop being invisible.
 
-Vanilla PZ only turns walls and fences transparent within roughly 5 tiles of your character. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible from further away, even when the camera is pointing straight at it. Peek a View pushes those ranges out to up to 20 tiles — houses start fading sooner, view-blocking fences get culled from further away — without any see-through-rooms or line-of-sight bypass. Zombies behind walls that face *away* from the camera stay occluded, exactly like vanilla.
+![PeekAView cutaway comparison](screenshots/comparison1.png)
+
+In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. Peek a View closes that gap: houses and view-blocking fences fade from further away, so what reaches your screen matches (mostly) what your character can see.
 
 ## Features
 
 - **Extended cutaway range** — configurable slider from 5 (vanilla) to 20 tiles.
+- **Driving-speed gate** — auto-disables above a configurable km/h to keep FPS smooth on lower-end hardware. Default 35 km/h. `0` = always off in a vehicle; `120` = always on.
+- **Optional nimble-stance-only mode** — restrict PeekAView to while you are aiming a weapon (right-click held).
+- **No see-through walls, no line-of-sight bypass** — same fade mechanics as vanilla, just triggered from further away.
 - **B42 wall-hiding bug fix** — stops the engine from hiding upper-floor walls of vanilla buildings next to player-built stairs or floors. Toggleable.
-- **Driving-speed gate** — auto-disables the mod above a configurable km/h while driving, to prevent flicker and FPS drops. Default 35 km/h. Set to 0 to always disable in a vehicle, or to the max for always-on.
+
+### Also
+
 - **F8 hotkey** with green/red halo indicator. Rebindable under `[PeekAView]` in PZ's keybind menu.
 - **12 languages:** EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
 - **Multiplayer-safe** — client-side rendering only, no server changes, no save modifications.
@@ -56,18 +63,13 @@ Open `Options → Mods → Peek a View`:
 
 ## Building from Source
 
-```bash
-./build.sh
-```
+One-time setup:
 
-Setup:
+1. Extract a [Zulu JDK 25](https://www.azul.com/downloads/) Windows x64 build into `tools/` (needs `tools/zulu*-win_x64/bin/javac.exe`).
+2. Copy `build.local.example` to `build.local` and set `PZ_DIR` to your PZ install.
+3. Ensure `ZombieBuddy.jar` sits next to `projectzomboid.jar` in your PZ install.
 
-1. Extract any Zulu JDK 25 Windows x64 build from [Azul](https://www.azul.com/downloads/) into `tools/` (so `tools/zulu*-win_x64/bin/javac.exe` exists — the exact version is auto-detected).
-2. Copy `build.local.example` to `build.local` and set `PZ_DIR` to your Project Zomboid install directory. `build.local` is gitignored.
-3. Make sure `ZombieBuddy.jar` sits next to `projectzomboid.jar` in your PZ install.
-4. `./build.sh` — compiles, packages `peekaview.jar`, and installs to `%USERPROFILE%/Zomboid/mods/PeekAView`.
-
-Env vars also work as one-off overrides: `PZ_DIR=/d/Steam/... MOD_INSTALL_ROOT=/e/... ./build.sh`.
+Then `./build.sh` compiles, packages `peekaview.jar`, and installs to `%USERPROFILE%/Zomboid/mods/PeekAView`.
 
 Technical documentation for contributors is under [`docs/`](docs/).
 

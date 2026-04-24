@@ -1,0 +1,51 @@
+Basta zombie a nascondino.
+
+In PZ vanilla, muri e tetti si dissolvono solo entro un raggio di circa 5 caselle attorno al tuo personaggio — tu come giocatore davanti allo schermo vedi meno di ciò che il tuo personaggio può effettivamente percepire. Uno zombie appoggiato al muro di una casa o nascosto dietro una recinzione alta rimane completamente invisibile per te, anche quando il tuo personaggio lo sta guardando direttamente. [b]Peek a View[/b] colma questo divario: le case e le recinzioni che bloccano la vista si dissolvono da più lontano — ciò che arriva al tuo schermo corrisponde (in gran parte) a ciò che il tuo personaggio può realmente vedere.
+
+[h1]Cosa fa questa mod[/h1]
+[list]
+[*]Estende il raggio dei tagli dalle ~5 caselle di vanilla fino a 20 (configurabile).
+[*]Si disattiva automaticamente sopra una velocità di guida configurabile, per mantenere gli FPS stabili anche su hardware modesto.
+[*]Modalità opzionale attiva solo durante la mira ("nimble stance").
+[*]Nessun muro trasparente, nessun aggiramento della linea di vista — stessa meccanica di dissolvenza del vanilla, semplicemente attivata da più lontano.
+[*]Corregge inoltre un bug di rendering in B42 dove le strutture costruite dal giocatore fanno sparire i muri vanilla adiacenti.
+[/list]
+
+[h1]Impostazioni[/h1]
+Tutte le opzioni si trovano in Opzioni → Mods → Peek a View. [b]F8[/b] attiva/disattiva la mod (un alone verde/rosso conferma lo stato), riassegnabile sotto [noparse][PeekAView][/noparse] in Opzioni → Tasti.
+
+[h1]Requisiti[/h1]
+[list]
+[*]Build 42.13 o successiva
+[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]pagina Workshop[/url] — segui i passaggi di installazione sulla sua pagina
+[/list]
+
+[h1]Compromessi[/h1]
+PeekAView modifica volutamente l'esperienza visiva di PZ vanilla — vale la pena sapere a cosa vai incontro.
+[list]
+[*]Non è l'aspetto voluto da TIS. Il raggio esteso dei tagli è una rottura deliberata con lo stile visivo consegnato dagli sviluppatori. Se preferisci l'aspetto vanilla, questa mod non fa per te.
+[*]Nei quartieri densi gli edifici possono dissolversi e riapparire più velocemente mentre ti muovi — può risultare fastidioso.
+[*]Nonostante l'ottimizzazione c'è un piccolo costo aggiuntivo per frame — più evidente durante la guida (la soglia di velocità esiste proprio per questo). A piedi di solito non si nota affatto; nei quartieri densi, ridurre il raggio di qualche casella può aiutare.
+[/list]
+
+[h1]Compatibilità[/h1]
+[list]
+[*]Singleplayer e multigiocatore (rendering solo lato client, nessuna modifica al server richiesta)
+[*]Come con qualsiasi mod: fai un backup del tuo salvataggio prima di installare.
+[*]Localizzata in 12 lingue: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[/list]
+
+[h1]Perché ZombieBuddy?[/h1]
+Questa è una mod Java. Modificare il comportamento di un metodo PZ compilato non è possibile con una normale mod Lua, e ZombieBuddy fa in modo che la patch continui a funzionare anche attraverso gli aggiornamenti minori di PZ. È un'installazione una tantum — una volta che ZombieBuddy è nella tua lista mod, qualsiasi altra mod basata su ZombieBuddy può essere aggiunta senza ulteriore configurazione.
+
+[h1]Codice sorgente e trasparenza[/h1]
+Sia PeekAView che ZombieBuddy sono sotto licenza MIT e completamente open source. Se preferisci non fidarti del binario del Workshop, puoi leggere ogni riga o compilare la mod tu stesso dai sorgenti. Le patch toccano solo alcune classi di rendering di PZ — nessun I/O su file, nessun accesso di rete, niente al di fuori del codice stesso di PZ.
+[list]
+[*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
+[*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
+[/list]
+
+[hr][/hr]
+
+Workshop ID: 3710281407
+Mod ID: PeekAView

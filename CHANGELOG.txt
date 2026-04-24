@@ -8,3 +8,7 @@ Peek a View - Changelog
     PeekAView only kicks in while you are in nimble stance (holding
     right-click to aim a weapon), and turns off as soon as you lower it.
     (implemented on user request)
+  - Note: all non-English translations (both in-game UI and Workshop
+    description) are largely AI-assisted and may contain errors.
+    Corrections are welcome via GitHub issues or a Workshop discussion
+    thread.
