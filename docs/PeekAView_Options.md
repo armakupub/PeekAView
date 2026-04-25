@@ -10,6 +10,7 @@ trigger load-order NPE).
 
 ```lua
 local ModJava = PeekAViewMod
+PeekAView.javaReady = ModJava ~= nil
 ```
 
 `PeekAViewMod` is a Kahlua global registered by ZombieBuddy from
@@ -17,65 +18,102 @@ local ModJava = PeekAViewMod
 — `pzmod.peekaview.PeekAViewMod` errors with `non-table: null` at
 module load.
 
-## Options layout (`Options → Mods → Peek a View`)
+`ModJava` is `nil` only when the user declined ZombieBuddy's JAR-loading
+prompt for this mod. ZombieBuddy is a hard dependency in `mod.info`, so
+its own absence is not a reachable state at runtime.
 
-| Widget | Key | Range / Default | Setter |
-|--------|-----|-----------------|--------|
-| TickBox | `enable` | default `true` | `ModJava.setEnabled(v)` |
-| TickBox | `aimStanceOnly` | default `false` | `ModJava.setAimStanceOnly(v)` |
-| Slider | `range` | 5–20, step 1, default 15 | `ModJava.setRange(v)` |
-| Description | `UI_PAV_RangePerformanceDescription` | — | — |
-| Description | `UI_PAV_Spacer` | — | — |
-| Slider | `drivingSpeed` | 0–120, step 5, default 35 | `ModJava.setMaxDrivingSpeedKmh(v)` |
-| Description | `UI_PAV_DrivingSpeedDescription` | — | — |
-| Description | `UI_PAV_Spacer` | — | — |
-| TickBox | `fixB42` | default `true` | `ModJava.setFixB42Adjacency(v)` |
-
-### Driving-speed slider UX
-
-Label shows `N km/h` directly on the slider handle. The 0-means-always-off
-case is explained in the description line below the slider (slider
-label has no room for explanatory text).
-
-`addTitle` above the slider identifies WHAT the slider controls — the
-slider's own label is just the unit.
-
-## Slider label formatter pattern (ZBBetterFPS-style)
-
-`PZAPI.ModOptions:addSlider` offers no label-formatter hook. We rewrite
-the raw JLabel text each time the value changes:
+Every setter call goes through `applyToJava(setterName, value)` which
+guards against `javaReady == false` and pcalls the setter. Failures
+flip `javaReady` off and stash the error in `PeekAView.lastJavaError`:
 
 ```lua
-local function updateDrivingSpeedLabel(slider, newValue)
-    if not slider or not slider.element then return end
-    local label = slider.element.label
-    if not label or not label.setName then return end
-    if not label.setName_PeekAView then
-        label.setName_PeekAView = label.setName
-        label.setName = function(self, name) end   -- shim original to no-op
+local function applyToJava(setterName, value)
+    if not PeekAView.javaReady then return end
+    local fn = ModJava[setterName]
+    if not fn then
+        PeekAView.javaReady = false
+        PeekAView.lastJavaError = "missing setter: " .. setterName
+        return
     end
-    newValue = newValue or slider.value or slider:getValue()
-    label:setName_PeekAView(tostring(newValue) .. " km/h")
-end
-
-drivingSpeedOpt.getValue = function(self)
-    updateDrivingSpeedLabel(self, self.value); return self.value
-end
-drivingSpeedOpt.setValue = function(self, value)
-    self.value = value; updateDrivingSpeedLabel(self, value)
-end
-drivingSpeedOpt.onChange = function(self, newValue)
-    updateDrivingSpeedLabel(self, newValue)
-end
-drivingSpeedOpt.onChangeApply = function(self, value)
-    ModJava.setMaxDrivingSpeedKmh(value)
+    local ok, err = pcall(fn, value)
+    if not ok then
+        PeekAView.javaReady = false
+        PeekAView.lastJavaError = tostring(err)
+    end
 end
 ```
 
-Why the `setName` shim: vanilla periodically rewrites the label to
-`"title<SPACE>value"`. Shimming `setName` to a no-op after capturing the
-original as `setName_PeekAView` keeps our formatted text from being
-stomped. Same pattern used in ZBBetterFPS's render-distance slider.
+When `javaReady == false`, the options screen prepends a warning
+description so the user sees why their toggles have no effect:
+
+```lua
+if not PeekAView.javaReady then
+    modOptions:addDescription("UI_PAV_JavaMissingDescription")
+    modOptions:addDescription("UI_PAV_Spacer")
+end
+```
+
+The F8 keybind (`PeekAView_Keybind.lua`) reads the same flag and emits
+a red `UI_PAV_JavaMissingHalo` halo instead of toggling.
+
+## Options layout (`Options → Mods → Peek a View`)
+
+When `javaReady == false`, two extra descriptions are prepended above
+the first section title: `UI_PAV_JavaMissingDescription` and
+`UI_PAV_Spacer`.
+
+The screen is grouped into three sections, each opened by a section
+title (rendered via `addTitle` if PZAPI exposes it, else via a regular
+description as a graceful fallback — see `addSection` helper in
+`PeekAView_Options.lua`).
+
+### Global
+
+| Widget | Key | Range / Default | Setter |
+|--------|-----|-----------------|--------|
+| Title | `UI_PAV_GlobalSectionTitle` | — | — |
+| TickBox | `enable` | default `true` | `setEnabled(v)` |
+| TickBox | `aimStanceOnly` | default `false` | `setAimStanceOnly(v)` |
+
+### Wall cutaway
+
+| Widget | Key | Range / Default | Setter |
+|--------|-----|-----------------|--------|
+| Title | `UI_PAV_WallCutawaySectionTitle` | — | — |
+| Slider | `range` | 5–20, step 1, default 15 | `setRange(v)` |
+| Description | `UI_PAV_RangePerformanceDescription` | — | — |
+| Slider | `drivingSpeed` | 0–120, step 5, default 35 | `setMaxDrivingSpeedKmh(v)` |
+| Description | `UI_PAV_DrivingSpeedDescription` | — | — |
+| TickBox | `fixB42` | default `true` | `setFixB42Adjacency(v)` |
+
+### Tree fade
+
+| Widget | Key | Range / Default | Setter |
+|--------|-----|-----------------|--------|
+| Title | `UI_PAV_TreeFadeSectionTitle` | — | — |
+| TickBox | `fadeNWTrees` | default `true` | `setFadeNWTrees(v)` |
+| Slider | `treeFadeRange` | 5–25, step 1, default 20 | `setTreeFadeRange(v)` |
+| Slider | `treeFadeDrivingSpeed` | 0–120, step 5, default 50 | `setTreeFadeMaxDrivingSpeedKmh(v)` |
+| Description | `UI_PAV_TreeFadeDrivingSpeedDescription` | — | — |
+
+All setters dispatch through `applyToJava(name, v)`.
+
+### Driving-speed sliders
+
+Wall-cutaway and tree-fade each have their own driving-speed slider
+because their use-cases diverge: wall-cutaway is most useful at city
+speeds and gets noisy at high speed, tree-fade is most useful exactly
+when driving past treelines but the per-tree fade-up animation can't
+keep up much past 50 km/h.
+
+Both sliders are vanilla PZAPI sliders — no custom label formatter.
+The slider title shows the raw value; the unit (`km/h`) and the
+0-means-always-off case are spelled out in the description line below.
+An earlier custom-format pass (rewriting the JLabel via a `setName`
+shim) was removed because PZAPI builds the slider's Java element only
+on first Options-screen open and the formatter couldn't reliably hit
+that build window — the saved value would render unformatted until the
+user dragged the slider.
 
 ## Boot sync
 
@@ -87,23 +125,29 @@ load-and-push on `OnGameBoot`:
 ```lua
 local function syncToJava()
     PZAPI.ModOptions:load()
-    ModJava.setEnabled(enableOpt:getValue())
-    ModJava.setRange(rangeOpt:getValue())
-    ModJava.setFixB42Adjacency(fixB42Opt:getValue())
-    ModJava.setAimStanceOnly(aimStanceOnlyOpt:getValue())
-    ModJava.setMaxDrivingSpeedKmh(drivingSpeedOpt:getValue())
+    applyToJava("setEnabled", enableOpt:getValue())
+    applyToJava("setAimStanceOnly", aimStanceOnlyOpt:getValue())
+    applyToJava("setRange", rangeOpt:getValue())
+    applyToJava("setMaxDrivingSpeedKmh", drivingSpeedOpt:getValue())
+    applyToJava("setFixB42Adjacency", fixB42Opt:getValue())
+    applyToJava("setFadeNWTrees", fadeNWTreesOpt:getValue())
+    applyToJava("setTreeFadeRange", treeFadeRangeOpt:getValue())
+    applyToJava("setTreeFadeMaxDrivingSpeedKmh", treeFadeDrivingSpeedOpt:getValue())
 end
 
 Events.OnGameBoot.Add(syncToJava)
 ```
 
-Idempotent with `MainOptions`' later load.
+Idempotent with `MainOptions`' later load. When `javaReady == false`,
+every `applyToJava` is a no-op — boot still completes cleanly.
 
 ## Exports
 
 ```lua
 PeekAView.syncToJava = syncToJava
-PeekAView.enableOpt / rangeOpt / fixB42Opt / aimStanceOnlyOpt / drivingSpeedOpt
+PeekAView.enableOpt / aimStanceOnlyOpt
+PeekAView.rangeOpt / drivingSpeedOpt / fixB42Opt
+PeekAView.fadeNWTreesOpt / treeFadeRangeOpt / treeFadeDrivingSpeedOpt
 ```
 
 ## Translations
@@ -115,12 +159,17 @@ label is `PT-BR`.
 
 Keys:
 - `UI_PAV_ModName`
-- `UI_PAV_EnableLabel` / `UI_PAV_EnableTooltip`
-- `UI_PAV_AimStanceOnlyLabel` / `UI_PAV_AimStanceOnlyTooltip`
-- `UI_PAV_RangeLabel` / `UI_PAV_RangeTooltip`
-- `UI_PAV_RangePerformanceDescription`
-- `UI_PAV_DrivingSpeedLabel` / `UI_PAV_DrivingSpeedTooltip` / `UI_PAV_DrivingSpeedDescription`
-- `UI_PAV_FixB42Label` / `UI_PAV_FixB42Tooltip`
+- Section titles: `UI_PAV_GlobalSectionTitle` / `UI_PAV_WallCutawaySectionTitle` / `UI_PAV_TreeFadeSectionTitle`
+- Global section: `UI_PAV_EnableLabel` / `UI_PAV_EnableTooltip`, `UI_PAV_AimStanceOnlyLabel` / `UI_PAV_AimStanceOnlyTooltip`
+- Wall cutaway section: `UI_PAV_RangeLabel` / `UI_PAV_RangeTooltip`, `UI_PAV_RangePerformanceDescription`, `UI_PAV_DrivingSpeedLabel` / `UI_PAV_DrivingSpeedTooltip` / `UI_PAV_DrivingSpeedDescription`, `UI_PAV_FixB42Label` / `UI_PAV_FixB42Tooltip`
+- Tree fade section: `UI_PAV_FadeNWTreesLabel` / `UI_PAV_FadeNWTreesTooltip`, `UI_PAV_TreeFadeRangeLabel` / `UI_PAV_TreeFadeRangeTooltip`, `UI_PAV_TreeFadeDrivingSpeedLabel` / `UI_PAV_TreeFadeDrivingSpeedTooltip` / `UI_PAV_TreeFadeDrivingSpeedDescription`
 - `UI_PAV_Spacer` (single space, used via `addDescription` as vertical separator)
 - `UI_PAV_EnabledText` / `UI_PAV_DisabledText` (halo toggle text)
+- `UI_PAV_JavaMissingDescription` (red banner shown above the options list when `javaReady == false`)
+- `UI_PAV_JavaMissingHalo` (halo shown by F8 keybind when `javaReady == false`)
 - `UI_optionscreen_binding_PeekAView` / `UI_optionscreen_binding_PeekAView Toggle`
+
+All tooltips are kept short (one sentence) — earlier verbose tooltips
+were replaced 2026-04-26 with sachlich-knapp wording so the user sees
+what each control does at a glance without being overloaded by
+implementation detail.

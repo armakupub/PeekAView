@@ -1,45 +1,47 @@
 Acabou o esconde-esconde com zumbis.
 
-No PZ vanilla, paredes e telhados só somem em um raio de cerca de 5 tiles ao redor do seu personagem — você, como jogador na frente da tela, vê menos do que seu personagem realmente consegue perceber. Um zumbi encostado na parede de uma casa ou escondido atrás de uma cerca alta continua completamente invisível para você, mesmo quando seu personagem está olhando direto para ele. [b]Peek a View[/b] fecha essa lacuna: as casas e as cercas que bloqueiam a visão somem de mais longe — o que chega à sua tela corresponde (em grande parte) ao que seu personagem realmente consegue ver.
+No PZ vanilla, paredes e telhados só somem em um raio de cerca de 5 tiles ao redor do seu personagem — você, como jogador na frente da tela, vê menos do que seu personagem realmente consegue perceber. Um zumbi encostado na parede de uma casa ou escondido atrás de uma cerca alta continua completamente invisível para você, mesmo quando seu personagem está olhando direto para ele. [b]Peek a View[/b] fecha essa lacuna: as casas, as cercas que bloqueiam a visão e agora também as árvores somem de mais longe — o que chega à sua tela corresponde (em grande parte) ao que seu personagem realmente consegue ver.
 
 [h1]O que este mod faz[/h1]
 [list]
-[*]Estende o alcance do corte dos ~5 tiles do vanilla até 20 (configurável).
-[*]Desativa automaticamente acima de uma velocidade de condução configurável, para manter os FPS estáveis em hardware mais modesto.
-[*]Modo opcional ativo apenas ao mirar ("nimble stance").
-[*]Sem paredes transparentes, sem burlar a linha de visão — a mesma mecânica de desaparecimento do vanilla, só que ativada de mais longe.
-[*]Também corrige um bug de renderização no B42 em que estruturas construídas pelo jogador fazem paredes vanilla próximas desaparecerem.
+[*][b]Corte de paredes[/b] — estende o alcance de esmaecimento vanilla de ~5 tiles até 20 tiles. Configurável.
+[*][b]Esmaecimento de árvores[/b] — as árvores na linha de visão do seu personagem ficam translúcidas para revelar zumbis atrás delas (não zumbis dentro delas — sem visão de raio-X). Controle de alcance independente até 25 tiles.
+[*]Cada função tem seu próprio limite de velocidade ao dirigir — desative uma no carro mantendo a outra ativa (ex. esmaecimento de árvores em velocidade mais alta para detectar obstáculos na beira da estrada, corte de paredes desligado para menos poluição visual).
+[*]Modo opcional apenas ao mirar — restringe todo o mod a quando você está mirando uma arma.
+[*]Sem paredes transparentes, sem visão de raio-X — a mesma mecânica de esmaecimento do vanilla, apenas acionada de mais longe. Você vê o que o personagem vê.
+[*]Também corrige um bug de renderização do Build 42 onde estruturas construídas pelo jogador fazem paredes vanilla próximas desaparecerem.
 [/list]
 
 [h1]Configurações[/h1]
-Todas as opções ficam em Opções → Mods → Peek a View. [b]F8[/b] liga/desliga o mod (um halo verde/vermelho confirma o estado), reatribuível em [noparse][PeekAView][/noparse] sob Opções → Atribuições de teclas.
+Todas as opções estão em Opções → Mods → Peek a View, organizadas em três seções (Geral, Corte de paredes, Esmaecimento de árvores). [b]F8[/b] liga/desliga o mod (um halo verde/vermelho confirma), reatribuível em [noparse][PeekAView][/noparse] em Opções → Atalhos.
 
 [h1]Requisitos[/h1]
 [list]
 [*]Build 42.13 ou mais recente
-[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]página do Workshop[/url] — siga os passos de instalação na página dele
+[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]Página do Workshop[/url] — siga os passos de instalação na página deles
 [/list]
 
-[h1]Concessões[/h1]
-O PeekAView altera deliberadamente a experiência visual do PZ vanilla — vale a pena saber no que você está se metendo.
+[h1]Compromissos[/h1]
+PeekAView modifica intencionalmente a experiência visual do PZ vanilla — vale a pena saber com o que você está se comprometendo.
 [list]
-[*]Não é o visual que a TIS pretendia. O alcance estendido do corte é uma ruptura deliberada com o estilo visual entregue pelos desenvolvedores. Se você prefere o visual vanilla, este mod não é para você.
-[*]Em quadras urbanas densas, os prédios podem aparecer e sumir mais rápido enquanto você se move — pode ser distrativo.
-[*]Apesar da otimização, há um pequeno custo extra por frame — mais perceptível ao dirigir (o limite de velocidade existe justamente por isso). A pé, geralmente não dá para notar; em quadras densas, reduzir o alcance alguns tiles pode ajudar.
+[*]Não é a aparência que a TIS pretendia. Os alcances estendidos são uma ruptura deliberada com o estilo visual entregue pelos desenvolvedores. Se você prefere a aparência vanilla, este mod não é para você.
+[*]Em quarteirões urbanos densos, edifícios podem aparecer e desaparecer mais rapidamente quando você se move — pode ser distraente.
+[*]Em altas velocidades de direção, a animação de esmaecimento por árvore não consegue acompanhar a velocidade com que o cenário entra na tela — por isso o limite de velocidade para o esmaecimento de árvores é 50 km/h por padrão.
+[*]O custo por quadro é pequeno (caches mantêm próximo do vanilla) mas não zero — em hardware modesto, reduzir os alcances algumas tiles ajuda.
 [/list]
 
 [h1]Compatibilidade[/h1]
 [list]
-[*]Singleplayer e multiplayer (apenas renderização no lado do cliente, nenhuma alteração no servidor necessária)
-[*]Como com qualquer mod: faça backup do seu save antes de instalar.
+[*]Singleplayer e multiplayer (renderização apenas do lado do cliente, sem necessidade de mudanças no servidor)
+[*]Como em qualquer mod, faça backup do seu save antes de instalar.
 [*]Localizado em 12 idiomas: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
 [/list]
 
 [h1]Por que ZombieBuddy?[/h1]
-Este é um mod Java. Alterar o comportamento de um método PZ compilado não é possível com um mod Lua comum, e o ZombieBuddy garante que o patch continue funcionando através das atualizações menores do PZ. É uma instalação única — assim que o ZombieBuddy estiver na sua lista de mods, qualquer outro mod baseado em ZombieBuddy pode ser adicionado sem configuração adicional.
+Este é um mod Java. Mudar o comportamento de um método PZ compilado não é possível com um mod Lua padrão, e usar ZombieBuddy mantém o patch funcionando através de atualizações menores do PZ. É uma instalação única — uma vez que o ZombieBuddy esteja na sua lista de mods, qualquer mod baseado em ZombieBuddy pode ser adicionado sem configuração adicional.
 
-[h1]Código-fonte e transparência[/h1]
-Tanto o PeekAView quanto o ZombieBuddy são licenciados sob MIT e totalmente open source. Se você prefere não confiar no binário do Workshop, pode ler cada linha ou compilar o mod você mesmo a partir do código-fonte. Os patches só tocam em determinadas classes de renderização do PZ — sem I/O de arquivo, sem acesso à rede, nada fora do próprio código do PZ.
+[h1]Código fonte e transparência[/h1]
+Tanto o PeekAView quanto o ZombieBuddy estão sob licença MIT e são totalmente de código aberto. Se você preferir não confiar no binário do Workshop, pode ler cada linha ou compilar o mod por conta própria a partir do código fonte. Os patches só tocam classes específicas de renderização do PZ — sem I/O de arquivos, sem acesso à rede, nada fora do próprio código do PZ.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]

@@ -1,8 +1,16 @@
 # Patch_IsoCell
 
-Expands the POI fan that seeds building cutaway.
+Two patches on `zombie.iso.IsoCell`:
+
+1. **`Patch_GetSquaresAroundPlayerSquare`** — expands the POI fan that
+   seeds building cutaway (always-on, governs the `range` slider).
+2. **`Patch_DrawStencilMask`** — extends the stencil mask that gates
+   tree-fade visibility (gated on `fadeNWTrees` toggle, opt-in).
 
 **File:** `src/pzmod/peekaview/Patch_IsoCell.java`
+
+# Patch 1 — `Patch_GetSquaresAroundPlayerSquare`
+
 **Patched method:** `zombie.iso.IsoCell.GetSquaresAroundPlayerSquare`
 
 ## Shape
@@ -41,7 +49,7 @@ to vanilla.
 
 ### Fallthrough conditions
 
-- `!PeekAViewMod.isActiveForCurrentRenderPlayer()` (main gate)
+- `!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()` (cutaway gate)
 - `cell == null || player == null || square == null`
 - `playerIndex < 0 || playerIndex >= MAX_PLAYERS`
 - Any `Throwable` (logged via `PeekAViewMod.trace`)
@@ -176,3 +184,127 @@ if (deltaY <= deltaX) → outRight  (and cache (x,y) in rightX/rightY)
 ```
 
 Diagonal (deltaY == deltaX) emits to both. Matches vanilla.
+
+---
+
+# Patch 2 — `Patch_DrawStencilMask`
+
+**Patched method:** `zombie.iso.IsoCell.DrawStencilMask`
+**Gate:** `fadeNWTrees == true` (opt-in tickbox).
+
+## Why a stencil mask matters for tree-fade
+
+Vanilla `DrawStencilMask` renders a circular alpha texture
+(`media/mask_circledithernew.png`) once per frame centered on the
+player. The stencil buffer it writes **caps where translucent passes
+(tree fade, wall cutaway) can render on screen** — outside the mask,
+nothing. Vanilla's mask size matches the ~5-tile cutaway raster, so the
+extended NE/SW tree fades from `Patch_FBORenderCell` would be invisible
+beyond that without extension.
+
+## What we add
+
+After vanilla's circle runs (`@Patch.OnExit`), we append per-tile
+stencil writes for every LOS-visible tile in the three fade quadrants
+(SE-extended, NE, SW), Diamond-bound up to `PeekAViewMod.treeFadeRange`. The
+write is additive via `glStencilOp(7680, 7680, 7681)` with
+`glStencilFunc(519, 128, 255)` — `GL_REPLACE` writes ref `128`, layered
+on top of vanilla's circle.
+
+The resulting mask shape **follows the character's actual line of
+sight** — no fade through walls, no ghost fade in unseen areas — because
+each per-tile write is gated on `sq.isCanSee(playerIndex)`.
+
+## Player-index source
+
+```java
+int pidx = IsoCamera.frameState.playerIndex;
+```
+
+Not `IsoPlayer.getPlayerIndex()`. The frame-state value is the
+currently-rendering player (set per render-pass by the engine), and is
+what every other patch in the mod uses; the static getter returns the
+local active player and would write the stencil mask for the wrong
+player in split-screen.
+
+## Player position: `getX/Y/Z`, not `getCurrentSquare()`
+
+Same reason as
+[`Patch_calculateObjectsObscuringPlayer`](Patch_FBORenderCell.md):
+`getCurrentSquare()` returns `null` while the player is in a vehicle.
+Using the int-floor of `player.getX/Y/Z()` keeps the mask extension
+working in and out of vehicles.
+
+## Geometry
+
+```
+Diamond range:  if (adx + ady > range) skip
+Inner skip:     if (adx <= 4 && ady <= 4) skip   ← vanillaSkip = MIN_RANGE-1
+Quadrant:       (dx>0,dy>0) || (dx>0,dy<0) || (dx<0,dy>0)
+                (NW skipped — out of scope)
+```
+
+`vanillaSkip = MIN_RANGE - 1 = 4` because vanilla's circular stencil
+already covers roughly the inner 4 tiles around the player. Skipping
+that area avoids overlapping our per-tile dither with vanilla's
+gradient — the two independent patterns produce a flickery moiré at
+sub-pixel camera shifts.
+
+Diamond range — same shape as
+[`Patch_isTranslucentTree`](Patch_FBORenderCell.md) and
+`Patch_calculateObjectsObscuringPlayer`. Mismatched shapes leak trees
+into rendering with no stencil coverage.
+
+## Per-tile render
+
+```java
+float sx = IsoUtils.XToScreen(tx, ty, pz, 0) - offX;
+float sy = IsoUtils.YToScreen(tx, ty, pz, 0) - offY;
+tex2.renderstrip((int) sx - halfW, (int) sy - tileFootprintYOffset,
+        renderW, renderH, 1f, 1f, 1f, 1f, null);
+```
+
+| Constant | Value | Why |
+|---|---|---|
+| `renderW` | `128 * tileScale` | Wider than iso-tile footprint (64) — symmetric overshoot |
+| `renderH` | `256 * tileScale` | Tall enough to cover tree sprite ABOVE its base tile |
+| `tileFootprintYOffset` | `96 * tileScale` | Lifts the texture so the bottom is below the tile center; trees grow upward on screen, the texture follows |
+
+The 128×256 dimensions overshoot the iso-tile footprint on purpose:
+trees extend upward on screen from their base tile, so the stencil
+needs coverage above the tile base for the tree sprite's fade to pass
+the stencil test.
+
+## Performance characteristics
+
+At range=20, the inner loop touches ~600 tiles per frame, each with a
+`cell.getGridSquare`, `isCanSee`, and `renderstrip`. JFR (driving,
+range=20) shows `getGridSquare` samples within ~5% of baseline-OFF —
+not a hot spot in practice, the LOS gate culls most tiles before the
+expensive render.
+
+If profiling later flags this as a bottleneck (e.g. forest-dense
+location, range=20, low-end GPU), the candidate optimization is a
+per-frame stencil-tile cache (`(dx, dy, screen-rel-x, screen-rel-y)`
+per quadrant, invalidated on tile-cross / range-change). Currently not
+needed.
+
+## OpenGL state
+
+Setup:
+- `glStencilMask(255)`, `enableStencilTest`, `enableAlphaTest`
+- `glAlphaFunc(516, 0.1f)` — alpha cull at 0.1
+- `glStencilFunc(519, 128, 255)` — always write ref 128
+- `glStencilOp(7680, 7680, 7681)` — `GL_KEEP, GL_KEEP, GL_REPLACE`
+- `glColorMask(false, false, false, false)` — write stencil only
+
+Restore:
+- `glColorMask(true, true, true, true)`
+- `glStencilFunc(519, 0, 255)` — back to read-without-write
+- `glStencilOp(7680, 7680, 7680)` — back to all-keep
+- `glStencilMask(127)` — vanilla default
+- `glAlphaFunc(519, 0.0f)` — disable alpha cull
+
+`enableStencilTest()` / `enableAlphaTest()` are not explicitly disabled
+— vanilla already had them enabled before our `OnExit`, and downstream
+passes expect them to remain on.

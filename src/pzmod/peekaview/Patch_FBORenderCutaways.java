@@ -29,7 +29,7 @@ public class Patch_FBORenderCutaways {
         @Patch.OnEnter(skipOn = true)
         public static boolean enter() {
             try {
-                if (!PeekAViewMod.isActiveForCurrentRenderPlayer()) return false;
+                if (!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()) return false;
 
                 int playerIndex = IsoCamera.frameState.playerIndex;
                 int frameCount = IsoCamera.frameState.frameCount;
@@ -91,7 +91,7 @@ public class Patch_FBORenderCutaways {
             if (!result) return;
             try {
                 if (!PeekAViewMod.fixB42Adjacency) return;
-                if (!PeekAViewMod.isActiveForCurrentRenderPlayer()) return;
+                if (!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()) return;
                 if (!initialized) tryInit();
                 if (!initialized) return;
                 if (isTooFarFromPlayer(self)) result = false;
@@ -153,7 +153,7 @@ public class Patch_FBORenderCutaways {
             if (!result) return;
             try {
                 if (!PeekAViewMod.fixB42Adjacency) return;
-                if (!PeekAViewMod.isActiveForCurrentRenderPlayer()) return;
+                if (!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()) return;
                 if (square == null) return;
                 if (square.associatedBuilding == null) return;
                 result = false;

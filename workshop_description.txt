@@ -1,18 +1,19 @@
 No more peek-a-boo zombies.
 
-In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. [b]Peek a View[/b] closes that gap: houses and view-blocking fences fade from further away, so what reaches your screen matches (mostly) what your character can see.
+In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. [b]Peek a View[/b] closes that gap: houses, view-blocking fences, and now also trees fade from further away, so what reaches your screen matches (mostly) what your character can see.
 
 [h1]What this mod does[/h1]
 [list]
-[*]Extends the cutaway range from vanilla's ~5 tiles up to 20 (configurable).
-[*]Auto-disables above a configurable driving speed, to keep FPS smooth on lower-end hardware.
-[*]Optional nimble-stance-only mode.
-[*]No see-through walls, no line-of-sight bypass — same fade mechanics as vanilla, just triggered from further away.
+[*][b]Wall cutaway[/b] — extends vanilla's ~5-tile cutaway range up to 20 tiles. Configurable.
+[*][b]Tree fade[/b] — trees in your character's line of sight become translucent so zombies behind them are visible (not zombies inside them — no X-ray). Independent range slider up to 25 tiles.
+[*]Each feature has its own driving-speed gate — turn one off in the car while keeping the other on (e.g. tree fade on at higher speeds for spotting roadside obstacles, wall cutaway off for less screen noise).
+[*]Optional nimble-stance-only mode — restrict the whole mod to while you're aiming a weapon.
+[*]No see-through walls, no X-ray — same fade mechanics as vanilla, just triggered from further away. You see what the character sees.
 [*]Also fixes a B42 render bug where player-built structures cause nearby vanilla walls to disappear.
 [/list]
 
 [h1]Settings[/h1]
-All options live under Options → Mods → Peek a View. [b]F8[/b] toggles the mod on/off (green/red halo confirms), rebindable under [noparse][PeekAView][/noparse] in Options → Keybind.
+All options live under Options → Mods → Peek a View, organized into three sections (Global, Wall cutaway, Tree fade). [b]F8[/b] toggles the mod on/off (green/red halo confirms), rebindable under [noparse][PeekAView][/noparse] in Options → Keybind.
 
 [h1]Requirements[/h1]
 [list]
@@ -23,9 +24,10 @@ All options live under Options → Mods → Peek a View. [b]F8[/b] toggles the m
 [h1]Trade-offs[/h1]
 PeekAView changes the visual experience of vanilla PZ on purpose — worth knowing what you're signing up for.
 [list]
-[*]Not the look TIS intended. The extended cutaway range is a deliberate departure from the visual style the devs shipped. If you prefer the vanilla look, this mod isn't for you.
+[*]Not the look TIS intended. The extended ranges are a deliberate departure from the visual style the devs shipped. If you prefer the vanilla look, this mod isn't for you.
 [*]In dense city blocks, buildings can fade in and out more quickly as you move — can be distracting.
-[*]Even with optimization, there's some extra per-frame cost — most noticeable while driving (the speed gate exists for that). On foot it's usually not noticeable at all; in dense city blocks, dropping the range a few tiles can help.
+[*]At high driving speeds the per-tree fade-up animation can't keep up with how fast scenery scrolls past — the tree-fade speed gate defaults to 50 km/h for that reason.
+[*]Per-frame cost is small (caches keep things close to vanilla) but not zero — on lower-end hardware, dropping the ranges a few tiles helps.
 [/list]
 
 [h1]Compatibility[/h1]

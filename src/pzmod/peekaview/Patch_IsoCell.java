@@ -5,10 +5,14 @@ import java.util.Arrays;
 
 import me.zed_0xff.zombie_buddy.Patch;
 
+import zombie.IndieGL;
+import zombie.core.Core;
 import zombie.core.math.PZMath;
+import zombie.core.textures.Texture;
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoCell;
+import zombie.iso.IsoUtils;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.IsoGridSquare;
 
@@ -71,7 +75,7 @@ public class Patch_IsoCell {
                                     @Patch.Argument(2) ArrayList outLeft,
                                     @Patch.Argument(3) ArrayList outRight) {
             try {
-                if (!PeekAViewMod.isActiveForCurrentRenderPlayer()) return false;
+                if (!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()) return false;
                 if (cell == null || player == null || square == null) return false;
 
                 int playerIndex = IsoCamera.frameState.playerIndex;
@@ -240,6 +244,121 @@ public class Patch_IsoCell {
                 || sq.has(IsoFlagType.WindowW)
                 || sq.has(IsoFlagType.DoorWallW)
                 || sq.has(IsoFlagType.doorW);
+        }
+    }
+
+    // Vanilla DrawStencilMask renders a circular alpha texture
+    // (media/mask_circledithernew.png) once per frame centered on the
+    // player. The stencil buffer it writes caps where translucent
+    // passes (tree fade, wall cutaway) can render on screen — outside
+    // the mask, nothing. Vanilla's size matches the ~5-tile cutaway
+    // raster, so our N/W/NE/SW tree fades are invisible beyond that.
+    //
+    // We keep vanilla's circle unchanged (accurate close range, cheap)
+    // and after it runs, add additional stencil coverage per LOS-lit
+    // tile in the three fade quadrants relative to the player, up to
+    // PeekAViewMod.treeFadeRange. Stencil is additive via GL_REPLACE with
+    // ref 128, so extra writes layer on top of vanilla's circle. The
+    // resulting mask shape matches the character's actual line of
+    // sight — no fade through walls, no ghost fade in unseen areas.
+    @Patch(className = "zombie.iso.IsoCell",
+           methodName = "DrawStencilMask")
+    public static class Patch_DrawStencilMask {
+
+        @Patch.OnExit
+        public static void exit(@Patch.This IsoCell cell) {
+            try {
+                if (!PeekAViewMod.fadeNWTrees) return;
+                if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
+
+                // Use IsoCamera.frameState.playerIndex (currently
+                // rendering player) to stay consistent with every other
+                // patch in the mod. IsoPlayer.getPlayerIndex() returns
+                // the local active player and would write the stencil
+                // mask for the wrong player in split-screen.
+                int pidx = IsoCamera.frameState.playerIndex;
+                if (pidx < 0 || pidx >= IsoPlayer.MAX) return;
+                IsoPlayer player = IsoPlayer.players[pidx];
+                if (player == null) return;
+
+                Texture tex2 = Texture.getSharedTexture("media/mask_circledithernew.png");
+                if (tex2 == null) return;
+
+                // player.getX/Y/Z, not getCurrentSquare(): the latter is
+                // null while the player is in a vehicle, which would
+                // skip the stencil extension and leave faded trees
+                // outside vanilla's 5-tile circle invisible.
+                int px = PZMath.fastfloor(player.getX());
+                int py = PZMath.fastfloor(player.getY());
+                int pz = PZMath.fastfloor(player.getZ());
+                int range = PeekAViewMod.treeFadeRange;
+                int ts = Core.tileScale;
+
+                // Mask tile render size. 128x256 overshoots the iso-tile
+                // footprint (64x32) on purpose: trees extend upward on
+                // screen from their base tile, so we need stencil
+                // coverage ABOVE the tile base for the tree sprite's
+                // fade to pass the stencil test.
+                int renderW = 128 * ts;
+                int renderH = 256 * ts;
+                int halfW = renderW / 2;
+                int tileFootprintYOffset = 96 * ts;
+
+                IndieGL.glStencilMask(255);
+                IndieGL.enableStencilTest();
+                IndieGL.enableAlphaTest();
+                IndieGL.glAlphaFunc(516, 0.1f);
+                IndieGL.glStencilFunc(519, 128, 255);
+                IndieGL.glStencilOp(7680, 7680, 7681);
+                IndieGL.glColorMask(false, false, false, false);
+
+                float offX = IsoCamera.getOffX();
+                float offY = IsoCamera.getOffY();
+
+                // Vanilla's circular stencil already covers roughly the
+                // inner 4 tiles around the player. Skipping that area
+                // avoids overlapping our per-tile dither with vanilla's
+                // gradient — the two independent patterns produce a
+                // flickery moiré at sub-pixel camera shifts.
+                int vanillaSkip = PeekAViewMod.MIN_RANGE - 1;
+
+                for (int dy = -range; dy <= range; ++dy) {
+                    for (int dx = -range; dx <= range; ++dx) {
+                        int adx = dx < 0 ? -dx : dx;
+                        int ady = dy < 0 ? -dy : dy;
+                        if (adx + ady > range) continue;
+                        if (adx <= vanillaSkip && ady <= vanillaSkip) continue;
+
+                        boolean inFadeQuadrant =
+                                // tree SE of player (vanilla direction, extended)
+                                (dx > 0 && dy > 0)
+                                // tree NE of player (player SW of tree)
+                                || (dx > 0 && dy < 0)
+                                // tree SW of player (player NE of tree)
+                                || (dx < 0 && dy > 0);
+                        if (!inFadeQuadrant) continue;
+
+                        int tx = px + dx;
+                        int ty = py + dy;
+                        IsoGridSquare sq = cell.getGridSquare(tx, ty, pz);
+                        if (sq == null) continue;
+                        if (!sq.isCanSee(pidx)) continue;
+
+                        float sx = IsoUtils.XToScreen(tx, ty, pz, 0) - offX;
+                        float sy = IsoUtils.YToScreen(tx, ty, pz, 0) - offY;
+                        tex2.renderstrip((int) sx - halfW, (int) sy - tileFootprintYOffset,
+                                renderW, renderH, 1.0f, 1.0f, 1.0f, 1.0f, null);
+                    }
+                }
+
+                IndieGL.glColorMask(true, true, true, true);
+                IndieGL.glStencilFunc(519, 0, 255);
+                IndieGL.glStencilOp(7680, 7680, 7680);
+                IndieGL.glStencilMask(127);
+                IndieGL.glAlphaFunc(519, 0.0f);
+            } catch (Throwable t) {
+                PeekAViewMod.trace("Patch_DrawStencilMask exit error", t);
+            }
         }
     }
 }

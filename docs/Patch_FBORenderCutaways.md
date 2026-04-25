@@ -71,7 +71,7 @@ public static int lastFrameCount = Integer.MIN_VALUE;
 `@Patch.OnEnter(skipOn = true)`:
 
 ```
-if (!isActiveForCurrentRenderPlayer()) return false   // vanilla
+if (!isActiveCutawayForCurrentRenderPlayer()) return false   // vanilla
 if (pIdx == lastPlayerIndex && fCount == lastFrameCount) return true   // skip
 lastPlayerIndex = pIdx; lastFrameCount = fCount
 return false   // first call this pass — run vanilla
@@ -126,7 +126,7 @@ without the bleed.
 Early returns if:
 - `!result` (vanilla already said no — nothing to override)
 - `!fixB42Adjacency` (user toggle off)
-- `!isActiveForCurrentRenderPlayer()`
+- `!isActiveCutawayForCurrentRenderPlayer()`
 - `!initialized` after `tryInit()`
 
 ### Field reflection
@@ -220,5 +220,5 @@ emptyoutside-adjacent cells).
 
 `@Patch.OnExit`, `@Patch.Return(readOnly = false) boolean result`.
 Early returns: `!result`, `!fixB42Adjacency`,
-`!isActiveForCurrentRenderPlayer()`, `square == null`,
+`!isActiveCutawayForCurrentRenderPlayer()`, `square == null`,
 `square.associatedBuilding == null`. Otherwise `result = false`.

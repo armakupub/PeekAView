@@ -1,6 +1,26 @@
 Peek a View - Changelog
 =======================
 
+1.1.0 - 2026-04-26
+  - New option "Fade trees the character can see past" (on by default):
+    trees in your view become translucent so zombies hiding behind them
+    are visible. Not X-ray — the engine's normal line of sight still
+    decides what the character can actually see.
+  - Mod options reorganized into three sections — Global, Wall cutaway,
+    Tree fade — each with its own range and driving-speed settings.
+    Wall cutaway and tree fade can now be active independently while
+    driving (e.g. tree fade on at higher speed for spotting roadside
+    obstacles, wall cutaway off for less screen noise).
+  - Defensive handling when ZombieBuddy's JAR-loading prompt is declined
+    for PeekAView: the options screen shows a clear warning and the F8
+    keybind shows a halo instead of failing silently.
+  - Tooltips throughout the options screen rewritten for clarity (one
+    sentence each, no implementation detail).
+  - Performance: tree fade ships with several internal caches (per-frame
+    gate, tree-position list) that keep its runtime cost close to
+    vanilla — measured GC overhead within ~25 ms over 120 s of driving
+    at maximum range.
+
 1.0.0 - 2026-04-22
   - First stable release.
   - Default cutaway range lowered from 20 to 15 tiles.

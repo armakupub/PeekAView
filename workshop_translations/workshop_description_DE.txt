@@ -1,18 +1,19 @@
 Schluss mit versteckspielenden Zombies.
 
-Im Vanilla-PZ werden Wände und Dächer erst in einem Umkreis von etwa 5 Feldern um deinen Charakter ausgeblendet – du als Spieler vor dem Bildschirm siehst also weniger, als dein Charakter eigentlich wahrnehmen kann. Ein Zombie, der an einer Hauswand lehnt oder sich hinter einem hohen Zaun versteckt, bleibt für dich komplett unsichtbar, selbst wenn dein Charakter direkt auf ihn schaut. [b]Peek a View[/b] schließt diese Lücke: Häuser und sichtblockierende Zäune werden aus größerer Entfernung ausgeblendet – was auf deinem Bildschirm ankommt, entspricht (weitestgehend) dem, was dein Charakter tatsächlich sehen kann.
+Im Vanilla-PZ werden Wände und Dächer erst in einem Umkreis von etwa 5 Feldern um deinen Charakter ausgeblendet – du als Spieler vor dem Bildschirm siehst also weniger, als dein Charakter eigentlich wahrnehmen kann. Ein Zombie, der an einer Hauswand lehnt oder sich hinter einem hohen Zaun versteckt, bleibt für dich komplett unsichtbar, selbst wenn dein Charakter direkt auf ihn schaut. [b]Peek a View[/b] schließt diese Lücke: Häuser, sichtblockierende Zäune und nun auch Bäume werden aus größerer Entfernung ausgeblendet – was auf deinem Bildschirm ankommt, entspricht (weitestgehend) dem, was dein Charakter tatsächlich sehen kann.
 
 [h1]Was dieser Mod macht[/h1]
 [list]
-[*]Erweitert die Ausblende-Reichweite von Vanillas ~5 Feldern auf bis zu 20 (konfigurierbar).
-[*]Deaktiviert sich automatisch oberhalb einer konfigurierbaren Fahrgeschwindigkeit, damit die FPS auch auf schwächerer Hardware stabil bleiben.
-[*]Optionaler Modus nur in der Kampfhaltung ("nimble stance").
-[*]Keine durchsichtigen Wände, keine Umgehung der Sichtlinie – es ist dieselbe Ausblende-Mechanik wie in Vanilla, nur aus größerer Entfernung ausgelöst.
+[*][b]Wand-Cutaway[/b] – erweitert die Vanilla-Ausblende-Reichweite von ~5 Feldern auf bis zu 20 Felder. Konfigurierbar.
+[*][b]Bäume ausblenden[/b] – Bäume in der Sichtlinie deines Charakters werden durchscheinend, sodass Zombies dahinter sichtbar werden (keine Zombies, die im Baum stecken – kein X-Ray). Eigener Reichweite-Regler bis zu 25 Felder.
+[*]Jede Funktion hat einen eigenen Geschwindigkeits-Schwellwert beim Fahren – schalte eine im Auto ab und behalte die andere an (z. B. Bäume ausblenden bei höherer Geschwindigkeit, um Hindernisse am Straßenrand früh zu sehen, Wand-Cutaway aus für weniger Bildschirmrauschen).
+[*]Optionaler Modus nur in der Kampfhaltung ("nimble stance") – beschränkt den ganzen Mod darauf, dass du eine Waffe anlegst.
+[*]Keine durchsichtigen Wände, kein X-Ray – es ist dieselbe Ausblende-Mechanik wie in Vanilla, nur aus größerer Entfernung ausgelöst. Du siehst, was dein Charakter sieht.
 [*]Behebt außerdem einen Render-Bug in Build 42, bei dem von Spielern gebaute Strukturen dazu führen, dass nahegelegene Vanilla-Wände verschwinden.
 [/list]
 
 [h1]Einstellungen[/h1]
-Alle Optionen findest du unter Optionen → Mods → Peek a View. [b]F8[/b] schaltet den Mod an/aus (grüner/roter Halo bestätigt den Status), neu belegbar unter [noparse][PeekAView][/noparse] in Optionen → Tastenbelegung.
+Alle Optionen findest du unter Optionen → Mods → Peek a View, gegliedert in drei Abschnitte (Allgemein, Wand-Cutaway, Bäume ausblenden). [b]F8[/b] schaltet den Mod an/aus (grüner/roter Halo bestätigt den Status), neu belegbar unter [noparse][PeekAView][/noparse] in Optionen → Tastenbelegung.
 
 [h1]Voraussetzungen[/h1]
 [list]
@@ -23,9 +24,10 @@ Alle Optionen findest du unter Optionen → Mods → Peek a View. [b]F8[/b] scha
 [h1]Kompromisse[/h1]
 PeekAView verändert bewusst die visuelle Erfahrung des Vanilla-PZ – es lohnt sich zu wissen, worauf du dich einlässt.
 [list]
-[*]Nicht der Look, den TIS beabsichtigt hat. Die erweiterte Ausblende-Reichweite ist ein bewusster Bruch mit dem visuellen Stil, den die Entwickler ausgeliefert haben. Wenn du den Vanilla-Look bevorzugst, ist dieser Mod nichts für dich.
+[*]Nicht der Look, den TIS beabsichtigt hat. Die erweiterten Reichweiten sind ein bewusster Bruch mit dem visuellen Stil, den die Entwickler ausgeliefert haben. Wenn du den Vanilla-Look bevorzugst, ist dieser Mod nichts für dich.
 [*]In dicht bebauten Stadtvierteln können Gebäude beim Bewegen schneller ein- und ausgeblendet werden – das kann ablenkend wirken.
-[*]Trotz Optimierung fällt ein kleiner Mehraufwand pro Frame an – am deutlichsten beim Fahren (dafür gibt es die Geschwindigkeitsschwelle). Zu Fuß ist es in der Regel gar nicht spürbar; in dicht bebauten Vierteln kann es helfen, die Reichweite um ein paar Felder zu reduzieren.
+[*]Bei hoher Fahrgeschwindigkeit kommt die Fade-Animation pro Baum nicht mit, wie schnell neue Szenerie ins Bild kommt – deshalb ist der Tree-Fade-Geschwindigkeits-Schwellwert standardmäßig auf 50 km/h gesetzt.
+[*]Der Mehraufwand pro Frame ist klein (Caches halten ihn nahe am Vanilla-Niveau), aber nicht null – auf schwächerer Hardware hilft es, die Reichweiten um ein paar Felder zu reduzieren.
 [/list]
 
 [h1]Kompatibilität[/h1]
