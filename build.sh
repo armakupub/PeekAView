@@ -24,6 +24,24 @@ if [ -z "${PZ_DIR:-}" ] || [ ! -f "$PZ_DIR/projectzomboid.jar" ]; then
     echo "          PZ_DIR=/d/Steam/steamapps/common/ProjectZomboid ./build.sh" >&2
     exit 1
 fi
+
+# If PZ is running, the JVM holds a Windows file lock on peekaview.jar.
+# The install step at the bottom does `rm -rf MOD_INSTALL_ROOT` followed
+# by `cp -r STAGE MOD_INSTALL_ROOT` — rm fails on the locked JAR mid-tree
+# and `set -e` exits the script before cp runs, leaving the deployed
+# mod folder with only the JAR plus empty path skeletons. Pre-flight
+# check here aborts cleanly with a clear message instead.
+# Skip on non-Windows shells (no tasklist) or with SKIP_PZ_CHECK=1.
+if [ -z "${SKIP_PZ_CHECK:-}" ] && command -v tasklist >/dev/null 2>&1; then
+    if tasklist //FI "IMAGENAME eq ProjectZomboid64.exe" //FO CSV //NH 2>/dev/null | grep -qi ProjectZomboid64; then
+        echo "[build] ERROR: Project Zomboid is running. Close it before building." >&2
+        echo "        Otherwise the install step would leave the mod folder half-deployed:" >&2
+        echo "        rm -rf hits the locked JAR mid-tree, set -e aborts before cp -r." >&2
+        echo "        Override with SKIP_PZ_CHECK=1 if you know what you're doing." >&2
+        exit 1
+    fi
+fi
+
 : "${MOD_INSTALL_ROOT:=$USERPROFILE/Zomboid/mods/PeekAView}"
 
 PZ_JAR="$PZ_DIR/projectzomboid.jar"
@@ -76,6 +94,24 @@ cp "$JAR_OUT" "$STAGE/42.13/media/java/client/peekaview.jar"
 
 if [ -d "$PROJECT_ROOT/mod_files/42.13/media/lua" ]; then
     cp -r "$PROJECT_ROOT/mod_files/42.13/media/lua" "$STAGE/42.13/media/lua"
+fi
+
+# Empty common/ folder — pre-42.15 builds require it next to versioned folders
+mkdir -p "$STAGE/common"
+
+# Generate UI_<LANG>.txt alongside UI.json — pre-42.15 builds parse only the
+# old Lua-table format, 42.15+ parses only JSON. Shipping both keeps the mod
+# working across the format break. UI.json is canonical; the .txt files are
+# build artifacts and not committed.
+TRANSLATE_ROOT="$STAGE/42.13/media/lua/shared/Translate"
+if [ -d "$TRANSLATE_ROOT" ]; then
+    PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || command -v python || true)}"
+    if [ -z "$PYTHON_BIN" ]; then
+        echo "[build] ERROR: python3/python not found — needed to generate .txt translations." >&2
+        echo "        Install Python 3 or set PYTHON_BIN in build.local." >&2
+        exit 1
+    fi
+    "$PYTHON_BIN" "$PROJECT_ROOT/scripts/json_to_lua.py" "$TRANSLATE_ROOT"
 fi
 
 # --- Install to Zomboid mods dir ---

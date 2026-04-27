@@ -28,12 +28,13 @@ PZAPI.ModOptions  ──►  Lua ──►  applyToJava ──►  PeekAViewMod.
 
 | File | Describes |
 |------|-----------|
-| [`PeekAViewMod.md`](PeekAViewMod.md) | Main class, state fields, split cutaway/tree-fade gates, per-frame `isActive` memo |
-| [`Patch_IsoCell.md`](Patch_IsoCell.md) | POI raster expansion + cache + wall/LOS filter; tree-fade stencil-mask extension |
+| [`iso-geometry.md`](iso-geometry.md) | World coordinates, iso projection, render order (anti-diagonal), sprite extent vs. tile footprint, why we fade all four quadrants |
+| [`PeekAViewMod.md`](PeekAViewMod.md) | Main class, state fields, split cutaway/tree-fade gates, per-frame `isActive` memo, vehicle-speed cache |
+| [`Patch_IsoCell.md`](Patch_IsoCell.md) | POI raster expansion + cache + wall/LOS filter (with vanilla pass-through at `MIN_RANGE`); tree-fade stencil-mask extension |
 | [`Patch_FBORenderCutaways.md`](Patch_FBORenderCutaways.md) | cutawayVisit dedup + B42 adjacency-kill fix (3 patches) |
-| [`Patch_FBORenderCell.md`](Patch_FBORenderCell.md) | Tree-fade `isTranslucentTree` extension + `calculateObjectsObscuringPlayer` Location cache |
+| [`Patch_FBORenderCell.md`](Patch_FBORenderCell.md) | Tree-fade `isTranslucentTree` extension + speed-proportional fade boost + `calculateObjectsObscuringPlayer` Location cache |
 | [`PeekAView_Options.md`](PeekAView_Options.md) | Lua options UI + defensive bridge + Java-missing detection |
-| [`TESTING.md`](TESTING.md) | Open testing items |
+| [`TESTING.md`](TESTING.md) | Manual test notes — verified scenarios + open split-screen item |
 
 ## Build / Deploy
 

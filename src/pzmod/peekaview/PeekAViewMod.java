@@ -22,7 +22,12 @@ public class PeekAViewMod {
 
     public static final int MAX_DRIVING_SPEED_CAP = 120;
     public static final int DEFAULT_DRIVING_SPEED_THRESHOLD = 35;
-    public static final int DEFAULT_TREE_FADE_DRIVING_SPEED_THRESHOLD = 50;
+    public static final int DEFAULT_TREE_FADE_DRIVING_SPEED_THRESHOLD = 100;
+
+    // Speed at which Patch_isTranslucentTree's fade boost lerps fully
+    // to minAlpha in one frame. Below the cap the lerp factor is
+    // speed/cap. Constant, no UI.
+    public static final float TREE_FADE_SNAP_SPEED_CAP_KMH = 30f;
 
     // volatile: render thread reads; Lua UI thread writes via setters.
     public static volatile boolean enabled = true;
@@ -33,6 +38,18 @@ public class PeekAViewMod {
     public static volatile int treeFadeMaxDrivingSpeedKmh = DEFAULT_TREE_FADE_DRIVING_SPEED_THRESHOLD;
     public static volatile boolean aimStanceOnly = false;
     public static volatile boolean fadeNWTrees = true;
+    // When true, the aimStanceOnly gate does not block tree-fade
+    // while the player is in a vehicle.
+    public static volatile boolean treeFadeStayOnWhileDriving = false;
+    // Same idea, but for foot. Default true: the most common reason
+    // to enable aimStanceOnly is the wall-cutaway peek-around-the-
+    // corner play style — tree-fade is unintrusive enough that most
+    // users want it always active.
+    public static volatile boolean treeFadeStayOnWhileOnFoot = true;
+    // Per-frame |vehicle.currentSpeedKmHour|, written in
+    // refreshActiveCache. Read by Patch_isTranslucentTree for the
+    // speed-proportional fade boost. 0f outside a vehicle.
+    public static volatile float currentVehicleSpeedKmh = 0f;
     // Diagnostic trace rate-limit. Public so inlined patch advice can
     // read/write from the target class's access context.
     public static volatile long lastTraceMs = 0L;
@@ -72,6 +89,14 @@ public class PeekAViewMod {
 
     public static void setAimStanceOnly(boolean v) {
         aimStanceOnly = v;
+    }
+
+    public static void setTreeFadeStayOnWhileDriving(boolean v) {
+        treeFadeStayOnWhileDriving = v;
+    }
+
+    public static void setTreeFadeStayOnWhileOnFoot(boolean v) {
+        treeFadeStayOnWhileOnFoot = v;
     }
 
     public static void setFadeNWTrees(boolean v) {
@@ -132,23 +157,38 @@ public class PeekAViewMod {
             activeCacheTreeFade = true;
             return;
         }
-        if (aimStanceOnly && !p.isAiming()) {
-            activeCacheCutaway = false;
-            activeCacheTreeFade = false;
-            return;
-        }
         BaseVehicle vehicle = p.getVehicle();
-        if (vehicle == null) {
+        boolean inVehicle = vehicle != null;
+        float speed = inVehicle ? Math.abs(vehicle.getCurrentSpeedKmHour()) : 0f;
+        currentVehicleSpeedKmh = speed;
+
+        // Aim-stance gate. Cutaway honors it strictly. Tree-fade has
+        // two independent overrides: stay-on-while-driving for
+        // vehicle context, stay-on-while-on-foot for non-vehicle. By
+        // default the foot override is on, so tree-fade ignores
+        // aim-stance unless the user explicitly tightens it.
+        boolean aimBlocks = aimStanceOnly && !p.isAiming();
+        boolean aimBlocksTreeFade = aimBlocks
+                && !(treeFadeStayOnWhileDriving && inVehicle)
+                && !(treeFadeStayOnWhileOnFoot && !inVehicle);
+
+        if (aimBlocks) {
+            activeCacheCutaway = false;
+        } else if (inVehicle) {
+            int cutawayT = maxDrivingSpeedKmh;
+            activeCacheCutaway = cutawayT > 0 && speed < cutawayT;
+        } else {
             activeCacheCutaway = true;
-            activeCacheTreeFade = true;
-            return;
         }
-        // In a vehicle: each gate has its own driving threshold. 0 = always off.
-        float speed = Math.abs(vehicle.getCurrentSpeedKmHour());
-        int cutawayT = maxDrivingSpeedKmh;
-        activeCacheCutaway = cutawayT > 0 && speed < cutawayT;
-        int treeFadeT = treeFadeMaxDrivingSpeedKmh;
-        activeCacheTreeFade = treeFadeT > 0 && speed < treeFadeT;
+
+        if (aimBlocksTreeFade) {
+            activeCacheTreeFade = false;
+        } else if (inVehicle) {
+            int treeFadeT = treeFadeMaxDrivingSpeedKmh;
+            activeCacheTreeFade = treeFadeT > 0 && speed < treeFadeT;
+        } else {
+            activeCacheTreeFade = true;
+        }
     }
 
     public void init() {

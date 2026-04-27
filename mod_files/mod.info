@@ -4,5 +4,5 @@ id=PeekAView
 description=Extends the wall and building cutaway range so zombies hiding in your line of sight stop being invisible.
 url=
 require=ZombieBuddy
-modversion=1.1.0
+modversion=1.2.0
 pack=PeekAView

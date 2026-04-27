@@ -26,7 +26,7 @@ PeekAView modifica intencionalmente la experiencia visual de PZ vanilla — vale
 [list]
 [*]No es el aspecto que pretendía TIS. Los alcances extendidos son una ruptura deliberada con el estilo visual entregado por los desarrolladores. Si prefieres el aspecto vanilla, este mod no es para ti.
 [*]En manzanas urbanas densas, los edificios pueden aparecer y desaparecer más rápidamente al moverte — puede ser distraente.
-[*]A altas velocidades de conducción, la animación de difuminado por árbol no puede mantener el ritmo de la velocidad a la que el escenario entra en pantalla — por eso el límite de velocidad para el difuminado de árboles está por defecto en 50 km/h.
+[*]A velocidades de carretera el difuminado de árboles salta completamente translúcido en un solo fotograma para que no conduzcas hacia copas opacas — puedes mantener el difuminado de árboles activo hasta el máximo de 120 km/h. Por eso el límite de velocidad está por defecto en 100 km/h.
 [*]El coste por fotograma es pequeño (las cachés lo mantienen cerca de vanilla) pero no nulo — en hardware modesto, reducir los alcances unas pocas casillas ayuda.
 [/list]
 

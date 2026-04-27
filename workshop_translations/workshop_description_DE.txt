@@ -26,7 +26,7 @@ PeekAView verändert bewusst die visuelle Erfahrung des Vanilla-PZ – es lohnt 
 [list]
 [*]Nicht der Look, den TIS beabsichtigt hat. Die erweiterten Reichweiten sind ein bewusster Bruch mit dem visuellen Stil, den die Entwickler ausgeliefert haben. Wenn du den Vanilla-Look bevorzugst, ist dieser Mod nichts für dich.
 [*]In dicht bebauten Stadtvierteln können Gebäude beim Bewegen schneller ein- und ausgeblendet werden – das kann ablenkend wirken.
-[*]Bei hoher Fahrgeschwindigkeit kommt die Fade-Animation pro Baum nicht mit, wie schnell neue Szenerie ins Bild kommt – deshalb ist der Tree-Fade-Geschwindigkeits-Schwellwert standardmäßig auf 50 km/h gesetzt.
+[*]Bei Highway-Geschwindigkeit schnappt der Tree-Fade in einem einzigen Frame vollständig auf transparent, damit du nicht in opake Baumkronen fährst — du kannst Tree-Fade bis zum 120-km/h-Maximum aktiv lassen. Der Geschwindigkeits-Schwellwert ist standardmäßig auf 100 km/h gesetzt.
 [*]Der Mehraufwand pro Frame ist klein (Caches halten ihn nahe am Vanilla-Niveau), aber nicht null – auf schwächerer Hardware hilft es, die Reichweiten um ein paar Felder zu reduzieren.
 [/list]
 

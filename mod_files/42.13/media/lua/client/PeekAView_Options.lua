@@ -141,13 +141,37 @@ local treeFadeDrivingSpeedOpt = modOptions:addSlider(
     "treeFadeDrivingSpeed",
     getText("UI_PAV_TreeFadeDrivingSpeedLabel"),
     0, 120, 5,
-    50,
+    100,
     getText("UI_PAV_TreeFadeDrivingSpeedTooltip"))
 treeFadeDrivingSpeedOpt.onChangeApply = function(self, value)
     applyToJava("setTreeFadeMaxDrivingSpeedKmh", value)
 end
 
 modOptions:addDescription("UI_PAV_TreeFadeDrivingSpeedDescription")
+
+-- Override toggle for the nimble-stance gate while driving. Off by
+-- default. When on AND the user has enabled nimble-stance-only, tree
+-- fade keeps running in vehicles regardless of aim state. Lets users
+-- run "vanilla on foot, full mod while driving" without compromising.
+local treeFadeStayOnWhileDrivingOpt = modOptions:addTickBox(
+    "treeFadeStayOnWhileDriving",
+    getText("UI_PAV_TreeFadeStayOnWhileDrivingLabel"),
+    false,
+    getText("UI_PAV_TreeFadeStayOnWhileDrivingTooltip"))
+treeFadeStayOnWhileDrivingOpt.onChangeApply = function(self, value)
+    applyToJava("setTreeFadeStayOnWhileDriving", value)
+end
+
+local treeFadeStayOnWhileOnFootOpt = modOptions:addTickBox(
+    "treeFadeStayOnWhileOnFoot",
+    getText("UI_PAV_TreeFadeStayOnWhileOnFootLabel"),
+    true,
+    getText("UI_PAV_TreeFadeStayOnWhileOnFootTooltip"))
+treeFadeStayOnWhileOnFootOpt.onChangeApply = function(self, value)
+    applyToJava("setTreeFadeStayOnWhileOnFoot", value)
+end
+
+modOptions:addDescription("UI_PAV_TreeFadeStayOnWhileDrivingDescription")
 
 -- PZAPI.ModOptions:load() only auto-runs on first Options-screen open.
 -- Load+push on OnGameBoot so patches see saved values from frame one.
@@ -162,6 +186,8 @@ local function syncToJava()
     applyToJava("setFadeNWTrees", fadeNWTreesOpt:getValue())
     applyToJava("setTreeFadeRange", treeFadeRangeOpt:getValue())
     applyToJava("setTreeFadeMaxDrivingSpeedKmh", treeFadeDrivingSpeedOpt:getValue())
+    applyToJava("setTreeFadeStayOnWhileDriving", treeFadeStayOnWhileDrivingOpt:getValue())
+    applyToJava("setTreeFadeStayOnWhileOnFoot", treeFadeStayOnWhileOnFootOpt:getValue())
 end
 
 Events.OnGameBoot.Add(syncToJava)
@@ -175,3 +201,5 @@ PeekAView.fixB42Opt = fixB42Opt
 PeekAView.fadeNWTreesOpt = fadeNWTreesOpt
 PeekAView.treeFadeRangeOpt = treeFadeRangeOpt
 PeekAView.treeFadeDrivingSpeedOpt = treeFadeDrivingSpeedOpt
+PeekAView.treeFadeStayOnWhileDrivingOpt = treeFadeStayOnWhileDrivingOpt
+PeekAView.treeFadeStayOnWhileOnFootOpt = treeFadeStayOnWhileOnFootOpt

@@ -1,6 +1,69 @@
 Peek a View - Changelog
 =======================
 
+1.2.0 - 2026-04-28
+  - Tree fade — behavior fixes:
+    - Trees lined up east or south of the player along a straight
+      axis now fade. The vanilla engine only fades trees inside a
+      small ~5-tile area, which excluded the trees right next to a
+      straight road — exactly the ones you drive past. They fade
+      now, at the full slider range.
+    - Tall pine trees: trunk and crown fade together. Previously
+      the crown stayed opaque because the per-tile stencil mask
+      didn't reach high enough on screen.
+    - All four screen directions fade, not just the south-east
+      half. A tall tree above-left of the screen-player no longer
+      blocks the view when scanning northward. Line-of-sight still
+      suppresses fade on trees the character can't actually see, so
+      unseen forest stays opaque.
+    - Driving symmetry fix: previously trees on one side of a
+      treeline could snap while the other side crawled (engine and
+      mod handle them on different code paths). Both sides now
+      respond to driving speed identically.
+  - Tree fade — speed-proportional snap: at driving speeds at or
+    above ~30 km/h, translucent trees snap fully transparent in one
+    frame instead of crawling at the vanilla fade rate. Below that
+    they still ease in smoothly. No more driving into opaque
+    crowns at highway speeds.
+  - Wall cutaway slider at 5 is now pure vanilla — the patch falls
+    through entirely. Earlier the lower bound emitted a slightly
+    wider raster than vanilla; now "5 = vanilla" is exact.
+  - Default change (existing users keep their saved values):
+    Tree-fade driving-speed cutoff 50 → 100 km/h. With the new
+    snap, fade keeps up at all normal driving speeds, so the old
+    50 km/h limit became unnecessarily restrictive. Wall-cutaway
+    range stays at the 1.1.x default of 15.
+  - Two new override tickboxes in the Tree fade section, both kick
+    in only when "Active only in nimble stance" is enabled:
+    - "Stay on while driving" (default off): keeps tree fade
+      running in vehicles regardless of aim state.
+    - "Stay on while on foot" (default on): same idea but for foot.
+      Default on — most users enabling nimble-stance do it for the
+      around-the-corner wall-cutaway peek, not because they want
+      tree-fade gated; this default keeps tree fade everywhere
+      while still letting wall cutaway respect the aim gate.
+    Each override applies independently per context. The "Active
+    up to" speed limit still applies in vehicles.
+  - Performance: tile-filter on tree-fade's obscuring-tile cache.
+    Empty grass/road tiles are dropped from the per-frame walk
+    vanilla does over the cached list — JFR-measured CPU footprint
+    at default settings drops by roughly half (~5% → ~2.8% of CPU
+    samples in 120 s of driving with ~50 background mods active).
+    The "Enable" toggle off path stays the cheapest at ~0.1%.
+  - Portability fixes for B42 builds older than 42.15.0 (reported by
+    user Mercuriae running 42.14.1, GitHub issue #1):
+    - Versioned 42.13/mod.info now declares `require=\ZombieBuddy`
+      (with leading slash) to match PZ's internal mod-id form on
+      builds that do a literal string compare instead of
+      normalizing.
+    - Empty `common/` folder added next to `42.13/` for builds that
+      require the multi-version layout to be present even when
+      only one version subfolder has content.
+    - Translations now ship in both formats: UI.json (42.15+) and
+      the generated UI_<LANG>.txt Lua-table format (pre-42.15).
+      Each PZ version picks up the format it knows; the other is
+      ignored.
+
 1.1.0 - 2026-04-26
   - New option "Fade trees the character can see past" (on by default):
     trees in your view become translucent so zombies hiding behind them

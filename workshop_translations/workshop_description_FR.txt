@@ -26,7 +26,7 @@ PeekAView modifie volontairement l'expérience visuelle du PZ vanilla — il vau
 [list]
 [*]Pas le rendu voulu par TIS. Les portées étendues sont une rupture délibérée avec le style visuel livré par les développeurs. Si vous préférez le rendu vanilla, ce mod n'est pas pour vous.
 [*]Dans les pâtés de maisons denses, les bâtiments peuvent apparaître et disparaître plus rapidement quand vous bougez — cela peut être distrayant.
-[*]À haute vitesse de conduite, l'animation d'estompage par arbre ne suit pas la vitesse à laquelle le décor défile — la limite de vitesse pour l'estompage des arbres est par défaut à 50 km/h pour cette raison.
+[*]Aux vitesses d'autoroute, l'estompage des arbres bascule entièrement en transparent en une seule frame pour ne pas conduire dans des couronnes opaques — vous pouvez garder l'estompage des arbres actif jusqu'au maximum de 120 km/h. La limite de vitesse est par défaut à 100 km/h pour cette raison.
 [*]Le coût par image est faible (les caches le maintiennent proche de vanilla) mais pas nul — sur du matériel modeste, réduire les portées de quelques tuiles aide.
 [/list]
 

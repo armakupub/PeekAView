@@ -26,7 +26,7 @@ PeekAView, vanilla PZ'nin görsel deneyimini kasıtlı olarak değiştirir — n
 [list]
 [*]TIS'in amaçladığı görünüm değil. Genişletilmiş menziller, geliştiricilerin sunduğu görsel stilden bilinçli bir kopuştur. Vanilla görünümünü tercih ediyorsanız, bu mod size göre değil.
 [*]Yoğun şehir bloklarında, hareket ederken binalar daha hızlı görünüp kaybolabilir — bu dikkat dağıtıcı olabilir.
-[*]Yüksek sürüş hızlarında, ağaç başına soluklaşma animasyonu sahne görüntüsünün ekrana akış hızına yetişemez — bu nedenle ağaç solukluğunun hız sınırı varsayılan olarak 50 km/h'dir.
+[*]Otoyol hızlarında ağaç solukluğu tek bir karede tamamen şeffafa geçer, böylece opak ağaç tepelerine sürmezsiniz — ağaç solukluğunu maksimum 120 km/h'ye kadar aktif tutabilirsiniz. Bu nedenle hız sınırı varsayılan olarak 100 km/h'dir.
 [*]Kare başına maliyet küçüktür (önbellekler vanilla'ya yakın tutar) ama sıfır değil — düşük donanımda menzilleri birkaç karo azaltmak yardımcı olur.
 [/list]
 

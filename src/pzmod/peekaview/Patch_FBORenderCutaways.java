@@ -90,8 +90,12 @@ public class Patch_FBORenderCutaways {
                                 @Patch.Return(readOnly = false) boolean result) {
             if (!result) return;
             try {
+                // Master switch + own checkbox only. No aimStanceOnly
+                // gate: the vanilla B42 adjacency bug exists at vanilla
+                // cutaway range too, so the fix must run regardless of
+                // stance — otherwise the bug pops in/out with aiming.
+                if (!PeekAViewMod.enabled) return;
                 if (!PeekAViewMod.fixB42Adjacency) return;
-                if (!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()) return;
                 if (!initialized) tryInit();
                 if (!initialized) return;
                 if (isTooFarFromPlayer(self)) result = false;
@@ -152,8 +156,10 @@ public class Patch_FBORenderCutaways {
                                 @Patch.Return(readOnly = false) boolean result) {
             if (!result) return;
             try {
+                // Master switch + own checkbox only — no aimStanceOnly
+                // gate. See Patch_shouldCutaway.exit for rationale.
+                if (!PeekAViewMod.enabled) return;
                 if (!PeekAViewMod.fixB42Adjacency) return;
-                if (!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()) return;
                 if (square == null) return;
                 if (square.associatedBuilding == null) return;
                 result = false;

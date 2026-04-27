@@ -2,13 +2,9 @@
 
 Project Zomboid mod — extends the wall, building, and tree cutaway range so zombies hiding in your line of sight stop being invisible.
 
-![PeekAView cutaway comparison](screenshots/comparison1.png)
-
 In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. Peek a View closes that gap: houses and view-blocking fences fade from further away, so what reaches your screen matches (mostly) what your character can see.
 
 The same idea now applies to **trees** as well — see-around tree sprites the character can look past so zombies are no longer hidden behind a wall of leaves.
-
-![PeekAView tree fade comparison](screenshots/comparison4.png)
 
 ## Features
 
@@ -53,9 +49,9 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 
 | Setting | Range / Default | What it does |
 |---|---|---|
-| Range | 5–20 tiles, default 15 | How far walls and buildings start turning transparent |
+| Range | 5–20 tiles, default 15 | How far walls and buildings start turning transparent. `5` = pure vanilla (the patch falls through). |
 | Active up to | 0–120 km/h, default 35 | Above this speed in a vehicle, wall cutaway turns off. `0` = always off in a vehicle. |
-| Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ) |
+| Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ). Runs regardless of `Active only in nimble stance`. |
 
 **Tree fade**
 
@@ -63,7 +59,9 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 |---|---|---|
 | Enable | on | Toggle the tree-fade feature |
 | Range | 5–25 tiles, default 20 | How far trees start turning transparent |
-| Active up to | 0–120 km/h, default 50 | Above this speed in a vehicle, tree fade turns off. `0` = always off in a vehicle. |
+| Active up to | 0–120 km/h, default 100 | Above this speed in a vehicle, tree fade turns off. `0` = always off in a vehicle. Below ~30 km/h trees ease into translucency at vanilla's pace; at ~30 km/h and above they snap fully translucent in one frame so you don't drive into opaque crowns. |
+| Stay on while driving | off | Override: when `Active only in nimble stance` is on, this keeps tree fade running in vehicles regardless of aim state. |
+| Stay on while on foot | on | Override: when `Active only in nimble stance` is on, this keeps tree fade running on foot regardless of aim state. Default on so the typical user enabling nimble-stance for around-the-corner peeks still gets tree fade everywhere. |
 
 **F8** toggles the master Enable switch in-game (green/red halo confirms). Rebindable under `[PeekAView]` in PZ's keybind menu.
 
@@ -81,7 +79,7 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 
 **Does it conflict with other cutaway mods?** Peek a View patches seven specific engine methods via ZombieBuddy. Other ZombieBuddy-based mods patching the same methods may interact — test case by case. No known conflicts as of Build 42.13.
 
-**Does it affect performance?** Several caches keep the runtime cost close to vanilla: a per-frame gate cache, a frame-cache for the wall-cutaway POI raster, and a position-cache for the tree-fade location list. Standing still and walking are effectively free. JFR-measured GC overhead with tree fade enabled is within ~25 ms over 120 s vs vanilla, with median GC pauses identical to baseline. The driving-speed gates disable each feature above its configured km/h so fast vehicle travel doesn't pay any cost. See [`docs/PeekAViewMod.md`](docs/PeekAViewMod.md) for raw JFR numbers.
+**Does it affect performance?** Several caches keep the runtime cost close to vanilla: a per-frame gate cache, frame-caches for the POI raster and the tree-fade location list, and a tile-filter that drops empty grass/road tiles from the obscuring-list. Standing still and walking on foot are effectively free. JFR-measured CPU footprint at default settings is around 2.8% of CPU samples in 120 s of driving with ~50 background mods active — the master `Enable` toggle to off measures at 0.1%. The driving-speed gates disable each feature above its configured km/h so highway travel can be made entirely free. See [`docs/PeekAViewMod.md`](docs/PeekAViewMod.md) for the raw breakdown.
 
 ## Building from Source
 

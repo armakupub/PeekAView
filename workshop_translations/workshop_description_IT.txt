@@ -26,7 +26,7 @@ PeekAView modifica intenzionalmente l'esperienza visiva di PZ vanilla — vale l
 [list]
 [*]Non è l'aspetto voluto da TIS. Le portate estese sono una rottura deliberata con lo stile visivo consegnato dagli sviluppatori. Se preferisci l'aspetto vanilla, questa mod non fa per te.
 [*]Negli isolati densi, gli edifici possono apparire e scomparire più velocemente quando ti muovi — può distrarre.
-[*]A velocità di guida elevate, l'animazione di dissolvenza per albero non riesce a tenere il passo con la velocità a cui lo scenario entra in scena — per questo il limite di velocità per la sfumatura degli alberi è impostato di default a 50 km/h.
+[*]A velocità autostradali la dissolvenza degli alberi scatta completamente trasparente in un singolo fotogramma per non guidare contro chiome opache — puoi mantenere la dissolvenza degli alberi attiva fino al massimo di 120 km/h. Per questo il limite di velocità è impostato di default a 100 km/h.
 [*]Il costo per fotogramma è piccolo (le cache lo mantengono vicino a vanilla) ma non nullo — su hardware modesto, ridurre le portate di poche caselle aiuta.
 [/list]
 

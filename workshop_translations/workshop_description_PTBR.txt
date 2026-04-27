@@ -26,7 +26,7 @@ PeekAView modifica intencionalmente a experiência visual do PZ vanilla — vale
 [list]
 [*]Não é a aparência que a TIS pretendia. Os alcances estendidos são uma ruptura deliberada com o estilo visual entregue pelos desenvolvedores. Se você prefere a aparência vanilla, este mod não é para você.
 [*]Em quarteirões urbanos densos, edifícios podem aparecer e desaparecer mais rapidamente quando você se move — pode ser distraente.
-[*]Em altas velocidades de direção, a animação de esmaecimento por árvore não consegue acompanhar a velocidade com que o cenário entra na tela — por isso o limite de velocidade para o esmaecimento de árvores é 50 km/h por padrão.
+[*]Em velocidades de rodovia, o esmaecimento de árvores muda completamente para translúcido em um único quadro para que você não dirija em copas opacas — você pode manter o esmaecimento de árvores ativo até o máximo de 120 km/h. Por isso o limite de velocidade é 100 km/h por padrão.
 [*]O custo por quadro é pequeno (caches mantêm próximo do vanilla) mas não zero — em hardware modesto, reduzir os alcances algumas tiles ajuda.
 [/list]
 

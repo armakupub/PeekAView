@@ -26,7 +26,7 @@ PeekAView changes the visual experience of vanilla PZ on purpose — worth knowi
 [list]
 [*]Not the look TIS intended. The extended ranges are a deliberate departure from the visual style the devs shipped. If you prefer the vanilla look, this mod isn't for you.
 [*]In dense city blocks, buildings can fade in and out more quickly as you move — can be distracting.
-[*]At high driving speeds the per-tree fade-up animation can't keep up with how fast scenery scrolls past — the tree-fade speed gate defaults to 50 km/h for that reason.
+[*]At highway speeds tree fade snaps fully translucent in one frame so you don't drive into opaque crowns — you can keep tree fade on right up to the 120 km/h max. The driving-speed gate defaults to 100 km/h for that reason.
 [*]Per-frame cost is small (caches keep things close to vanilla) but not zero — on lower-end hardware, dropping the ranges a few tiles helps.
 [/list]
 

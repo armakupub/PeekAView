@@ -81,6 +81,17 @@ public class Patch_IsoCell {
                 int playerIndex = IsoCamera.frameState.playerIndex;
                 if (playerIndex < 0 || playerIndex >= MAX_PLAYERS) return false;
 
+                // Slider at MIN_RANGE = vanilla cutaway. Fall through
+                // so vanilla's 10×10 raster + diamond-half-width-4.5
+                // shape runs unmodified. Our reimplementation diverges
+                // slightly (rasterSize = radius*2+2 adds an extra
+                // ring; DIAMOND_HALF_WIDTH = 22.5 is sized for max
+                // radius and doesn't clip at small radii), so even at
+                // radius==5 the extended path emits tiles vanilla
+                // would not. Pass-through guarantees 1:1 vanilla
+                // behavior at the user's "off / vanilla" slider end.
+                if (PeekAViewMod.range <= PeekAViewMod.MIN_RANGE) return false;
+
                 float px = player.getX();
                 float py = player.getY();
                 int pxFloor = PZMath.fastfloor(px);
@@ -294,15 +305,18 @@ public class Patch_IsoCell {
                 int range = PeekAViewMod.treeFadeRange;
                 int ts = Core.tileScale;
 
-                // Mask tile render size. 128x256 overshoots the iso-tile
-                // footprint (64x32) on purpose: trees extend upward on
-                // screen from their base tile, so we need stencil
-                // coverage ABOVE the tile base for the tree sprite's
-                // fade to pass the stencil test.
+                // Per-tile mask geometry. 128×256 overshoots the iso-
+                // tile footprint (64×32) on purpose: trees extend
+                // upward on screen from their base tile, so we need
+                // stencil coverage ABOVE the tile base for the tree
+                // sprite's GL_EQUAL pass to pass the stencil test.
+                // tileFootprintYOffset = 192 places the patch 6 tile-
+                // heights above the floor, sized to cover any PZ
+                // tree sprite's crown.
                 int renderW = 128 * ts;
                 int renderH = 256 * ts;
                 int halfW = renderW / 2;
-                int tileFootprintYOffset = 96 * ts;
+                int tileFootprintYOffset = 192 * ts;
 
                 IndieGL.glStencilMask(255);
                 IndieGL.enableStencilTest();
@@ -329,14 +343,14 @@ public class Patch_IsoCell {
                         if (adx + ady > range) continue;
                         if (adx <= vanillaSkip && ady <= vanillaSkip) continue;
 
-                        boolean inFadeQuadrant =
-                                // tree SE of player (vanilla direction, extended)
-                                (dx > 0 && dy > 0)
-                                // tree NE of player (player SW of tree)
-                                || (dx > 0 && dy < 0)
-                                // tree SW of player (player NE of tree)
-                                || (dx < 0 && dy > 0);
-                        if (!inFadeQuadrant) continue;
+                        // Full diamond — every tile in range (origin
+                        // excluded by the vanillaSkip check above).
+                        // The LOS gate (`sq.isCanSee(pidx)` below)
+                        // suppresses stencil writes for tiles outside
+                        // the rendering player's visibility cone, so
+                        // NW/N-axis/W-axis tiles only get coverage
+                        // when the player is actually looking that
+                        // way — no ghost-fade in unseen forest.
 
                         int tx = px + dx;
                         int ty = py + dy;

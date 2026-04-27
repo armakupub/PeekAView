@@ -26,7 +26,7 @@ PeekAView celowo zmienia wizualne doświadczenie vanilla PZ — warto wiedzieć,
 [list]
 [*]To nie jest wygląd, który zamierzała TIS. Rozszerzone zasięgi to świadome zerwanie ze stylem wizualnym dostarczonym przez deweloperów. Jeśli wolisz wygląd vanilla, ten mod nie jest dla ciebie.
 [*]W gęstych blokach miejskich budynki mogą szybciej pojawiać się i znikać podczas ruchu — może to rozpraszać.
-[*]Przy wysokich prędkościach jazdy animacja wygaszania na drzewo nie nadąża za szybkością, z jaką sceneria wjeżdża na ekran — dlatego limit prędkości dla wygaszania drzew jest domyślnie ustawiony na 50 km/h.
+[*]Przy prędkościach autostradowych wygaszanie drzew w jednej klatce przeskakuje na w pełni przezroczyste, żebyś nie wjeżdżał w nieprzezroczyste korony — możesz zostawić wygaszanie drzew aktywne aż do maksimum 120 km/h. Dlatego limit prędkości jest domyślnie ustawiony na 100 km/h.
 [*]Koszt na klatkę jest mały (cache utrzymują go blisko vanilla), ale nie zerowy — na słabszym sprzęcie pomaga zmniejszenie zasięgów o kilka pól.
 [/list]
 

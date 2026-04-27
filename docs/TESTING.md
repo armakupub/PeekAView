@@ -1,23 +1,33 @@
 # Testing
 
+Single-player Build 42.17 with ~50 background mods loaded, manual
+test runs over the 1.2.0 prep cycle.
+
+**Cutaway** — slider 5 falls through to vanilla cleanly; 6–20
+extends the raster as expected (per-step effect is direction-
+dependent, see [`Patch_IsoCell.md`](Patch_IsoCell.md)). Driving
+speed-gate flips on/off without flicker. B42 wall-hiding fix
+reproduces vanilla behavior on toggle-off and resolves it on
+toggle-on.
+
+**Tree fade** — fades cleanly on foot through dense forest, snaps
+fully translucent above ~30 km/h while driving, holds for tall
+pines (trunk + crown together), respects LOS so unseen forest
+stays opaque. Vehicle in/out and driving-speed gate transition
+without stuck states. Both `Stay on while driving` / `Stay on
+while on foot` overrides verified against the aim-stance gate.
+
+**Performance** — JFR on a 120 s Rosewood→Muldraugh driving run
+puts the mod at ~2.8% CPU samples at defaults, ~0.1% with the
+master `Enable` toggle off. Tile-filter optimization confirmed
+via the `squareHasFadingInObjects` downstream-walk dropping out
+of the sample profile. Numbers in
+[`PeekAViewMod.md`](PeekAViewMod.md#performance).
+
 ## Open
 
-### Split-screen (2-player)
-
-Per-player raster cache slots in `Patch_GetSquaresAroundPlayerSquare`
-shipped, untested on real split-screen. Verify: each player hits its
-own cache slot (~59/60 hit rate), Z-change invalidates independently,
-no visual thrash. Fallback if broken: single shared slot + add
-`cachedPlayerIndex` to the miss key (one-line revert).
-
-## Done
-
-- Single-player: 60 fps steady, cutaway extends to slider range
-- Driving: speed gate flips mod off above threshold without flicker
-- B42 fix: player-built stair next to vanilla wall no longer hides it
-- `fixB42Adjacency` toggle OFF: vanilla bug reappears (confirms patch)
-- `aimStanceOnly` toggle ON: snaps on/off with RMB aim
-- Tree-fade (`fadeNWTrees`): dense forest, walking, driving, vehicle re-entry, toggle-across-range-change, NW-quadrant-stays-opaque — all passed
-- Split cutaway/tree-fade driving-speed gates: each gate honors its own threshold; tree-fade can stay on while cutaway gates off
-- Independent `treeFadeRange` slider (5–25, default 20)
-- JFR-driven perf optimization (Item 1 + 3 + toArray-bypass + IllegalAccessError fix): GC median ≈ baseline, Location allocator eliminated
+**Split-screen** is untested on real hardware. The per-player
+raster cache slots in `Patch_GetSquaresAroundPlayerSquare` should
+hit ~59/60 per player and invalidate independently on Z-change;
+fallback if broken is a single shared slot keyed by
+`cachedPlayerIndex`.
