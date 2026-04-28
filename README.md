@@ -2,9 +2,13 @@
 
 Project Zomboid mod — extends the wall, building, and tree cutaway range so zombies hiding in your line of sight stop being invisible.
 
+![PeekAView wall cutaway comparison](screenshots/1_walls_collage.jpg)
+
 In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. Peek a View closes that gap: houses and view-blocking fences fade from further away, so what reaches your screen matches (mostly) what your character can see.
 
 The same idea now applies to **trees** as well — see-around tree sprites the character can look past so zombies are no longer hidden behind a wall of leaves.
+
+![PeekAView tree fade comparison](screenshots/2_trees_collage.jpg)
 
 ## Features
 
