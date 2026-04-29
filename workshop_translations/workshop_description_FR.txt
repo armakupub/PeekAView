@@ -1,47 +1,43 @@
-Fini les zombies qui jouent à cache-cache.
+[h1]Voyez ce que votre personnage voit[/h1]
 
-Dans PZ vanilla, les murs et les toits ne s'estompent que dans un rayon d'environ 5 tuiles autour de votre personnage — en tant que joueur derrière l'écran, vous voyez donc moins que ce que votre personnage perçoit réellement. Un zombie appuyé contre le mur d'une maison ou caché derrière une haute clôture reste totalement invisible pour vous, même lorsque votre personnage le regarde droit dans les yeux. [b]Peek a View[/b] comble cet écart : les maisons, les clôtures qui bloquent la vue et désormais aussi les arbres s'estompent de plus loin — ce qui arrive à votre écran correspond (en grande partie) à ce que votre personnage peut réellement voir.
+Dans le PZ vanilla, les murs et les toits ne s'estompent que dans un rayon d'environ 5 tuiles autour de votre personnage, et les arbres uniquement dans un petit cercle autour de lui. Le [i]joueur[/i] derrière l'écran voit donc systématiquement moins que ce que le [i]personnage[/i] perçoit réellement : un zombie appuyé contre l'arrière d'une maison, un coin de clôture que vous ne pouvez pas contourner du regard, un arbre directement devant vous sur la route. [b]Peek a View[/b] étend ces mêmes mécaniques d'estompage de vanilla plus loin, pour que ce qui arrive sur votre écran corresponde à peu près à ce que votre personnage perçoit déjà.
+
+Mêmes règles que vanilla, simplement déclenchées depuis plus loin. Pas de rayons X, pas de murs transparents, pas de contours d'ennemis. Un arbre estompé n'accorde pas de ligne de vue. Ce qui se trouve derrière doit toujours être dans la ligne de vue de votre personnage pour apparaître, et un zombie qui se tient en partie sur une tuile de buisson ou d'arbre peut rester caché. Les règles de visibilité de vanilla s'appliquent toujours : portes fermées, rideaux, brouillard de guerre cachent toujours ce qu'ils ont toujours caché.
 
 [h1]Ce que fait ce mod[/h1]
 [list]
-[*][b]Coupe de murs[/b] — étend la portée d'estompage de ~5 tuiles vanilla jusqu'à 20 tuiles. Configurable.
-[*][b]Estompage des arbres[/b] — les arbres dans la ligne de vue de votre personnage deviennent translucides pour révéler les zombies derrière eux (pas les zombies à l'intérieur — pas de vision aux rayons X). Curseur de portée indépendant jusqu'à 25 tuiles.
-[*]Chaque fonction a sa propre limite de vitesse de conduite — désactivez l'une dans la voiture tout en gardant l'autre active (par ex. estompage des arbres à vitesse plus élevée pour repérer les obstacles en bord de route, coupe de murs désactivée pour moins d'effets à l'écran).
-[*]Mode optionnel uniquement en posture de visée — restreint tout le mod à quand vous visez avec une arme.
-[*]Pas de murs transparents, pas de vision aux rayons X — la même mécanique d'estompage que vanilla, juste déclenchée depuis plus loin. Vous voyez ce que le personnage voit.
-[*]Corrige également un bug de rendu de Build 42 où les structures construites par le joueur font disparaître les murs vanilla à proximité.
+[*][b]Coupe de murs[/b] : étend la portée d'estompage de ~5 tuiles vanilla jusqu'à 20 tuiles (par défaut 15).
+[*][b]Estompage des arbres[/b] : les arbres dans la ligne de vue de votre personnage deviennent translucides jusqu'à 25 tuiles, dans toutes les directions.
+[*][b]Deux conditions d'activation[/b] : visée uniquement (désactivée par défaut ; lorsqu'elle est active, le mod ne fonctionne que dans cette posture) et un seuil de vitesse en véhicule (seuils km/h indépendants pour la coupe et l'estompage des arbres).
+[*]Corrige également un bug de rendu B42 où les structures construites par le joueur font disparaître les murs vanilla à proximité.
 [/list]
 
 [h1]Paramètres[/h1]
-Toutes les options se trouvent sous Options → Mods → Peek a View, organisées en trois sections (Général, Coupe de murs, Estompage des arbres). [b]F8[/b] active/désactive le mod (un halo vert/rouge confirme), réassignable sous [noparse][PeekAView][/noparse] dans Options → Touches.
+Options → Mods → Peek a View, trois sections : Général, Coupe de murs, Estompage des arbres. [b]F8[/b] active/désactive le mod (halo vert/rouge pour confirmation ; réassignable dans Options → Touches sous [noparse][PeekAView][/noparse]). Les valeurs par défaut montrent l'effet clairement. Réduisez les portées, activez la visée uniquement, ou resserrez les seuils de vitesse pour ajuster l'effet à votre goût.
 
 [h1]Prérequis[/h1]
 [list]
-[*]Build 42.13 ou plus récent
-[*][b]ZombieBuddy[/b] : [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]Page Workshop[/url] — suivez les étapes d'installation sur leur page
-[/list]
-
-[h1]Compromis[/h1]
-PeekAView modifie volontairement l'expérience visuelle du PZ vanilla — il vaut mieux savoir à quoi vous vous engagez.
-[list]
-[*]Pas le rendu voulu par TIS. Les portées étendues sont une rupture délibérée avec le style visuel livré par les développeurs. Si vous préférez le rendu vanilla, ce mod n'est pas pour vous.
-[*]Dans les pâtés de maisons denses, les bâtiments peuvent apparaître et disparaître plus rapidement quand vous bougez — cela peut être distrayant.
-[*]Aux vitesses d'autoroute, l'estompage des arbres bascule entièrement en transparent en une seule frame pour ne pas conduire dans des couronnes opaques — vous pouvez garder l'estompage des arbres actif jusqu'au maximum de 120 km/h. La limite de vitesse est par défaut à 100 km/h pour cette raison.
-[*]Le coût par image est faible (les caches le maintiennent proche de vanilla) mais pas nul — sur du matériel modeste, réduire les portées de quelques tuiles aide.
+[*]PZ Build 42.13 ou plus récent
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], installation unique pour tout mod Java
 [/list]
 
 [h1]Compatibilité[/h1]
 [list]
-[*]Solo et multijoueur (rendu côté client uniquement, aucune modification serveur requise)
-[*]Comme pour tout mod, sauvegardez votre partie avant l'installation.
-[*]Localisé en 12 langues : EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[*]Aucune incompatibilité connue avec d'autres mods de Project Zomboid à ce jour.
+[*]Solo et multijoueur (rendu côté client uniquement, aucune modification serveur).
+[*]Localisé en EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
 [/list]
 
-[h1]Pourquoi ZombieBuddy ?[/h1]
-Il s'agit d'un mod Java. Modifier le comportement d'une méthode PZ compilée n'est pas possible avec un mod Lua standard, et utiliser ZombieBuddy garantit que le patch continue de fonctionner au fil des mises à jour mineures de PZ. C'est une installation unique — une fois ZombieBuddy dans votre liste de mods, n'importe quel mod basé sur ZombieBuddy peut être ajouté sans configuration supplémentaire.
+[h1]Compromis[/h1]
+[list]
+[*]Écart visuel par rapport à l'esthétique voulue par TIS. Si vous préférez le style vanilla, ce mod n'est pas pour vous.
+[*]Dans les pâtés de maisons denses, les bâtiments peuvent apparaître et disparaître plus rapidement quand vous bougez, ce qui peut être distrayant au début.
+[*]À vitesse d'autoroute, l'estompage des arbres bascule en transparent en une seule frame pour éviter de foncer dans des couronnes opaques.
+[*]Le coût par image est faible mais pas nul. Sur du matériel modeste, baisser les portées de quelques tuiles aide.
+[/list]
 
-[h1]Source & transparence[/h1]
-PeekAView et ZombieBuddy sont tous deux sous licence MIT et entièrement open source. Si vous préférez ne pas faire confiance au binaire Workshop, vous pouvez lire chaque ligne ou compiler le mod vous-même depuis les sources. Les patches ne touchent que des classes de rendu PZ spécifiques — pas d'I/O fichier, pas d'accès réseau, rien en dehors du code de PZ lui-même.
+[h1]Code source[/h1]
+PeekAView et ZombieBuddy sont tous deux sous licence MIT et entièrement open source. Les patches ne touchent que des classes de rendu PZ spécifiques. Aucun accès aux fichiers, aucun accès réseau, rien en dehors du code de PZ lui-même.
 [list]
 [*][b]PeekAView[/b] : [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b] : [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]

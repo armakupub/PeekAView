@@ -1,47 +1,43 @@
-Se acabó el escondite con zombis.
+[h1]Ve lo que ve tu personaje[/h1]
 
-En PZ vanilla, las paredes y los techos solo se desvanecen en un radio de aproximadamente 5 casillas alrededor de tu personaje — tú como jugador frente a la pantalla ves menos de lo que tu personaje realmente puede percibir. Un zombi apoyado contra la pared de una casa o escondido detrás de una valla alta permanece completamente invisible para ti, incluso cuando tu personaje lo está mirando directamente. [b]Peek a View[/b] cierra esa brecha: las casas, las vallas que bloquean la visión y ahora también los árboles se desvanecen desde más lejos — lo que llega a tu pantalla coincide (en gran parte) con lo que tu personaje realmente puede ver.
+En PZ vanilla, las paredes y los techos solo se desvanecen en un radio de aproximadamente 5 casillas alrededor de tu personaje, y los árboles solo en un pequeño círculo a su alrededor. El [i]jugador[/i] frente a la pantalla ve por tanto sistemáticamente menos de lo que el [i]personaje[/i] realmente percibe: un zombi apoyado contra la parte trasera de una casa, una esquina de valla que no puedes rodear con la mirada, un árbol justo delante de ti en la carretera. [b]Peek a View[/b] extiende esas mismas mecánicas de difuminado de vanilla más lejos, para que lo que llega a tu pantalla coincida aproximadamente con lo que tu personaje ya percibiría.
+
+Las mismas reglas que vanilla, solo activadas desde más lejos. Sin rayos X, sin paredes transparentes, sin contornos de enemigos. Un árbol difuminado no concede línea de visión. Lo que esté detrás todavía debe estar en la línea de visión de tu personaje para aparecer, y un zombi parcialmente sobre una casilla de arbusto o árbol puede seguir oculto. Las reglas de visibilidad de vanilla siguen aplicándose: puertas cerradas, cortinas, niebla de guerra siguen ocultando lo que siempre han ocultado.
 
 [h1]Lo que hace este mod[/h1]
 [list]
-[*][b]Corte de paredes[/b] — extiende el alcance de difuminado vanilla de ~5 casillas hasta 20 casillas. Configurable.
-[*][b]Difuminado de árboles[/b] — los árboles en la línea de visión de tu personaje se vuelven translúcidos para revelar a los zombis detrás de ellos (no a los zombis dentro de ellos — sin visión de rayos X). Control de alcance independiente hasta 25 casillas.
-[*]Cada función tiene su propia limitación de velocidad de conducción — desactiva una en el coche manteniendo la otra activa (p. ej. difuminado de árboles a velocidad más alta para detectar obstáculos en el borde de la carretera, corte de paredes desactivado para menos ruido visual).
-[*]Modo opcional solo al apuntar — restringe todo el mod a cuando estás apuntando un arma.
-[*]Sin paredes transparentes, sin visión de rayos X — la misma mecánica de difuminado que vanilla, solo activada desde más lejos. Ves lo que el personaje ve.
+[*][b]Corte de paredes[/b]: extiende el alcance de difuminado vanilla de ~5 casillas hasta 20 casillas (por defecto 15).
+[*][b]Difuminado de árboles[/b]: los árboles en la línea de visión de tu personaje se vuelven translúcidos hasta 25 casillas, en cualquier dirección.
+[*][b]Dos condiciones de activación[/b]: solo al apuntar (desactivado por defecto; cuando está activo, el mod solo funciona en esa postura) y un umbral de velocidad en vehículo (umbrales km/h independientes para corte de paredes y difuminado de árboles).
 [*]También corrige un bug de renderizado de Build 42 donde las estructuras construidas por el jugador hacen desaparecer las paredes vanilla cercanas.
 [/list]
 
 [h1]Ajustes[/h1]
-Todas las opciones están bajo Opciones → Mods → Peek a View, organizadas en tres secciones (General, Corte de paredes, Difuminado de árboles). [b]F8[/b] activa/desactiva el mod (un halo verde/rojo lo confirma), reasignable bajo [noparse][PeekAView][/noparse] en Opciones → Controles.
+Opciones → Mods → Peek a View, tres secciones: General, Corte de paredes, Difuminado de árboles. [b]F8[/b] activa/desactiva el mod (un halo verde/rojo lo confirma; reasignable en Opciones → Controles bajo [noparse][PeekAView][/noparse]). Los valores por defecto muestran el efecto claramente. Reduce los alcances, activa solo al apuntar, o ajusta los umbrales de velocidad para adaptar el efecto a tu gusto.
 
 [h1]Requisitos[/h1]
 [list]
-[*]Build 42.13 o más reciente
-[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]Página del Workshop[/url] — sigue los pasos de instalación en su página
-[/list]
-
-[h1]Compromisos[/h1]
-PeekAView modifica intencionalmente la experiencia visual de PZ vanilla — vale la pena saber a qué te estás comprometiendo.
-[list]
-[*]No es el aspecto que pretendía TIS. Los alcances extendidos son una ruptura deliberada con el estilo visual entregado por los desarrolladores. Si prefieres el aspecto vanilla, este mod no es para ti.
-[*]En manzanas urbanas densas, los edificios pueden aparecer y desaparecer más rápidamente al moverte — puede ser distraente.
-[*]A velocidades de carretera el difuminado de árboles salta completamente translúcido en un solo fotograma para que no conduzcas hacia copas opacas — puedes mantener el difuminado de árboles activo hasta el máximo de 120 km/h. Por eso el límite de velocidad está por defecto en 100 km/h.
-[*]El coste por fotograma es pequeño (las cachés lo mantienen cerca de vanilla) pero no nulo — en hardware modesto, reducir los alcances unas pocas casillas ayuda.
+[*]PZ Build 42.13 o más reciente
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], instalación única para cualquier mod de Java
 [/list]
 
 [h1]Compatibilidad[/h1]
 [list]
-[*]Un jugador y multijugador (renderizado solo del lado del cliente, no se requieren cambios en el servidor)
-[*]Como con cualquier mod, haz una copia de seguridad de tu partida antes de instalar.
-[*]Localizado en 12 idiomas: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[*]Actualmente no se conocen incompatibilidades con otros mods de Project Zomboid.
+[*]Un jugador y multijugador (renderizado solo del lado del cliente, sin cambios en el servidor).
+[*]Localizado en EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
 [/list]
 
-[h1]¿Por qué ZombieBuddy?[/h1]
-Este es un mod de Java. Cambiar el comportamiento de un método PZ compilado no es posible con un mod Lua estándar, y usar ZombieBuddy mantiene el parche funcionando a través de actualizaciones menores de PZ. Es una instalación única — una vez que ZombieBuddy esté en tu lista de mods, cualquier mod basado en ZombieBuddy puede añadirse sin configuración adicional.
+[h1]Compromisos[/h1]
+[list]
+[*]Desviación visual del aspecto pretendido por TIS. Si prefieres el estilo vanilla, este mod no es para ti.
+[*]En manzanas urbanas densas, los edificios pueden aparecer y desaparecer más rápidamente al moverte, lo que puede distraer al principio.
+[*]A velocidades de autopista, el difuminado de árboles salta a su estado translúcido en un solo fotograma para que no conduzcas hacia copas opacas.
+[*]El coste por fotograma es pequeño pero no nulo. En hardware modesto, reducir los alcances unas pocas casillas ayuda.
+[/list]
 
-[h1]Código fuente y transparencia[/h1]
-Tanto PeekAView como ZombieBuddy están bajo licencia MIT y son completamente de código abierto. Si prefieres no confiar en el binario del Workshop, puedes leer cada línea o compilar el mod tú mismo desde el código fuente. Los parches solo tocan clases específicas de renderizado de PZ — sin I/O de archivos, sin acceso a red, nada fuera del propio código de PZ.
+[h1]Código fuente[/h1]
+Tanto PeekAView como ZombieBuddy están bajo licencia MIT y son completamente de código abierto. Los parches solo tocan clases específicas de renderizado de PZ. Sin acceso a archivos, sin acceso a red, nada fuera del propio código de PZ.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]

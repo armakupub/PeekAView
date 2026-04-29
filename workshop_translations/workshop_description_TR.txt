@@ -1,47 +1,43 @@
-Zombilerin saklambaç oyunu bitti.
+[h1]Karakterinizin gördüğünü siz de görün[/h1]
 
-Vanilla PZ'de duvarlar ve çatılar yalnızca karakterinizin etrafındaki yaklaşık 5 karoluk bir yarıçap içinde soluklaşır — ekranın önündeki oyuncu olarak siz, karakterinizin gerçekten algılayabildiğinden daha azını görürsünüz. Bir evin duvarına yaslanmış ya da yüksek bir çitin arkasına saklanmış bir zombi, karakteriniz tam olarak ona baksa bile sizin için tamamen görünmez kalır. [b]Peek a View[/b] bu boşluğu kapatır: evler, görüşü engelleyen çitler ve artık ağaçlar da daha uzaktan soluklaşır — ekranınıza ulaşan şey (büyük ölçüde) karakterinizin gerçekten görebildiğiyle örtüşür.
+Vanilla PZ'de duvarlar ve çatılar yalnızca karakterinizin etrafındaki yaklaşık 5 karoluk bir yarıçap içinde soluklaşır, ağaçlar ise yalnızca karakterin etrafındaki küçük bir daire içinde. Ekranın önündeki [i]oyuncu[/i] bu yüzden sürekli olarak [i]karakterin[/i] gerçekten algıladığından daha azını görür: bir evin arkasına yaslanmış bir zombi, gözle dönüp arkasına bakamadığınız bir çit köşesi, yolda tam önünüzdeki bir ağaç. [b]Peek a View[/b] vanilla'nın bu aynı soluklaşma mekaniğini daha uzağa genişletir, böylece ekranınıza ulaşan şey karakterinizin zaten algılayabileceğine kabaca uyar.
+
+Vanilla ile aynı kurallar, sadece daha uzaktan tetiklenir. Röntgen görüşü yok, şeffaf duvar yok, düşman silüeti yok. Soluklaşmış bir ağaç görüş hattı vermez. Arkasındaki şey görünmek için yine karakterinizin görüş hattında olmalı ve kısmen bir çalı veya ağaç karosunda duran bir zombi gizli kalabilir. Vanilla'nın görünürlük kuralları geçerliliğini korur: kapalı kapılar, perdeler, savaş sisi her zaman gizledikleri şeyleri gizlemeye devam eder.
 
 [h1]Bu mod ne yapar[/h1]
 [list]
-[*][b]Duvar kesimi[/b] — vanilla'nın ~5 karoluk soluklaşma menzilini 20 karoya kadar genişletir. Yapılandırılabilir.
-[*][b]Ağaç solukluğu[/b] — karakterinizin görüş hattındaki ağaçlar saydamlaşır ve arkalarındaki zombileri ortaya çıkarır (içlerindeki zombileri değil — röntgen görüşü yok). 25 karoya kadar bağımsız menzil kaydırıcısı.
-[*]Her özelliğin kendi sürüş hız sınırı vardır — birini araçta kapatın, diğerini açık tutun (örneğin yol kenarındaki engelleri tespit etmek için daha yüksek hızda ağaç solukluğu, daha az ekran gürültüsü için duvar kesimi kapalı).
-[*]Yalnızca nişan alma duruşunda mod opsiyonu — tüm modu yalnızca silahla nişan alırken çalıştırır.
-[*]Şeffaf duvarlar yok, röntgen görüşü yok — vanilla ile aynı soluklaşma mekaniği, sadece daha uzaktan tetiklenir. Karakterin gördüğünü görürsünüz.
+[*][b]Duvar kesimi[/b]: vanilla'nın ~5 karoluk soluklaşma menzilini 20 karoya kadar genişletir (varsayılan 15).
+[*][b]Ağaç solukluğu[/b]: karakterinizin görüş hattındaki ağaçlar 25 karoya kadar saydamlaşır, her yönde.
+[*][b]İki etkinleştirme koşulu[/b]: yalnızca nişan alırken (varsayılan kapalı; etkinken mod yalnızca bu duruşta çalışır) ve araçta hız eşiği (duvar kesimi ve ağaç solukluğu için bağımsız km/h eşikleri).
 [*]Ayrıca Build 42'deki bir render hatasını düzeltir; oyuncunun yaptığı yapılar, yakındaki vanilla duvarların kaybolmasına neden olur.
 [/list]
 
 [h1]Ayarlar[/h1]
-Tüm seçenekler Seçenekler → Modlar → Peek a View altında, üç bölüme ayrılmış (Genel, Duvar kesimi, Ağaç solukluğu). [b]F8[/b] modu açar/kapatır (yeşil/kırmızı bir hale onaylar), Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir.
+Seçenekler → Modlar → Peek a View, üç bölüm: Genel, Duvar kesimi, Ağaç solukluğu. [b]F8[/b] modu açar/kapatır (yeşil/kırmızı hale onaylar; Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir). Varsayılan değerler etkiyi belirgin biçimde gösterir. Menzilleri azaltın, yalnızca nişan alırken modunu açın veya hız eşiklerini sıkılaştırarak etkiyi kendi zevkinize göre ayarlayın.
 
 [h1]Gereksinimler[/h1]
 [list]
-[*]Build 42.13 veya daha yenisi
-[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]Workshop sayfası[/url] — sayfalarındaki kurulum adımlarını takip edin
-[/list]
-
-[h1]Ödünleşimler[/h1]
-PeekAView, vanilla PZ'nin görsel deneyimini kasıtlı olarak değiştirir — neye girdiğinizi bilmek faydalıdır.
-[list]
-[*]TIS'in amaçladığı görünüm değil. Genişletilmiş menziller, geliştiricilerin sunduğu görsel stilden bilinçli bir kopuştur. Vanilla görünümünü tercih ediyorsanız, bu mod size göre değil.
-[*]Yoğun şehir bloklarında, hareket ederken binalar daha hızlı görünüp kaybolabilir — bu dikkat dağıtıcı olabilir.
-[*]Otoyol hızlarında ağaç solukluğu tek bir karede tamamen şeffafa geçer, böylece opak ağaç tepelerine sürmezsiniz — ağaç solukluğunu maksimum 120 km/h'ye kadar aktif tutabilirsiniz. Bu nedenle hız sınırı varsayılan olarak 100 km/h'dir.
-[*]Kare başına maliyet küçüktür (önbellekler vanilla'ya yakın tutar) ama sıfır değil — düşük donanımda menzilleri birkaç karo azaltmak yardımcı olur.
+[*]PZ Build 42.13 veya daha yenisi
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], herhangi bir Java modu için tek seferlik kurulum
 [/list]
 
 [h1]Uyumluluk[/h1]
 [list]
-[*]Tek oyunculu ve çok oyunculu (yalnızca istemci tarafı render, sunucu değişikliği gerekmez)
-[*]Herhangi bir modda olduğu gibi, yüklemeden önce kayıt dosyanızı yedekleyin.
-[*]12 dilde yerelleştirildi: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[*]Şu anda diğer Project Zomboid modlarıyla bilinen bir uyumsuzluk yok.
+[*]Tek oyunculu ve çok oyunculu (yalnızca istemci tarafı render, sunucu değişikliği yok).
+[*]EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP dillerinde yerelleştirildi.
 [/list]
 
-[h1]Neden ZombieBuddy?[/h1]
-Bu bir Java modu. Derlenmiş bir PZ metodunun davranışını değiştirmek standart bir Lua moduyla mümkün değildir ve ZombieBuddy kullanmak yamayı küçük PZ güncellemeleri boyunca çalışır halde tutar. Tek seferlik bir kurulum — ZombieBuddy mod listenizde olduğunda, herhangi bir ZombieBuddy tabanlı mod ek yapılandırma olmadan eklenebilir.
+[h1]Ödünleşimler[/h1]
+[list]
+[*]TIS'in amaçladığı görünümden görsel sapma. Vanilla stilini tercih ediyorsanız bu mod size göre değil.
+[*]Yoğun şehir bloklarında, hareket ederken binalar daha hızlı görünüp kaybolabilir; bu başlangıçta dikkat dağıtıcı olabilir.
+[*]Otoyol hızlarında ağaç solukluğu tek bir karede saydam duruma geçer, böylece opak ağaç tepelerine sürmezsiniz.
+[*]Kare başına maliyet küçüktür ama sıfır değil. Düşük donanımda menzilleri birkaç karo azaltmak yardımcı olur.
+[/list]
 
-[h1]Kaynak ve şeffaflık[/h1]
-Hem PeekAView hem de ZombieBuddy MIT lisanslı ve tamamen açık kaynaktır. Workshop ikili dosyasına güvenmek istemiyorsanız, her satırı okuyabilir veya modu kendiniz kaynaktan derleyebilirsiniz. Yamalar yalnızca belirli PZ render sınıflarına dokunur — dosya I/O yok, ağ erişimi yok, PZ'nin kendi kodu dışında hiçbir şey yok.
+[h1]Kaynak kodu[/h1]
+Hem PeekAView hem de ZombieBuddy MIT lisanslı ve tamamen açık kaynaktır. Yamalar yalnızca belirli PZ render sınıflarına dokunur. Dosya erişimi yok, ağ erişimi yok, PZ'nin kendi kodu dışında hiçbir şey yok.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]

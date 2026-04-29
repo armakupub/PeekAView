@@ -1,47 +1,43 @@
-Schluss mit versteckspielenden Zombies.
+[h1]Sieh, was dein Charakter sieht[/h1]
 
-Im Vanilla-PZ werden Wände und Dächer erst in einem Umkreis von etwa 5 Feldern um deinen Charakter ausgeblendet – du als Spieler vor dem Bildschirm siehst also weniger, als dein Charakter eigentlich wahrnehmen kann. Ein Zombie, der an einer Hauswand lehnt oder sich hinter einem hohen Zaun versteckt, bleibt für dich komplett unsichtbar, selbst wenn dein Charakter direkt auf ihn schaut. [b]Peek a View[/b] schließt diese Lücke: Häuser, sichtblockierende Zäune und nun auch Bäume werden aus größerer Entfernung ausgeblendet – was auf deinem Bildschirm ankommt, entspricht (weitestgehend) dem, was dein Charakter tatsächlich sehen kann.
+Im Vanilla-PZ werden Wände und Dächer nur in einem Umkreis von etwa 5 Feldern um deinen Charakter ausgeblendet, und Bäume nur in einem kleinen Kreis um den Charakter. Du als Spieler vor dem Bildschirm siehst dadurch konstant weniger, als dein Charakter tatsächlich wahrnimmt: ein Zombie, der an der Rückseite eines Hauses lehnt, eine Zaunecke, um die du nicht herumschauen kannst, ein Baum direkt vor dir auf der Straße. [b]Peek a View[/b] erweitert genau diese Vanilla-Ausblende-Mechaniken nach außen, sodass das, was auf deinem Bildschirm ankommt, ungefähr dem entspricht, was dein Charakter ohnehin wahrnehmen würde.
+
+Dieselben Regeln wie in Vanilla, nur aus größerer Entfernung ausgelöst. Kein X-Ray, keine durchsichtigen Wände, keine Gegner-Umrisse. Ein durchscheinender Baum gewährt keine Sichtlinie. Was dahinter steht, muss ebenfalls in der Sichtlinie deines Charakters liegen, um sichtbar zu werden, und ein Zombie, der sich teilweise auf einem Busch- oder Baum-Feld befindet, kann trotzdem verdeckt bleiben. Vanillas Sichtbarkeitsregeln gelten weiterhin: geschlossene Türen, Vorhänge, Fog of War verstecken nach wie vor das, was sie schon immer versteckt haben.
 
 [h1]Was dieser Mod macht[/h1]
 [list]
-[*][b]Wand-Cutaway[/b] – erweitert die Vanilla-Ausblende-Reichweite von ~5 Feldern auf bis zu 20 Felder. Konfigurierbar.
-[*][b]Bäume ausblenden[/b] – Bäume in der Sichtlinie deines Charakters werden durchscheinend, sodass Zombies dahinter sichtbar werden (keine Zombies, die im Baum stecken – kein X-Ray). Eigener Reichweite-Regler bis zu 25 Felder.
-[*]Jede Funktion hat einen eigenen Geschwindigkeits-Schwellwert beim Fahren – schalte eine im Auto ab und behalte die andere an (z. B. Bäume ausblenden bei höherer Geschwindigkeit, um Hindernisse am Straßenrand früh zu sehen, Wand-Cutaway aus für weniger Bildschirmrauschen).
-[*]Optionaler Modus nur in der Kampfhaltung ("nimble stance") – beschränkt den ganzen Mod darauf, dass du eine Waffe anlegst.
-[*]Keine durchsichtigen Wände, kein X-Ray – es ist dieselbe Ausblende-Mechanik wie in Vanilla, nur aus größerer Entfernung ausgelöst. Du siehst, was dein Charakter sieht.
-[*]Behebt außerdem einen Render-Bug in Build 42, bei dem von Spielern gebaute Strukturen dazu führen, dass nahegelegene Vanilla-Wände verschwinden.
+[*][b]Wand-Cutaway[/b]: erweitert Vanillas ~5-Felder-Ausblende-Reichweite auf bis zu 20 Felder (Standard 15).
+[*][b]Bäume ausblenden[/b]: Bäume in der Sichtlinie deines Charakters werden bis zu 25 Felder durchscheinend, in alle Richtungen.
+[*][b]Zwei Beschränkungen[/b]: nur in Kampf-/Nimble-Haltung (Standard aus; wenn aktiv, greift der Mod nur in dieser Haltung) und ein Geschwindigkeits-Schwellwert im Fahrzeug (unabhängige km/h-Werte für Cutaway und Bäume).
+[*]Behebt außerdem einen Render-Bug in Build 42, bei dem von Spielern gebaute Strukturen nahegelegene Vanilla-Wände verschwinden lassen.
 [/list]
 
 [h1]Einstellungen[/h1]
-Alle Optionen findest du unter Optionen → Mods → Peek a View, gegliedert in drei Abschnitte (Allgemein, Wand-Cutaway, Bäume ausblenden). [b]F8[/b] schaltet den Mod an/aus (grüner/roter Halo bestätigt den Status), neu belegbar unter [noparse][PeekAView][/noparse] in Optionen → Tastenbelegung.
+Optionen → Mods → Peek a View, drei Abschnitte: Allgemein, Wand-Cutaway, Bäume ausblenden. [b]F8[/b] schaltet den Mod an/aus (grüner/roter Halo bestätigt den Status; neu belegbar in Optionen → Tastenbelegung unter [noparse][PeekAView][/noparse]). Die Voreinstellungen zeigen den Effekt deutlich. Senke die Reichweiten, beschränke auf Kampf-/Nimble-Haltung oder verschärfe die Fahrgeschwindigkeits-Schwellwerte, um den Effekt nach Geschmack zurückzudrehen.
 
 [h1]Voraussetzungen[/h1]
 [list]
-[*]Build 42.13 oder neuer
-[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]Workshop-Seite[/url] – folge den Installationsschritten auf der Seite
-[/list]
-
-[h1]Kompromisse[/h1]
-PeekAView verändert bewusst die visuelle Erfahrung des Vanilla-PZ – es lohnt sich zu wissen, worauf du dich einlässt.
-[list]
-[*]Nicht der Look, den TIS beabsichtigt hat. Die erweiterten Reichweiten sind ein bewusster Bruch mit dem visuellen Stil, den die Entwickler ausgeliefert haben. Wenn du den Vanilla-Look bevorzugst, ist dieser Mod nichts für dich.
-[*]In dicht bebauten Stadtvierteln können Gebäude beim Bewegen schneller ein- und ausgeblendet werden – das kann ablenkend wirken.
-[*]Bei Highway-Geschwindigkeit schnappt der Tree-Fade in einem einzigen Frame vollständig auf transparent, damit du nicht in opake Baumkronen fährst — du kannst Tree-Fade bis zum 120-km/h-Maximum aktiv lassen. Der Geschwindigkeits-Schwellwert ist standardmäßig auf 100 km/h gesetzt.
-[*]Der Mehraufwand pro Frame ist klein (Caches halten ihn nahe am Vanilla-Niveau), aber nicht null – auf schwächerer Hardware hilft es, die Reichweiten um ein paar Felder zu reduzieren.
+[*]PZ Build 42.13 oder neuer
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], einmalige Installation für jeden Java-Mod
 [/list]
 
 [h1]Kompatibilität[/h1]
 [list]
-[*]Singleplayer und Multiplayer (nur clientseitiges Rendering, keine Server-Änderungen erforderlich)
-[*]Wie bei jedem Mod: Sichere deinen Spielstand vor der Installation.
-[*]Lokalisiert in 12 Sprachen: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[*]Aktuell sind keine Inkompatibilitäten mit anderen Project-Zomboid-Mods bekannt.
+[*]Singleplayer und Multiplayer (nur clientseitiges Rendering, keine Server-Änderungen).
+[*]Lokalisiert in EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
 [/list]
 
-[h1]Warum ZombieBuddy?[/h1]
-Das hier ist ein Java-Mod. Das Verhalten einer kompilierten PZ-Methode lässt sich mit einem normalen Lua-Mod nicht verändern, und ZombieBuddy sorgt dafür, dass der Patch auch über kleinere PZ-Updates hinweg funktioniert. Es ist eine einmalige Installation – sobald ZombieBuddy in deiner Mod-Liste ist, lassen sich alle ZombieBuddy-basierten Mods ohne weitere Einrichtung hinzufügen.
+[h1]Kompromisse[/h1]
+[list]
+[*]Visuelle Abweichung von TIS' beabsichtigtem Look. Wenn du den Vanilla-Stil bevorzugst, ist dieser Mod nichts für dich.
+[*]In dicht bebauten Stadtvierteln können Gebäude beim Bewegen schneller ein- und ausgeblendet werden, was anfangs ablenken kann.
+[*]Bei Autobahn-Geschwindigkeit schnappt der Tree Fade innerhalb eines Frames in seinen durchscheinenden Zustand, damit du nicht in opake Baumkronen fährst.
+[*]Der Mehraufwand pro Frame ist klein, aber nicht null. Auf schwächerer Hardware hilft es, die Reichweiten um ein paar Felder zu reduzieren.
+[/list]
 
-[h1]Quellcode & Transparenz[/h1]
-Sowohl PeekAView als auch ZombieBuddy stehen unter MIT-Lizenz und sind vollständig Open Source. Falls du dem Workshop-Binary nicht vertrauen möchtest, kannst du jede Zeile einsehen oder den Mod selbst aus dem Quellcode bauen. Die Patches berühren ausschließlich bestimmte PZ-Rendering-Klassen – keine Datei-I/O, kein Netzwerkzugriff, nichts außerhalb des PZ-eigenen Codes.
+[h1]Quellcode[/h1]
+Sowohl PeekAView als auch ZombieBuddy stehen unter MIT-Lizenz und sind vollständig Open Source. Die Patches berühren ausschließlich bestimmte PZ-Rendering-Klassen. Keine Datei-I/O, kein Netzwerkzugriff, nichts außerhalb des PZ-eigenen Codes.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]

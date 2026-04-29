@@ -2,13 +2,11 @@
 
 Project Zomboid mod — extends the wall, building, and tree cutaway range so zombies hiding in your line of sight stop being invisible.
 
-![PeekAView wall cutaway comparison](screenshots/1_walls_collage.jpg)
+![PeekAView before and after: walls and trees fade from further away](screenshots/0_overview_collage.jpg)
 
-In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. Peek a View closes that gap: houses and view-blocking fences fade from further away, so what reaches your screen matches (mostly) what your character can see.
+In vanilla PZ, walls and roofs fade out only within roughly 5 tiles of your character, and trees only within a small circle around the character. So the *player* behind the screen consistently sees less than the *character* has line of sight to: a zombie leaning on the back of a house, a fence corner you can't peek around, a tree directly in front of you on the road. **Peek a View** extends those same vanilla fade mechanics further out, so what reaches your screen matches roughly what your character would already perceive.
 
-The same idea now applies to **trees** as well — see-around tree sprites the character can look past so zombies are no longer hidden behind a wall of leaves.
-
-![PeekAView tree fade comparison](screenshots/2_trees_collage.jpg)
+Same rules as vanilla, just triggered from further out. No X-ray, no see-through walls, no enemy outlines. A faded tree doesn't grant line of sight. Anything behind it still needs to be in your character's line of sight to appear, and a zombie standing partially on a bush or tree tile can still stay hidden. Vanilla's visibility rules still apply: closed doors, curtains, fog of war still hide what they always did.
 
 ## Features
 

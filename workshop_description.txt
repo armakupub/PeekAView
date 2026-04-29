@@ -1,47 +1,43 @@
-No more peek-a-boo zombies.
+[h1]See what your character sees[/h1]
 
-In vanilla PZ, walls and roofs only fade out within roughly 5 tiles of your character — so the player behind the screen sees less than the character actually can. A zombie leaning against a house wall or hiding behind a tall fence stays completely invisible to you, even when your character is looking straight at it. [b]Peek a View[/b] closes that gap: houses, view-blocking fences, and now also trees fade from further away, so what reaches your screen matches (mostly) what your character can see.
+In vanilla PZ, walls and roofs fade out only within roughly 5 tiles of your character, and trees only within a small circle around the character. So the [i]player[/i] behind the screen consistently sees less than the [i]character[/i] has line of sight to: a zombie leaning on the back of a house, a fence corner you can't peek around, a tree directly in front of you on the road. [b]Peek a View[/b] extends those same vanilla fade mechanics further out, so what reaches your screen matches roughly what your character would already perceive.
+
+Same rules as vanilla, just triggered from further out. No X-ray, no see-through walls, no enemy outlines. A faded tree doesn't grant line of sight. Anything behind it still needs to be in your character's line of sight to appear, and a zombie standing partially on a bush or tree tile can still stay hidden. Vanilla's visibility rules still apply: closed doors, curtains, fog of war still hide what they always did.
 
 [h1]What this mod does[/h1]
 [list]
-[*][b]Wall cutaway[/b] — extends vanilla's ~5-tile cutaway range up to 20 tiles. Configurable.
-[*][b]Tree fade[/b] — trees in your character's line of sight become translucent so zombies behind them are visible (not zombies inside them — no X-ray). Independent range slider up to 25 tiles.
-[*]Each feature has its own driving-speed gate — turn one off in the car while keeping the other on (e.g. tree fade on at higher speeds for spotting roadside obstacles, wall cutaway off for less screen noise).
-[*]Optional nimble-stance-only mode — restrict the whole mod to while you're aiming a weapon.
-[*]No see-through walls, no X-ray — same fade mechanics as vanilla, just triggered from further away. You see what the character sees.
+[*][b]Wall cutaway[/b]: extends vanilla's ~5-tile cutaway range up to 20 tiles (default 15).
+[*][b]Tree fade[/b]: trees in your character's line of sight become translucent up to 25 tiles, in any direction.
+[*][b]Two gates[/b]: aim/nimble-stance only (off by default; when on, the mod only runs while you're in that stance) and an in-vehicle speed cutoff (independent km/h thresholds for cutaway and tree fade).
 [*]Also fixes a B42 render bug where player-built structures cause nearby vanilla walls to disappear.
 [/list]
 
 [h1]Settings[/h1]
-All options live under Options → Mods → Peek a View, organized into three sections (Global, Wall cutaway, Tree fade). [b]F8[/b] toggles the mod on/off (green/red halo confirms), rebindable under [noparse][PeekAView][/noparse] in Options → Keybind.
+Options → Mods → Peek a View, three sections: Global, Wall cutaway, Tree fade. [b]F8[/b] toggles the mod on/off (green/red halo confirms; rebindable in Options → Keybind under [noparse][PeekAView][/noparse]). Defaults are tuned to show the effect clearly. Reduce ranges, enable aim/nimble-stance only, or tighten driving thresholds to scale it back to your taste.
 
 [h1]Requirements[/h1]
 [list]
-[*]Build 42.13 or later
-[*][b]ZombieBuddy[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]Workshop page[/url] — follow the install steps on their page
-[/list]
-
-[h1]Trade-offs[/h1]
-PeekAView changes the visual experience of vanilla PZ on purpose — worth knowing what you're signing up for.
-[list]
-[*]Not the look TIS intended. The extended ranges are a deliberate departure from the visual style the devs shipped. If you prefer the vanilla look, this mod isn't for you.
-[*]In dense city blocks, buildings can fade in and out more quickly as you move — can be distracting.
-[*]At highway speeds tree fade snaps fully translucent in one frame so you don't drive into opaque crowns — you can keep tree fade on right up to the 120 km/h max. The driving-speed gate defaults to 100 km/h for that reason.
-[*]Per-frame cost is small (caches keep things close to vanilla) but not zero — on lower-end hardware, dropping the ranges a few tiles helps.
+[*]PZ Build 42.13 or later
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], one-time install for any Java mod
 [/list]
 
 [h1]Compatibility[/h1]
 [list]
-[*]Singleplayer and multiplayer (client-side rendering only, no server changes required)
-[*]As with any mod, back up your save before installing.
-[*]Localized in 12 languages: EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP
+[*]No known incompatibilities with other Project Zomboid mods at this time.
+[*]Singleplayer + multiplayer (client-side rendering only, no server changes).
+[*]Localized in EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
 [/list]
 
-[h1]Why ZombieBuddy?[/h1]
-This is a Java mod. Changing the behavior of a compiled PZ method isn't achievable with a standard Lua mod, and using ZombieBuddy keeps the patch working across minor PZ updates. It's a one-time install — once ZombieBuddy is in your mod list, any ZombieBuddy-based mod can be added without further setup.
+[h1]Trade-offs[/h1]
+[list]
+[*]Visual departure from TIS's intended look. If you prefer the vanilla style, this mod isn't for you.
+[*]In dense city blocks, buildings can fade in and out more quickly as you move, which can be distracting at first.
+[*]At highway speeds tree fade snaps to its faded state in one frame so you don't drive into opaque crowns.
+[*]Per-frame cost is small but not zero. On lower-end hardware, dropping the ranges a few tiles helps.
+[/list]
 
-[h1]Source & transparency[/h1]
-Both PeekAView and ZombieBuddy are MIT-licensed and fully open source. If you'd rather not trust the Workshop binary, you can read every line or build the mod yourself from source. The patches only touch specific PZ rendering classes — no file I/O, no network access, nothing outside PZ's own code.
+[h1]Source[/h1]
+Both PeekAView and ZombieBuddy are MIT-licensed and fully open source. The patches only touch specific PZ rendering classes. No file I/O, no network access, nothing outside PZ's own code.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
