@@ -70,7 +70,6 @@ public class PeekAViewMod {
                 : (v > MAX_TREE_FADE_RANGE ? MAX_TREE_FADE_RANGE : v);
         if (clamped == treeFadeRange) return;
         treeFadeRange = clamped;
-        Patch_FBORenderCell.Patch_calculateObjectsObscuringPlayer.invalidateCache();
     }
 
     public static void setFixB42Adjacency(boolean v) {
@@ -100,11 +99,7 @@ public class PeekAViewMod {
     }
 
     public static void setFadeNWTrees(boolean v) {
-        if (v == fadeNWTrees) return;
         fadeNWTrees = v;
-        // Toggle-off-then-on across a range change would otherwise
-        // serve a stale cache.
-        Patch_FBORenderCell.Patch_calculateObjectsObscuringPlayer.invalidateCache();
     }
 
     // Per-frame memo for the two gates. Both gates share the same
@@ -125,8 +120,8 @@ public class PeekAViewMod {
         return activeCacheCutaway;
     }
 
-    // Tree-fade gate (isTranslucentTree, calculateObjectsObscuringPlayer,
-    // DrawStencilMask). Honors treeFadeMaxDrivingSpeedKmh.
+    // Tree-fade gate (isTranslucentTree, DrawStencilMask).
+    // Honors treeFadeMaxDrivingSpeedKmh.
     public static boolean isActiveTreeFadeForCurrentRenderPlayer() {
         refreshActiveCache();
         return activeCacheTreeFade;

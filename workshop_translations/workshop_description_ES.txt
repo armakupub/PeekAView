@@ -13,7 +13,9 @@ Las mismas reglas que vanilla, solo activadas desde más lejos. Sin rayos X, sin
 [/list]
 
 [h1]Ajustes[/h1]
-Opciones → Mods → Peek a View, tres secciones: General, Corte de paredes, Difuminado de árboles. [b]F8[/b] activa/desactiva el mod (un halo verde/rojo lo confirma; reasignable en Opciones → Controles bajo [noparse][PeekAView][/noparse]). Los valores por defecto muestran el efecto claramente. Reduce los alcances, activa solo al apuntar, o ajusta los umbrales de velocidad para adaptar el efecto a tu gusto.
+Opciones → Mods → Peek a View, tres secciones: General, Corte de paredes, Difuminado de árboles. [b]F8[/b] activa/desactiva el mod (un halo verde/rojo lo confirma; reasignable en Opciones → Controles bajo [noparse][PeekAView][/noparse]).
+
+Los valores por defecto muestran el efecto claramente. Reduce los alcances, activa solo al apuntar, o ajusta los umbrales de velocidad para adaptar el efecto a tu gusto.
 
 [h1]Requisitos[/h1]
 [list]
@@ -42,6 +44,8 @@ Tanto PeekAView como ZombieBuddy están bajo licencia MIT y son completamente de
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

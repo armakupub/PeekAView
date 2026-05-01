@@ -13,7 +13,9 @@ Mêmes règles que vanilla, simplement déclenchées depuis plus loin. Pas de ra
 [/list]
 
 [h1]Paramètres[/h1]
-Options → Mods → Peek a View, trois sections : Général, Coupe de murs, Estompage des arbres. [b]F8[/b] active/désactive le mod (halo vert/rouge pour confirmation ; réassignable dans Options → Touches sous [noparse][PeekAView][/noparse]). Les valeurs par défaut montrent l'effet clairement. Réduisez les portées, activez la visée uniquement, ou resserrez les seuils de vitesse pour ajuster l'effet à votre goût.
+Options → Mods → Peek a View, trois sections : Général, Coupe de murs, Estompage des arbres. [b]F8[/b] active/désactive le mod (halo vert/rouge pour confirmation ; réassignable dans Options → Touches sous [noparse][PeekAView][/noparse]).
+
+Les valeurs par défaut montrent l'effet clairement. Réduisez les portées, activez la visée uniquement, ou resserrez les seuils de vitesse pour ajuster l'effet à votre goût.
 
 [h1]Prérequis[/h1]
 [list]
@@ -42,6 +44,8 @@ PeekAView et ZombieBuddy sont tous deux sous licence MIT et entièrement open so
 [*][b]PeekAView[/b] : [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b] : [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

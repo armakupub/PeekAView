@@ -59,13 +59,9 @@ tolerate a one-frame lag.
   `Patch_IsoCell.Patch_GetSquaresAroundPlayerSquare.invalidateCache()`.
 - `setMaxDrivingSpeedKmh(int)` — clamps to `[0, MAX_DRIVING_SPEED_CAP]`.
 - `setFixB42Adjacency(boolean)`
-- `setFadeNWTrees(boolean)` — invalidates
-  `Patch_calculateObjectsObscuringPlayer`'s Location cache so a
-  toggle-off across a range change can't leak a stale list back when
-  toggled on.
+- `setFadeNWTrees(boolean)`
 - `setTreeFadeRange(int)` — clamps to
-  `[MIN_TREE_FADE_RANGE, MAX_TREE_FADE_RANGE]`; on change invalidates
-  the same Location cache.
+  `[MIN_TREE_FADE_RANGE, MAX_TREE_FADE_RANGE]`.
 - `setTreeFadeMaxDrivingSpeedKmh(int)` — clamps to
   `[0, MAX_DRIVING_SPEED_CAP]`.
 - `setTreeFadeStayOnWhileDriving(boolean)`
@@ -84,8 +80,8 @@ public static boolean isActiveTreeFadeForCurrentRenderPlayer();
 
 Cutaway-side patches (`Patch_GetSquaresAroundPlayerSquare`,
 `Patch_cutawayVisit`) call the cutaway gate. Tree-fade patches
-(`Patch_isTranslucentTree`, `Patch_calculateObjectsObscuringPlayer`,
-`Patch_DrawStencilMask`) call the tree-fade gate. The two B42-fix
+(`Patch_isTranslucentTree`, `Patch_DrawStencilMask`) call the
+tree-fade gate. The two B42-fix
 patches (`Patch_shouldCutaway`, `Patch_isAdjacentToOrphanStructure`)
 do **not** call either gate — they check `enabled` and
 `fixB42Adjacency` only and run regardless of stance, vehicle, or
@@ -151,35 +147,9 @@ per-player array.
 
 ## Performance
 
-Measured on a 120 s straight-line driving run (Rosewood → Muldraugh
-on the southern lane in a black van capping at ~80 km/h, ~50
-background mods loaded for a realistic user setup).
-
-The mod's CPU footprint at default settings (`range=15`,
-`treeFadeRange=20`, all features on, no aim-stance gating) is the
-sum of CPU samples landing in any patched method or downstream
-vanilla code that runs because of our patches. Total samples for
-context: ~3700-4000 over the 120 s window.
-
-| Setting | Mod-induced CPU samples | % of total |
-|---|---:|---:|
-| `Enable` off (mod loaded but inert) | 4 | 0.11% |
-| Defaults, range=20 (no tile-filter) | 210 | 5.27% |
-| Defaults, range=20 (with tile-filter) | **104** | **2.78%** |
-| range=25, max (with tile-filter) | 98 | 2.65% |
-
-The tile-filter optimization halves Plan B's `calculateObjects-
-ObscuringPlayer` chain cost and brings vanilla's per-frame walk over
-the obscuring-tile list (`squareHasFadingInObjects`, `listContains-
-Location`) below sample resolution. Trade: ~14 samples land in
-`Patch_calculateObjectsObscuringPlayer.rebuildCache` per 120 s
-(tile-cross scans), well below what the filter saves downstream.
-
-GC pauses are below sample resolution under ZGC concurrent collection
-on this PZ JVM build. CPU hot-method deltas are within ±10% of run-
-to-run scene-density noise. Standing still and walking on foot
-remain effectively free — caches absorb 59/60 calls per second.
-
-The `Enable` toggle off path (master switch) is verified to leave
-zero PeekAView frames in CPU samples and zero peekaview-attributed
-allocation samples — the gate truly costs nothing.
+The `Enable` toggle off path (master switch) leaves zero PeekAView
+frames in CPU samples and zero peekaview-attributed allocation
+samples. The driving-run baseline measured for 1.2.0 is no longer
+representative after the 1.2.1 removal of
+`Patch_calculateObjectsObscuringPlayer`; rerun before quoting
+specific numbers.

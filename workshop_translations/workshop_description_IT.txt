@@ -13,7 +13,9 @@ Le stesse regole di vanilla, solo attivate da più lontano. Niente raggi X, nien
 [/list]
 
 [h1]Impostazioni[/h1]
-Opzioni → Mod → Peek a View, tre sezioni: Generale, Taglio dei muri, Sfumatura degli alberi. [b]F8[/b] attiva/disattiva la mod (un alone verde/rosso lo conferma; riassegnabile in Opzioni → Comandi sotto [noparse][PeekAView][/noparse]). I valori predefiniti mostrano l'effetto chiaramente. Riduci le portate, attiva solo durante la mira, oppure restringi le soglie di velocità per adattare l'effetto al tuo gusto.
+Opzioni → Mod → Peek a View, tre sezioni: Generale, Taglio dei muri, Sfumatura degli alberi. [b]F8[/b] attiva/disattiva la mod (un alone verde/rosso lo conferma; riassegnabile in Opzioni → Comandi sotto [noparse][PeekAView][/noparse]).
+
+I valori predefiniti mostrano l'effetto chiaramente. Riduci le portate, attiva solo durante la mira, oppure restringi le soglie di velocità per adattare l'effetto al tuo gusto.
 
 [h1]Requisiti[/h1]
 [list]
@@ -42,6 +44,8 @@ Sia PeekAView che ZombieBuddy sono sotto licenza MIT e completamente open source
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

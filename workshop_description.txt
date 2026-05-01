@@ -13,7 +13,9 @@ Same rules as vanilla, just triggered from further out. No X-ray, no see-through
 [/list]
 
 [h1]Settings[/h1]
-Options → Mods → Peek a View, three sections: Global, Wall cutaway, Tree fade. [b]F8[/b] toggles the mod on/off (green/red halo confirms; rebindable in Options → Keybind under [noparse][PeekAView][/noparse]). Defaults are tuned to show the effect clearly. Reduce ranges, enable aim/nimble-stance only, or tighten driving thresholds to scale it back to your taste.
+Options → Mods → Peek a View, three sections: Global, Wall cutaway, Tree fade. [b]F8[/b] toggles the mod on/off (green/red halo confirms; rebindable in Options → Keybind under [noparse][PeekAView][/noparse]).
+
+Defaults are tuned to show the effect clearly. Reduce ranges, enable aim/nimble-stance only, or tighten driving thresholds to scale it back to your taste.
 
 [h1]Requirements[/h1]
 [list]
@@ -42,6 +44,8 @@ Both PeekAView and ZombieBuddy are MIT-licensed and fully open source. The patch
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

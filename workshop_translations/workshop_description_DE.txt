@@ -13,7 +13,9 @@ Dieselben Regeln wie in Vanilla, nur aus größerer Entfernung ausgelöst. Kein 
 [/list]
 
 [h1]Einstellungen[/h1]
-Optionen → Mods → Peek a View, drei Abschnitte: Allgemein, Wand-Cutaway, Bäume ausblenden. [b]F8[/b] schaltet den Mod an/aus (grüner/roter Halo bestätigt den Status; neu belegbar in Optionen → Tastenbelegung unter [noparse][PeekAView][/noparse]). Die Voreinstellungen zeigen den Effekt deutlich. Senke die Reichweiten, beschränke auf Kampf-/Nimble-Haltung oder verschärfe die Fahrgeschwindigkeits-Schwellwerte, um den Effekt nach Geschmack zurückzudrehen.
+Optionen → Mods → Peek a View, drei Abschnitte: Allgemein, Wand-Cutaway, Bäume ausblenden. [b]F8[/b] schaltet den Mod an/aus (grüner/roter Halo bestätigt den Status; neu belegbar in Optionen → Tastenbelegung unter [noparse][PeekAView][/noparse]).
+
+Die Voreinstellungen zeigen den Effekt deutlich. Senke die Reichweiten, beschränke auf Kampf-/Nimble-Haltung oder verschärfe die Fahrgeschwindigkeits-Schwellwerte, um den Effekt nach Geschmack zurückzudrehen.
 
 [h1]Voraussetzungen[/h1]
 [list]
@@ -42,6 +44,8 @@ Sowohl PeekAView als auch ZombieBuddy stehen unter MIT-Lizenz und sind vollstän
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

@@ -4,7 +4,7 @@ Technical reference for contributors. Not shipped with the mod.
 
 ## Architecture
 
-PeekAView patches seven vanilla Project Zomboid methods via ZombieBuddy
+PeekAView patches six vanilla Project Zomboid methods via ZombieBuddy
 bytecode patches across three Java files. All runtime state lives on
 the Java side in `PeekAViewMod` (with per-frame and per-position caches
 in the patches). The Lua layer (`PeekAView_Options.lua` /
@@ -20,8 +20,8 @@ PZAPI.ModOptions  ──►  Lua ──►  applyToJava ──►  PeekAViewMod.
                 ┌──────────────────────────────────────┼──────────────────────────────────────┐
                 ▼                                      ▼                                      ▼
         Patch_IsoCell                     Patch_FBORenderCutaways                  Patch_FBORenderCell
-        (2 patches: POI raster +          (3 patches: cutawayVisit dedup +         (2 patches: tree-fade
-         tree-fade stencil mask)           B42 adjacency-kill fix)                   isTranslucent + ceiling)
+        (2 patches: POI raster +          (3 patches: cutawayVisit dedup +         (1 patch: tree-fade
+         tree-fade stencil mask)           B42 adjacency-kill fix)                   isTranslucent)
 ```
 
 ## File Index
@@ -32,7 +32,7 @@ PZAPI.ModOptions  ──►  Lua ──►  applyToJava ──►  PeekAViewMod.
 | [`PeekAViewMod.md`](PeekAViewMod.md) | Main class, state fields, split cutaway/tree-fade gates, per-frame `isActive` memo, vehicle-speed cache |
 | [`Patch_IsoCell.md`](Patch_IsoCell.md) | POI raster expansion + cache + wall/LOS filter (with vanilla pass-through at `MIN_RANGE`); tree-fade stencil-mask extension |
 | [`Patch_FBORenderCutaways.md`](Patch_FBORenderCutaways.md) | cutawayVisit dedup + B42 adjacency-kill fix (3 patches) |
-| [`Patch_FBORenderCell.md`](Patch_FBORenderCell.md) | Tree-fade `isTranslucentTree` extension + speed-proportional fade boost + `calculateObjectsObscuringPlayer` Location cache |
+| [`Patch_FBORenderCell.md`](Patch_FBORenderCell.md) | Tree-fade `isTranslucentTree` extension + speed-proportional fade boost |
 | [`PeekAView_Options.md`](PeekAView_Options.md) | Lua options UI + defensive bridge + Java-missing detection |
 | [`TESTING.md`](TESTING.md) | Manual test notes — verified scenarios + open split-screen item |
 

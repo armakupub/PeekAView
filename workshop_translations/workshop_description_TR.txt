@@ -13,7 +13,9 @@ Vanilla ile aynı kurallar, sadece daha uzaktan tetiklenir. Röntgen görüşü 
 [/list]
 
 [h1]Ayarlar[/h1]
-Seçenekler → Modlar → Peek a View, üç bölüm: Genel, Duvar kesimi, Ağaç solukluğu. [b]F8[/b] modu açar/kapatır (yeşil/kırmızı hale onaylar; Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir). Varsayılan değerler etkiyi belirgin biçimde gösterir. Menzilleri azaltın, yalnızca nişan alırken modunu açın veya hız eşiklerini sıkılaştırarak etkiyi kendi zevkinize göre ayarlayın.
+Seçenekler → Modlar → Peek a View, üç bölüm: Genel, Duvar kesimi, Ağaç solukluğu. [b]F8[/b] modu açar/kapatır (yeşil/kırmızı hale onaylar; Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir).
+
+Varsayılan değerler etkiyi belirgin biçimde gösterir. Menzilleri azaltın, yalnızca nişan alırken modunu açın veya hız eşiklerini sıkılaştırarak etkiyi kendi zevkinize göre ayarlayın.
 
 [h1]Gereksinimler[/h1]
 [list]
@@ -42,6 +44,8 @@ Hem PeekAView hem de ZombieBuddy MIT lisanslı ve tamamen açık kaynaktır. Yam
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

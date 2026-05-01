@@ -13,7 +13,9 @@ Te same zasady co w vanilla, tylko uruchamiane z większej odległości. Bez wid
 [/list]
 
 [h1]Ustawienia[/h1]
-Opcje → Mody → Peek a View, trzy sekcje: Ogólne, Wygaszanie ścian, Wygaszanie drzew. [b]F8[/b] włącza/wyłącza moda (zielona/czerwona aureola potwierdza; do przemapowania w Opcje → Sterowanie pod [noparse][PeekAView][/noparse]). Domyślne wartości pokazują efekt wyraźnie. Zmniejsz zasięgi, włącz tryb tylko podczas celowania albo zaostrz progi prędkości, aby dostosować efekt do swojego gustu.
+Opcje → Mody → Peek a View, trzy sekcje: Ogólne, Wygaszanie ścian, Wygaszanie drzew. [b]F8[/b] włącza/wyłącza moda (zielona/czerwona aureola potwierdza; do przemapowania w Opcje → Sterowanie pod [noparse][PeekAView][/noparse]).
+
+Domyślne wartości pokazują efekt wyraźnie. Zmniejsz zasięgi, włącz tryb tylko podczas celowania albo zaostrz progi prędkości, aby dostosować efekt do swojego gustu.
 
 [h1]Wymagania[/h1]
 [list]
@@ -42,6 +44,8 @@ Zarówno PeekAView, jak i ZombieBuddy są na licencji MIT i w pełni open source
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

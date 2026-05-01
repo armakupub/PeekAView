@@ -13,7 +13,9 @@ Mesmas regras do vanilla, apenas acionadas de mais longe. Sem visão de raio-X, 
 [/list]
 
 [h1]Configurações[/h1]
-Opções → Mods → Peek a View, três seções: Geral, Corte de paredes, Esmaecimento de árvores. [b]F8[/b] liga/desliga o mod (halo verde/vermelho confirma; reatribuível em Opções → Atalhos sob [noparse][PeekAView][/noparse]). Os valores padrão mostram o efeito claramente. Reduza os alcances, ative apenas ao mirar, ou aperte os limites de velocidade para ajustar o efeito ao seu gosto.
+Opções → Mods → Peek a View, três seções: Geral, Corte de paredes, Esmaecimento de árvores. [b]F8[/b] liga/desliga o mod (halo verde/vermelho confirma; reatribuível em Opções → Atalhos sob [noparse][PeekAView][/noparse]).
+
+Os valores padrão mostram o efeito claramente. Reduza os alcances, ative apenas ao mirar, ou aperte os limites de velocidade para ajustar o efeito ao seu gosto.
 
 [h1]Requisitos[/h1]
 [list]
@@ -42,6 +44,8 @@ Tanto o PeekAView quanto o ZombieBuddy estão sob licença MIT e são totalmente
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
+
+[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

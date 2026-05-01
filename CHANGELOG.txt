@@ -1,6 +1,13 @@
 Peek a View - Changelog
 =======================
 
+1.2.1 - 2026-05-01
+  - Bugfix: shelves and similar objects that show the character
+    behind them could flicker (most visible indoors with the
+    character standing behind a shelf).
+  - Thanks to laoda on Steam for the bug report and the two
+    videos that pinned down the spot.
+
 1.2.0 - 2026-04-28
   - Tree fade — behavior fixes:
     - Trees lined up east or south of the player along a straight
