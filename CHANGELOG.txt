@@ -1,6 +1,9 @@
 Peek a View - Changelog
 =======================
 
+1.2.2 - 2026-05-02
+  - Mod is now a signed JAR for ZombieBuddy 2.1.0+.
+
 1.2.1 - 2026-05-01
   - Bugfix: shelves and similar objects that show the character
     behind them could flicker (most visible indoors with the
