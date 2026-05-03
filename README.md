@@ -15,7 +15,7 @@ Same rules as vanilla, just triggered from further out. No X-ray, no see-through
 - **Independent driving-speed gates** — wall cutaway and tree fade each have their own km/h threshold; turn one off in the car while keeping the other on (e.g. tree fade on at higher speed for spotting roadside obstacles, wall cutaway off for less screen noise).
 - **Optional nimble-stance-only mode** — restrict the whole mod to while you are aiming a weapon (right-click held).
 - **No see-through walls, no line-of-sight bypass** — same fade mechanics as vanilla, just triggered from further away. You see what the character can see, not more.
-- **B42 wall-hiding bug fix** — stops the engine from hiding upper-floor walls of vanilla buildings next to player-built stairs or floors. Toggleable.
+- **B42 wall-hiding bug fix** — stops the engine from hiding upper-floor walls of vanilla buildings next to player-built stairs or floors. Applied outdoors only; indoors falls back to vanilla cutaway behavior. Toggleable.
 
 ### Also
 
@@ -53,7 +53,7 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 |---|---|---|
 | Range | 5–20 tiles, default 15 | How far walls and buildings start turning transparent. `5` = pure vanilla (the patch falls through). |
 | Active up to | 0–120 km/h, default 35 | Above this speed in a vehicle, wall cutaway turns off. `0` = always off in a vehicle. |
-| Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ). Runs regardless of `Active only in nimble stance`. |
+| Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ). Runs regardless of `Active only in nimble stance`. Applied outdoors only; indoors uses vanilla cutaway. |
 
 **Tree fade**
 
@@ -75,7 +75,7 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 
 **Is tree fade X-ray?** No. It only fades tree sprites your character can already see past from their angle — exactly what the character sees. A zombie standing inside a bush stays hidden, just like in vanilla.
 
-**What's the "B42 wall-hiding bug"?** In Build 42, placing player-built stairs or floors near a vanilla building can make the adjacent upper-floor walls of that vanilla building disappear entirely — not cutaway, just not rendered. Peek a View ships a workaround that's on by default. Turn it off under `Fix B42 wall-hiding bug` if you want to observe the vanilla behavior. Engine-side fallback without the fix: keep at least a 2-tile gap between player-built structures and vanilla walls, or place them on a different Z-level.
+**What's the "B42 wall-hiding bug"?** In Build 42, placing player-built stairs or floors near a vanilla building can make the adjacent upper-floor walls of that vanilla building disappear entirely — not cutaway, just not rendered. Peek a View ships a workaround that's on by default. The workaround runs outdoors only — indoors the mod falls back to vanilla cutaway, which avoids a known side effect where player-built tiles can become visible through cut walls when the camera player is inside an adjacent vanilla building. Turn it off under `Fix B42 wall-hiding bug` if you want to observe the vanilla behavior. Engine-side fallback without the fix: keep at least a 2-tile gap between player-built structures and vanilla walls, or place them on a different Z-level.
 
 **Why ZombieBuddy?** Peek a View is a Java mod. Changing the behavior of a compiled PZ method isn't achievable with a standard Lua mod, and ZombieBuddy's bytecode patching keeps the mod working across minor PZ updates without editing the PZ jar.
 

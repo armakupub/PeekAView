@@ -1,6 +1,19 @@
 Peek a View - Changelog
 =======================
 
+1.2.3 - 2026-05-03
+  - Bugfix: when the player is inside a building, player-built tiles
+    next to the building no longer bleed through cut walls. The B42
+    adjacency fix is now applied outdoors only, where it's needed,
+    and indoors falls back to vanilla cutaway behavior.
+  - Thanks to samuel.carlin037 on Steam for the report and the
+    screenshots that pinned this down.
+  - Removed the JAR signature requirement that v1.2.2 introduced.
+    For users on connections that couldn't reach Steam over a clean
+    TLS path, ZombieBuddy refused to enable the mod with a "could
+    not verify signature" error. The signed-JAR scheme had no
+    practical upside in return, so it's gone.
+
 1.2.2 - 2026-05-02
   - Mod is now a signed JAR for ZombieBuddy 2.1.0+.
 

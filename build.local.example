@@ -20,16 +20,3 @@ PZ_DIR="C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid"
 # ~/Zomboid/mods/, so without this both copies drift. Point at the inner mods/<Mod>
 # dir; the parent (with workshop.txt/preview.png) is preserved across builds.
 # WORKSHOP_STAGE_MOD="$USERPROFILE/Zomboid/Workshop/PeekAView/Contents/mods/PeekAView"
-
-# Optional: ZombieBuddy v2.1.0+ JAR signing.
-# When both are set, build.sh writes a peekaview.jar.zbs sidecar that ZB
-# verifies against the Ed25519 pubkey published on the author's Steam profile
-# (as JavaModZBS:<64 hex> in the profile summary).
-# Generate a private key with:
-#   mkdir -p ~/.signing && chmod 700 ~/.signing
-#   openssl genpkey -algorithm ed25519 -outform DER -out ~/.signing/peekaview-ed25519-private.der
-# Extract the pubkey (64 hex) for the Steam profile:
-#   openssl pkey -in ~/.signing/peekaview-ed25519-private.der -inform DER -pubout -outform DER \
-#     | tail -c 32 | xxd -p -c 64
-# ZBS_STEAM_ID64="76561198xxxxxxxx"
-# ZBS_PRIVATE_KEY_FILE="$HOME/.signing/peekaview-ed25519-private.der"

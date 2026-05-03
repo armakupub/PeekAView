@@ -8,7 +8,9 @@ extends the raster as expected (per-step effect is direction-
 dependent, see [`Patch_IsoCell.md`](Patch_IsoCell.md)). Driving
 speed-gate flips on/off without flicker. B42 wall-hiding fix
 reproduces vanilla behavior on toggle-off and resolves it on
-toggle-on.
+toggle-on; verified that crossing a building threshold flips the
+fix off (vanilla cutaway resumes indoor) and back on when stepping
+outside.
 
 **Tree fade** — fades cleanly on foot through dense forest, snaps
 fully translucent above ~30 km/h while driving, holds for tall

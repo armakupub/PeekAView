@@ -43,7 +43,7 @@ tolerate a one-frame lag.
 | `aimStanceOnly` | boolean | `false` | Restricts cutaway and tree-fade to nimble-stance/aim. |
 | `range` | int | `DEFAULT_RANGE` | Wall-cutaway slider value. |
 | `maxDrivingSpeedKmh` | int | `DEFAULT_DRIVING_SPEED_THRESHOLD` | Cutaway off above this speed in vehicles. `0` = always off in vehicles. |
-| `fixB42Adjacency` | boolean | `true` | B42 wall-hiding bug workaround toggle. Independent of `aimStanceOnly`. |
+| `fixB42Adjacency` | boolean | `true` | B42 wall-hiding bug workaround toggle. Independent of `aimStanceOnly`. The fix is gated to outdoor only via `isCameraPlayerIndoor()`; see `Patch_FBORenderCutaways.md`. |
 | `fadeNWTrees` | boolean | `true` | Tree-fade master toggle. |
 | `treeFadeRange` | int | `DEFAULT_TREE_FADE_RANGE` | Tree-fade slider value. |
 | `treeFadeMaxDrivingSpeedKmh` | int | `DEFAULT_TREE_FADE_DRIVING_SPEED_THRESHOLD` | Tree-fade off above this speed in vehicles. `0` = always off in vehicles. |
@@ -83,10 +83,11 @@ Cutaway-side patches (`Patch_GetSquaresAroundPlayerSquare`,
 (`Patch_isTranslucentTree`, `Patch_DrawStencilMask`) call the
 tree-fade gate. The two B42-fix
 patches (`Patch_shouldCutaway`, `Patch_isAdjacentToOrphanStructure`)
-do **not** call either gate — they check `enabled` and
-`fixB42Adjacency` only and run regardless of stance, vehicle, or
-speed, because the underlying vanilla bug exists at vanilla cutaway
-range too.
+do **not** call either gate — they check `enabled`,
+`fixB42Adjacency`, and `isCameraPlayerIndoor()` (outdoor-only —
+see `Patch_FBORenderCutaways.md` for the trade-off rationale), and
+otherwise run regardless of stance, vehicle, or speed, because the
+underlying vanilla bug exists at vanilla cutaway range too.
 
 Each driving-speed threshold is independent, so tree-fade can stay on
 while wall-cutaway has gated off (or vice versa).

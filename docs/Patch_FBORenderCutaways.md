@@ -126,7 +126,8 @@ without the bleed.
 Early returns if:
 - `!result` (vanilla already said no — nothing to override)
 - `!fixB42Adjacency` (user toggle off)
-- `!isActiveCutawayForCurrentRenderPlayer()`
+- `PeekAViewMod.isCameraPlayerIndoor()` — outdoor-only gate, see
+  [Why outdoor only](#why-outdoor-only) below.
 - `!initialized` after `tryInit()`
 
 ### Field reflection
@@ -220,5 +221,32 @@ emptyoutside-adjacent cells).
 
 `@Patch.OnExit`, `@Patch.Return(readOnly = false) boolean result`.
 Early returns: `!result`, `!fixB42Adjacency`,
-`!isActiveCutawayForCurrentRenderPlayer()`, `square == null`,
-`square.associatedBuilding == null`. Otherwise `result = false`.
+`PeekAViewMod.isCameraPlayerIndoor()` (see [Why outdoor only](#why-outdoor-only)),
+`square == null`, `square.associatedBuilding == null`. Otherwise
+`result = false`.
+
+---
+
+## Why outdoor only
+
+Both B42-fix patches (`Patch_shouldCutaway` and
+`Patch_isAdjacentToOrphanStructure`) bail out when the camera player
+is inside a room, letting vanilla cutaway flow through unchanged.
+
+The fix is a workaround for a vanilla bug, not a perfect filter:
+`associatedBuilding != null` and the per-cluster distance gate are
+deliberately coarse. Their known side effect is that player-built
+tiles next to a vanilla building can become visible at certain
+camera angles, most noticeably when the camera player is inside the
+adjacent vanilla building (player-built railings on the upper floor
+showing through cut walls etc.).
+
+Indoor that side effect is the dominant artifact, and the underlying
+bug the fix patches is rare at the vanilla cutaway range that indoor
+scenes fall back to. Outdoor the calculus reverses: the bug is
+amplified by the extended POI raster, and the side effect's
+visibility is muted because the player is rarely staring directly at
+their own player-built tiles from the right angle.
+
+Gating the fix on `IsoCamera.frameState.camCharacterSquare.isInARoom()`
+keeps it where it pays off and removes it where it costs.
