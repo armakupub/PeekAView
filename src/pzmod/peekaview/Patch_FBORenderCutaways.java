@@ -96,6 +96,11 @@ public class Patch_FBORenderCutaways {
                 // stance — otherwise the bug pops in/out with aiming.
                 if (!PeekAViewMod.enabled) return;
                 if (!PeekAViewMod.fixB42Adjacency) return;
+                // Outdoor-only: indoor we let vanilla cutaway flow
+                // through to avoid B42-fix bleed-throughs of
+                // player-built tiles, which only manifest when the
+                // player can see them from inside a room.
+                if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (!initialized) tryInit();
                 if (!initialized) return;
                 if (isTooFarFromPlayer(self)) result = false;
@@ -160,6 +165,7 @@ public class Patch_FBORenderCutaways {
                 // gate. See Patch_shouldCutaway.exit for rationale.
                 if (!PeekAViewMod.enabled) return;
                 if (!PeekAViewMod.fixB42Adjacency) return;
+                if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (square == null) return;
                 if (square.associatedBuilding == null) return;
                 result = false;

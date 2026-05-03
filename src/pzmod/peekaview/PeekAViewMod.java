@@ -4,6 +4,7 @@ import me.zed_0xff.zombie_buddy.Exposer;
 
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoCamera;
+import zombie.iso.IsoGridSquare;
 import zombie.vehicles.BaseVehicle;
 
 // Kahlua global registered by ZombieBuddy from @Exposer.LuaClass under
@@ -184,6 +185,16 @@ public class PeekAViewMod {
         } else {
             activeCacheTreeFade = true;
         }
+    }
+
+    // True iff the rendering player's square is inside a room. The B42
+    // adjacency fix uses this to bail out indoor: extended cutaway's
+    // B42-fix bleed-throughs (player-built railings showing on upper
+    // floors etc.) only matter when the player can see them, which is
+    // an outdoor scenario. Indoor we let vanilla cutaway run untouched.
+    public static boolean isCameraPlayerIndoor() {
+        IsoGridSquare camSq = IsoCamera.frameState.camCharacterSquare;
+        return camSq != null && camSq.isInARoom();
     }
 
     public void init() {
