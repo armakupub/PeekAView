@@ -42,6 +42,12 @@ public class Patch_FBORenderCell {
             try {
                 if (!PeekAViewMod.fadeNWTrees) return;
                 if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
+                // Outdoor-only: indoor scenes never reveal new trees
+                // through the extended fade diamond (LOS is room-bound),
+                // so the patch is pure overhead there. Bailing out
+                // indoor also avoids any chance of B42 indoor side
+                // effects piggy-backing on the tree-fade render path.
+                if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (!(object instanceof IsoTree)) return;
                 if (object.square == null) return;
 

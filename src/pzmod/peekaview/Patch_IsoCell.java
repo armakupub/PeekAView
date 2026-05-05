@@ -281,6 +281,11 @@ public class Patch_IsoCell {
             try {
                 if (!PeekAViewMod.fadeNWTrees) return;
                 if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
+                // Outdoor-only: indoor we don't extend the stencil
+                // mask. Mirrors the gate in Patch_isTranslucentTree
+                // so the renderFlag and stencil-coverage halves of
+                // the tree-fade feature stay in sync.
+                if (PeekAViewMod.isCameraPlayerIndoor()) return;
 
                 // Use IsoCamera.frameState.playerIndex (currently
                 // rendering player) to stay consistent with every other
