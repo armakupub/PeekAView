@@ -6,16 +6,15 @@ Le stesse regole di vanilla, solo attivate da più lontano. Niente raggi X, nien
 
 [h1]Cosa fa questa mod[/h1]
 [list]
-[*][b]Taglio dei muri[/b]: estende la portata di dissolvenza vanilla da ~5 caselle fino a 20 caselle (predefinito 15).
-[*][b]Sfumatura degli alberi[/b]: gli alberi nella linea di vista del tuo personaggio diventano traslucidi fino a 25 caselle, in qualsiasi direzione.
-[*][b]Due condizioni di attivazione[/b]: solo durante la mira (disattivata di default; quando attiva, la mod funziona solo in quella postura) e una soglia di velocità in veicolo (soglie km/h indipendenti per taglio dei muri e sfumatura degli alberi).
+[*][b]Taglio dei muri[/b]: estende la portata di dissolvenza vanilla da ~5 caselle fino a 20 caselle (predefinito 10).
+[*][b]Sfumatura degli alberi[/b]: gli alberi diventano traslucidi nella direzione in cui stai guardando attivamente, fino a 25 caselle. Solo all'aperto; al chiuso si usa il comportamento vanilla.
 [*]Risolve anche un bug di rendering di Build 42 in cui le strutture costruite dal giocatore fanno scomparire i muri vanilla vicini.
 [/list]
 
 [h1]Impostazioni[/h1]
 Opzioni → Mod → Peek a View, tre sezioni: Generale, Taglio dei muri, Sfumatura degli alberi. [b]F8[/b] attiva/disattiva la mod (un alone verde/rosso lo conferma; riassegnabile in Opzioni → Comandi sotto [noparse][PeekAView][/noparse]).
 
-I valori predefiniti mostrano l'effetto chiaramente. Riduci le portate, attiva solo durante la mira, oppure restringi le soglie di velocità per adattare l'effetto al tuo gusto.
+L'esperienza può essere regolata nelle opzioni di gioco — modifica le portate, limita il taglio solo durante la mira, o disattivalo in veicolo.
 
 [h1]Requisiti[/h1]
 [list]
@@ -34,7 +33,6 @@ I valori predefiniti mostrano l'effetto chiaramente. Riduci le portate, attiva s
 [list]
 [*]Scostamento visivo dall'aspetto voluto da TIS. Se preferisci lo stile vanilla, questa mod non fa per te.
 [*]Negli isolati densi, gli edifici possono apparire e scomparire più velocemente quando ti muovi, il che può distrarre all'inizio.
-[*]A velocità autostradali, la sfumatura degli alberi scatta nello stato traslucido in un singolo fotogramma per non guidare contro chiome opache.
 [*]Il costo per fotogramma è piccolo ma non nullo. Su hardware modesto, ridurre le portate di poche caselle aiuta.
 [/list]
 
@@ -44,8 +42,6 @@ Sia PeekAView che ZombieBuddy sono sotto licenza MIT e completamente open source
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

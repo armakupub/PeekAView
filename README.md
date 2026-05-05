@@ -11,9 +11,8 @@ Same rules as vanilla, just triggered from further out. No X-ray, no see-through
 ## Features
 
 - **Extended wall cutaway range** — configurable slider from 5 (vanilla) to 20 tiles.
-- **Tree fade** — trees in your character's view become translucent so zombies behind them are visible. Independent range slider (5–25 tiles, default 20) and its own driving-speed gate.
-- **Independent driving-speed gates** — wall cutaway and tree fade each have their own km/h threshold; turn one off in the car while keeping the other on (e.g. tree fade on at higher speed for spotting roadside obstacles, wall cutaway off for less screen noise).
-- **Optional nimble-stance-only mode** — restrict the whole mod to while you are aiming a weapon (right-click held).
+- **Tree fade** — trees in your character's view become translucent so zombies behind them are visible. Independent range slider (5–25 tiles, default 20). Outdoors only; indoors falls back to vanilla.
+- **Optional aim-only mode** — restrict wall cutaway to while you are aiming a weapon (right-click held). Tree fade runs independently.
 - **No see-through walls, no line-of-sight bypass** — same fade mechanics as vanilla, just triggered from further away. You see what the character can see, not more.
 - **B42 wall-hiding bug fix** — stops the engine from hiding upper-floor walls of vanilla buildings next to player-built stairs or floors. Applied outdoors only; indoors falls back to vanilla cutaway behavior. Toggleable.
 
@@ -45,15 +44,15 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 | Setting | Default | What it does |
 |---|---|---|
 | Enable | on | Master switch for all features |
-| Active only in nimble stance | off | Mod only runs while aiming a weapon (right-click held) |
+| Active only when aiming | off | Wall cutaway only runs while aiming a weapon (right-click held). Tree fade is independent of this. |
 
 **Wall cutaway**
 
 | Setting | Range / Default | What it does |
 |---|---|---|
-| Range | 5–20 tiles, default 15 | How far walls and buildings start turning transparent. `5` = pure vanilla (the patch falls through). |
-| Active up to | 0–120 km/h, default 35 | Above this speed in a vehicle, wall cutaway turns off. `0` = always off in a vehicle. |
-| Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ). Runs regardless of `Active only in nimble stance`. Applied outdoors only; indoors uses vanilla cutaway. |
+| Range | 5–20 tiles, default 10 | How far walls and buildings start turning transparent. `5` = pure vanilla (the patch falls through). |
+| Active in vehicles | on | When on, cutaway keeps running while you drive. When off, cutaway is disabled in any vehicle. |
+| Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ). Runs regardless of the aim gate. Applied outdoors only; indoors uses vanilla cutaway. |
 
 **Tree fade**
 
@@ -61,9 +60,6 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 |---|---|---|
 | Enable | on | Toggle the tree-fade feature |
 | Range | 5–25 tiles, default 20 | How far trees start turning transparent |
-| Active up to | 0–120 km/h, default 100 | Above this speed in a vehicle, tree fade turns off. `0` = always off in a vehicle. Below ~30 km/h trees ease into translucency at vanilla's pace; at ~30 km/h and above they snap fully translucent in one frame so you don't drive into opaque crowns. |
-| Stay on while driving | off | Override: when `Active only in nimble stance` is on, this keeps tree fade running in vehicles regardless of aim state. |
-| Stay on while on foot | on | Override: when `Active only in nimble stance` is on, this keeps tree fade running on foot regardless of aim state. Default on so the typical user enabling nimble-stance for around-the-corner peeks still gets tree fade everywhere. |
 
 **F8** toggles the master Enable switch in-game (green/red halo confirms). Rebindable under `[PeekAView]` in PZ's keybind menu.
 
@@ -81,7 +77,7 @@ Open `Options → Mods → Peek a View`. The screen is grouped into three sectio
 
 **Does it conflict with other cutaway mods?** Peek a View patches seven specific engine methods via ZombieBuddy. Other ZombieBuddy-based mods patching the same methods may interact — test case by case. No known conflicts as of Build 42.13.
 
-**Does it affect performance?** Several caches keep the runtime cost close to vanilla: a per-frame gate cache, frame-caches for the POI raster and the tree-fade location list, and a tile-filter that drops empty grass/road tiles from the obscuring-list. Standing still and walking on foot are effectively free. JFR-measured CPU footprint at default settings is around 2.8% of CPU samples in 120 s of driving with ~50 background mods active — the master `Enable` toggle to off measures at 0.1%. The driving-speed gates disable each feature above its configured km/h so highway travel can be made entirely free. See [`docs/PeekAViewMod.md`](docs/PeekAViewMod.md) for the raw breakdown.
+**Does it affect performance?** Several caches keep the runtime cost close to vanilla: a per-frame gate cache, frame-caches for the POI raster and the tree-fade location list, and a tile-filter that drops empty grass/road tiles from the obscuring-list. Standing still and walking on foot are effectively free. JFR-measured CPU footprint at default settings is around 2.8% of CPU samples in 120 s of driving with ~50 background mods active — the master `Enable` toggle to off measures at 0.1%. See [`docs/PeekAViewMod.md`](docs/PeekAViewMod.md) for the raw breakdown.
 
 ## Building from Source
 

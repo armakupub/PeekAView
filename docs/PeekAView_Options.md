@@ -80,11 +80,16 @@ description as a graceful fallback — see `addSection` helper in
 | Widget | Key | Range / Default | Setter |
 |--------|-----|-----------------|--------|
 | Title | `UI_PAV_WallCutawaySectionTitle` | — | — |
-| Slider | `range` | 5–20, step 1, default 15 | `setRange(v)` |
+| Slider | `cutawayRange` | 5–20, step 1, default 10 | `setRange(v)` |
 | Description | `UI_PAV_RangePerformanceDescription` | — | — |
-| Slider | `drivingSpeed` | 0–120, step 5, default 35 | `setMaxDrivingSpeedKmh(v)` |
-| Description | `UI_PAV_DrivingSpeedDescription` | — | — |
+| TickBox | `cutawayActiveInVehicle` | default `true` | `setCutawayActiveInVehicle(v)` |
 | TickBox | `fixB42` | default `true` | `setFixB42Adjacency(v)` |
+
+The `cutawayRange` key was renamed from `range` in 1.3.0 so the
+slider resets to the new default of 10 (down from 15) on first launch
+with that version. PZAPI ModOptions persists by the first string arg,
+so the rename invalidates saved values for this slider only — no
+other settings touched.
 
 ### Tree fade
 
@@ -93,32 +98,8 @@ description as a graceful fallback — see `addSection` helper in
 | Title | `UI_PAV_TreeFadeSectionTitle` | — | — |
 | TickBox | `fadeNWTrees` | default `true` | `setFadeNWTrees(v)` |
 | Slider | `treeFadeRange` | 5–25, step 1, default 20 | `setTreeFadeRange(v)` |
-| Slider | `treeFadeDrivingSpeed` | 0–120, step 5, default 100 | `setTreeFadeMaxDrivingSpeedKmh(v)` |
-| Description | `UI_PAV_TreeFadeDrivingSpeedDescription` | — | — |
-| TickBox | `treeFadeStayOnWhileDriving` | default `false` | `setTreeFadeStayOnWhileDriving(v)` |
-| TickBox | `treeFadeStayOnWhileOnFoot` | default `true` | `setTreeFadeStayOnWhileOnFoot(v)` |
-| Description | `UI_PAV_TreeFadeStayOnWhileDrivingDescription` | — | — |
 
 All setters dispatch through `applyToJava(name, v)`.
-
-### Driving-speed sliders
-
-Wall-cutaway and tree-fade each have their own driving-speed slider
-because their use-cases diverge: wall-cutaway is most useful at city
-speeds and gets noisy at high speed, tree-fade is most useful exactly
-when driving past treelines and now keeps up at any speed via
-`Patch_isTranslucentTree`'s speed-proportional fade boost — the
-default 100 km/h cutoff is effectively "always on while driving" for
-normal car speeds.
-
-Both sliders are vanilla PZAPI sliders — no custom label formatter.
-The slider title shows the raw value; the unit (`km/h`) and the
-0-means-always-off case are spelled out in the description line below.
-An earlier custom-format pass (rewriting the JLabel via a `setName`
-shim) was removed because PZAPI builds the slider's Java element only
-on first Options-screen open and the formatter couldn't reliably hit
-that build window — the saved value would render unformatted until the
-user dragged the slider.
 
 ## Boot sync
 
@@ -133,12 +114,10 @@ local function syncToJava()
     applyToJava("setEnabled", enableOpt:getValue())
     applyToJava("setAimStanceOnly", aimStanceOnlyOpt:getValue())
     applyToJava("setRange", rangeOpt:getValue())
-    applyToJava("setMaxDrivingSpeedKmh", drivingSpeedOpt:getValue())
+    applyToJava("setCutawayActiveInVehicle", cutawayActiveInVehicleOpt:getValue())
     applyToJava("setFixB42Adjacency", fixB42Opt:getValue())
     applyToJava("setFadeNWTrees", fadeNWTreesOpt:getValue())
     applyToJava("setTreeFadeRange", treeFadeRangeOpt:getValue())
-    applyToJava("setTreeFadeMaxDrivingSpeedKmh", treeFadeDrivingSpeedOpt:getValue())
-    applyToJava("setTreeFadeStayOnWhileDriving", treeFadeStayOnWhileDrivingOpt:getValue())
 end
 
 Events.OnGameBoot.Add(syncToJava)
@@ -152,8 +131,8 @@ every `applyToJava` is a no-op — boot still completes cleanly.
 ```lua
 PeekAView.syncToJava = syncToJava
 PeekAView.enableOpt / aimStanceOnlyOpt
-PeekAView.rangeOpt / drivingSpeedOpt / fixB42Opt
-PeekAView.fadeNWTreesOpt / treeFadeRangeOpt / treeFadeDrivingSpeedOpt / treeFadeStayOnWhileDrivingOpt
+PeekAView.rangeOpt / cutawayActiveInVehicleOpt / fixB42Opt
+PeekAView.fadeNWTreesOpt / treeFadeRangeOpt
 ```
 
 ## Translations
@@ -167,8 +146,8 @@ Keys:
 - `UI_PAV_ModName`
 - Section titles: `UI_PAV_GlobalSectionTitle` / `UI_PAV_WallCutawaySectionTitle` / `UI_PAV_TreeFadeSectionTitle`
 - Global section: `UI_PAV_EnableLabel` / `UI_PAV_EnableTooltip`, `UI_PAV_AimStanceOnlyLabel` / `UI_PAV_AimStanceOnlyTooltip`
-- Wall cutaway section: `UI_PAV_RangeLabel` / `UI_PAV_RangeTooltip`, `UI_PAV_RangePerformanceDescription`, `UI_PAV_DrivingSpeedLabel` / `UI_PAV_DrivingSpeedTooltip` / `UI_PAV_DrivingSpeedDescription`, `UI_PAV_FixB42Label` / `UI_PAV_FixB42Tooltip`
-- Tree fade section: `UI_PAV_FadeNWTreesLabel` / `UI_PAV_FadeNWTreesTooltip`, `UI_PAV_TreeFadeRangeLabel` / `UI_PAV_TreeFadeRangeTooltip`, `UI_PAV_TreeFadeDrivingSpeedLabel` / `UI_PAV_TreeFadeDrivingSpeedTooltip` / `UI_PAV_TreeFadeDrivingSpeedDescription`, `UI_PAV_TreeFadeStayOnWhileDrivingLabel` / `UI_PAV_TreeFadeStayOnWhileDrivingTooltip`, `UI_PAV_TreeFadeStayOnWhileOnFootLabel` / `UI_PAV_TreeFadeStayOnWhileOnFootTooltip`, `UI_PAV_TreeFadeStayOnWhileDrivingDescription` (shared description for both override tickboxes)
+- Wall cutaway section: `UI_PAV_RangeLabel` / `UI_PAV_RangeTooltip`, `UI_PAV_RangePerformanceDescription`, `UI_PAV_CutawayActiveInVehicleLabel` / `UI_PAV_CutawayActiveInVehicleTooltip`, `UI_PAV_FixB42Label` / `UI_PAV_FixB42Tooltip`
+- Tree fade section: `UI_PAV_FadeNWTreesLabel` / `UI_PAV_FadeNWTreesTooltip`, `UI_PAV_TreeFadeRangeLabel` / `UI_PAV_TreeFadeRangeTooltip`
 - `UI_PAV_Spacer` (single space, used via `addDescription` as vertical separator)
 - `UI_PAV_EnabledText` / `UI_PAV_DisabledText` (halo toggle text)
 - `UI_PAV_JavaMissingDescription` (red banner shown above the options list when `javaReady == false`)

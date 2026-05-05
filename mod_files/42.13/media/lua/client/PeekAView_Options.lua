@@ -73,11 +73,16 @@ modOptions:addDescription("UI_PAV_Spacer")
 -- == Wall cutaway ==
 addSection(modOptions, "UI_PAV_WallCutawaySectionTitle")
 
+-- Persistence key bumped from "range" to "cutawayRange" in 1.3.0
+-- so the slider resets to its new default 10 (down from 15) on
+-- first launch with this version. PZAPI ModOptions persists by the
+-- first string arg, so the rename invalidates saved values for this
+-- slider only — no other settings touched.
 local rangeOpt = modOptions:addSlider(
-    "range",
+    "cutawayRange",
     getText("UI_PAV_RangeLabel"),
     5, 20, 1,
-    15,
+    10,
     getText("UI_PAV_RangeTooltip"))
 rangeOpt.onChangeApply = function(self, value)
     applyToJava("setRange", value)
@@ -85,20 +90,17 @@ end
 
 modOptions:addDescription("UI_PAV_RangePerformanceDescription")
 
--- Driving-speed threshold for wall cutaway. 0 = off in any vehicle;
--- higher = active up to that km/h. Range 0-120 covers vanilla car top
--- speeds; step 5 gives 25 slider positions on clean integer values.
-local drivingSpeedOpt = modOptions:addSlider(
-    "drivingSpeed",
-    getText("UI_PAV_DrivingSpeedLabel"),
-    0, 120, 5,
-    35,
-    getText("UI_PAV_DrivingSpeedTooltip"))
-drivingSpeedOpt.onChangeApply = function(self, value)
-    applyToJava("setMaxDrivingSpeedKmh", value)
+-- Binary on/off in vehicles. Replaces the prior km/h slider in 1.3.0.
+-- Default on — pairs with the lower cutaway range default (10) since
+-- the smaller raster is unobtrusive enough to keep running while driving.
+local cutawayActiveInVehicleOpt = modOptions:addTickBox(
+    "cutawayActiveInVehicle",
+    getText("UI_PAV_CutawayActiveInVehicleLabel"),
+    true,
+    getText("UI_PAV_CutawayActiveInVehicleTooltip"))
+cutawayActiveInVehicleOpt.onChangeApply = function(self, value)
+    applyToJava("setCutawayActiveInVehicle", value)
 end
-
-modOptions:addDescription("UI_PAV_DrivingSpeedDescription")
 
 local fixB42Opt = modOptions:addTickBox(
     "fixB42",
@@ -133,46 +135,6 @@ treeFadeRangeOpt.onChangeApply = function(self, value)
     applyToJava("setTreeFadeRange", value)
 end
 
--- Driving-speed threshold for tree fade. Default 50 — at higher speeds
--- the per-tree fade-up animation can't keep up with how fast scenery
--- enters the screen, so trees pop instead of easing. 0 = off in any
--- vehicle.
-local treeFadeDrivingSpeedOpt = modOptions:addSlider(
-    "treeFadeDrivingSpeed",
-    getText("UI_PAV_TreeFadeDrivingSpeedLabel"),
-    0, 120, 5,
-    100,
-    getText("UI_PAV_TreeFadeDrivingSpeedTooltip"))
-treeFadeDrivingSpeedOpt.onChangeApply = function(self, value)
-    applyToJava("setTreeFadeMaxDrivingSpeedKmh", value)
-end
-
-modOptions:addDescription("UI_PAV_TreeFadeDrivingSpeedDescription")
-
--- Override toggle for the nimble-stance gate while driving. Off by
--- default. When on AND the user has enabled nimble-stance-only, tree
--- fade keeps running in vehicles regardless of aim state. Lets users
--- run "vanilla on foot, full mod while driving" without compromising.
-local treeFadeStayOnWhileDrivingOpt = modOptions:addTickBox(
-    "treeFadeStayOnWhileDriving",
-    getText("UI_PAV_TreeFadeStayOnWhileDrivingLabel"),
-    false,
-    getText("UI_PAV_TreeFadeStayOnWhileDrivingTooltip"))
-treeFadeStayOnWhileDrivingOpt.onChangeApply = function(self, value)
-    applyToJava("setTreeFadeStayOnWhileDriving", value)
-end
-
-local treeFadeStayOnWhileOnFootOpt = modOptions:addTickBox(
-    "treeFadeStayOnWhileOnFoot",
-    getText("UI_PAV_TreeFadeStayOnWhileOnFootLabel"),
-    true,
-    getText("UI_PAV_TreeFadeStayOnWhileOnFootTooltip"))
-treeFadeStayOnWhileOnFootOpt.onChangeApply = function(self, value)
-    applyToJava("setTreeFadeStayOnWhileOnFoot", value)
-end
-
-modOptions:addDescription("UI_PAV_TreeFadeStayOnWhileDrivingDescription")
-
 -- PZAPI.ModOptions:load() only auto-runs on first Options-screen open.
 -- Load+push on OnGameBoot so patches see saved values from frame one.
 -- Idempotent with MainOptions' later load.
@@ -181,13 +143,10 @@ local function syncToJava()
     applyToJava("setEnabled", enableOpt:getValue())
     applyToJava("setAimStanceOnly", aimStanceOnlyOpt:getValue())
     applyToJava("setRange", rangeOpt:getValue())
-    applyToJava("setMaxDrivingSpeedKmh", drivingSpeedOpt:getValue())
+    applyToJava("setCutawayActiveInVehicle", cutawayActiveInVehicleOpt:getValue())
     applyToJava("setFixB42Adjacency", fixB42Opt:getValue())
     applyToJava("setFadeNWTrees", fadeNWTreesOpt:getValue())
     applyToJava("setTreeFadeRange", treeFadeRangeOpt:getValue())
-    applyToJava("setTreeFadeMaxDrivingSpeedKmh", treeFadeDrivingSpeedOpt:getValue())
-    applyToJava("setTreeFadeStayOnWhileDriving", treeFadeStayOnWhileDrivingOpt:getValue())
-    applyToJava("setTreeFadeStayOnWhileOnFoot", treeFadeStayOnWhileOnFootOpt:getValue())
 end
 
 Events.OnGameBoot.Add(syncToJava)
@@ -196,10 +155,7 @@ PeekAView.syncToJava = syncToJava
 PeekAView.enableOpt = enableOpt
 PeekAView.aimStanceOnlyOpt = aimStanceOnlyOpt
 PeekAView.rangeOpt = rangeOpt
-PeekAView.drivingSpeedOpt = drivingSpeedOpt
+PeekAView.cutawayActiveInVehicleOpt = cutawayActiveInVehicleOpt
 PeekAView.fixB42Opt = fixB42Opt
 PeekAView.fadeNWTreesOpt = fadeNWTreesOpt
 PeekAView.treeFadeRangeOpt = treeFadeRangeOpt
-PeekAView.treeFadeDrivingSpeedOpt = treeFadeDrivingSpeedOpt
-PeekAView.treeFadeStayOnWhileDrivingOpt = treeFadeStayOnWhileDrivingOpt
-PeekAView.treeFadeStayOnWhileOnFootOpt = treeFadeStayOnWhileOnFootOpt

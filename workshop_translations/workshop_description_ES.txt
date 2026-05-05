@@ -6,16 +6,15 @@ Las mismas reglas que vanilla, solo activadas desde más lejos. Sin rayos X, sin
 
 [h1]Lo que hace este mod[/h1]
 [list]
-[*][b]Corte de paredes[/b]: extiende el alcance de difuminado vanilla de ~5 casillas hasta 20 casillas (por defecto 15).
-[*][b]Difuminado de árboles[/b]: los árboles en la línea de visión de tu personaje se vuelven translúcidos hasta 25 casillas, en cualquier dirección.
-[*][b]Dos condiciones de activación[/b]: solo al apuntar (desactivado por defecto; cuando está activo, el mod solo funciona en esa postura) y un umbral de velocidad en vehículo (umbrales km/h independientes para corte de paredes y difuminado de árboles).
+[*][b]Corte de paredes[/b]: extiende el alcance de difuminado vanilla de ~5 casillas hasta 20 casillas (por defecto 10).
+[*][b]Difuminado de árboles[/b]: los árboles se difuminan en la dirección que estás mirando activamente, hasta 25 casillas. Solo al aire libre; en interiores se usa el comportamiento vanilla.
 [*]También corrige un bug de renderizado de Build 42 donde las estructuras construidas por el jugador hacen desaparecer las paredes vanilla cercanas.
 [/list]
 
 [h1]Ajustes[/h1]
 Opciones → Mods → Peek a View, tres secciones: General, Corte de paredes, Difuminado de árboles. [b]F8[/b] activa/desactiva el mod (un halo verde/rojo lo confirma; reasignable en Opciones → Controles bajo [noparse][PeekAView][/noparse]).
 
-Los valores por defecto muestran el efecto claramente. Reduce los alcances, activa solo al apuntar, o ajusta los umbrales de velocidad para adaptar el efecto a tu gusto.
+La experiencia se puede ajustar en las opciones del juego — modifica los alcances, restringe el corte solo al apuntar, o desactívalo en vehículos.
 
 [h1]Requisitos[/h1]
 [list]
@@ -34,7 +33,6 @@ Los valores por defecto muestran el efecto claramente. Reduce los alcances, acti
 [list]
 [*]Desviación visual del aspecto pretendido por TIS. Si prefieres el estilo vanilla, este mod no es para ti.
 [*]En manzanas urbanas densas, los edificios pueden aparecer y desaparecer más rápidamente al moverte, lo que puede distraer al principio.
-[*]A velocidades de autopista, el difuminado de árboles salta a su estado translúcido en un solo fotograma para que no conduzcas hacia copas opacas.
 [*]El coste por fotograma es pequeño pero no nulo. En hardware modesto, reducir los alcances unas pocas casillas ayuda.
 [/list]
 
@@ -44,8 +42,6 @@ Tanto PeekAView como ZombieBuddy están bajo licencia MIT y son completamente de
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

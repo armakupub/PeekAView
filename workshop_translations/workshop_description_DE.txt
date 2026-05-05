@@ -6,16 +6,15 @@ Dieselben Regeln wie in Vanilla, nur aus größerer Entfernung ausgelöst. Kein 
 
 [h1]Was dieser Mod macht[/h1]
 [list]
-[*][b]Wand-Cutaway[/b]: erweitert Vanillas ~5-Felder-Ausblende-Reichweite auf bis zu 20 Felder (Standard 15).
-[*][b]Bäume ausblenden[/b]: Bäume in der Sichtlinie deines Charakters werden bis zu 25 Felder durchscheinend, in alle Richtungen.
-[*][b]Zwei Beschränkungen[/b]: nur in Kampf-/Nimble-Haltung (Standard aus; wenn aktiv, greift der Mod nur in dieser Haltung) und ein Geschwindigkeits-Schwellwert im Fahrzeug (unabhängige km/h-Werte für Cutaway und Bäume).
+[*][b]Wand-Cutaway[/b]: erweitert Vanillas ~5-Felder-Ausblende-Reichweite auf bis zu 20 Felder (Standard 10).
+[*][b]Bäume ausblenden[/b]: Bäume werden in der Richtung durchscheinend, in die du aktiv schaust, bis zu 25 Felder. Nur draußen aktiv; in Gebäuden gilt Vanilla.
 [*]Behebt außerdem einen Render-Bug in Build 42, bei dem von Spielern gebaute Strukturen nahegelegene Vanilla-Wände verschwinden lassen.
 [/list]
 
 [h1]Einstellungen[/h1]
 Optionen → Mods → Peek a View, drei Abschnitte: Allgemein, Wand-Cutaway, Bäume ausblenden. [b]F8[/b] schaltet den Mod an/aus (grüner/roter Halo bestätigt den Status; neu belegbar in Optionen → Tastenbelegung unter [noparse][PeekAView][/noparse]).
 
-Die Voreinstellungen zeigen den Effekt deutlich. Senke die Reichweiten, beschränke auf Kampf-/Nimble-Haltung oder verschärfe die Fahrgeschwindigkeits-Schwellwerte, um den Effekt nach Geschmack zurückzudrehen.
+Das Erlebnis kann in den Optionen angepasst werden — Reichweiten verändern, Cutaway aufs Zielen beschränken, oder im Fahrzeug deaktivieren.
 
 [h1]Voraussetzungen[/h1]
 [list]
@@ -34,7 +33,6 @@ Die Voreinstellungen zeigen den Effekt deutlich. Senke die Reichweiten, beschrä
 [list]
 [*]Visuelle Abweichung von TIS' beabsichtigtem Look. Wenn du den Vanilla-Stil bevorzugst, ist dieser Mod nichts für dich.
 [*]In dicht bebauten Stadtvierteln können Gebäude beim Bewegen schneller ein- und ausgeblendet werden, was anfangs ablenken kann.
-[*]Bei Autobahn-Geschwindigkeit schnappt der Tree Fade innerhalb eines Frames in seinen durchscheinenden Zustand, damit du nicht in opake Baumkronen fährst.
 [*]Der Mehraufwand pro Frame ist klein, aber nicht null. Auf schwächerer Hardware hilft es, die Reichweiten um ein paar Felder zu reduzieren.
 [/list]
 
@@ -44,8 +42,6 @@ Sowohl PeekAView als auch ZombieBuddy stehen unter MIT-Lizenz und sind vollstän
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

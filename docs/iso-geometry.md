@@ -74,18 +74,17 @@ unconditionally not.
 ## Sprite extent vs. tile footprint
 
 A tree's `IsoObject` lives on its **base tile** (the trunk's foot).
-The sprite is a 2D image that extends upward on screen — typically
-3-5 tile-heights above the base. PZ does not split sprites across
-multiple tiles; the entire sprite belongs to the one base tile.
+The sprite extends upward on screen — typically 3-5 tile-heights
+above the base, up to ~7 for the tallest sprites. PZ does not
+split sprites across tiles; the whole sprite belongs to the base
+tile.
 
-This matters for the **stencil**. The stencil mask is per-tile, but
-the mask area must cover where the sprite's pixels land on screen,
-not just where the base tile is. A short stencil patch around the
-tile floor leaves the upper sprite pixels outside the mask, where
-`GL_NOTEQUAL` renders them at full opacity — observable as "trunk
-fades, crown stays opaque" on tall trees. See
+The stencil mask is per-tile but must cover where the sprite's
+pixels land, not just the base tile. A short overshoot leaves the
+crown outside the mask where `GL_NOTEQUAL` renders it opaque —
+"trunk fades, crown stays opaque". See
 [`Patch_IsoCell.md`](Patch_IsoCell.md#per-tile-render) for the
-overshoot constants used to absorb this.
+overshoot constants.
 
 ## Why we fade all four quadrants
 
@@ -108,12 +107,15 @@ matter together:
   the world. A high pine 3 tile-heights above the screen-player blocks
   the view of zombies further out in that screen direction.
 
-The `isCanSee(playerIndex)` LOS gate in `Patch_DrawStencilMask`
-suppresses stencil writes for tiles outside the rendering player's
-visibility cone. So "fade everything in range" does not ghost-fade
-unseen forest: NW trees fade only when the player is actively looking
-toward them. Behind walls, in fog of war: stencil isn't written, the
-tree stays opaque.
+Two cone gates suppress fade outside the player's visibility: the
+renderFlag flip in `Patch_FBORenderCell` uses
+`isTileInCameraPlayerCone` (per-frame forward-direction dot
+product), the stencil writes in `Patch_DrawStencilMask` use
+`sq.isCanSee` (PZ's LOS pass, includes wall-blocking). Together:
+"fade what I'm looking toward, never through walls". NW trees fade
+on cone entry, walls block fade through them, out-of-cone trees
+recover to opaque without snapping (stencil persists while
+`fadeAlpha` climbs back).
 
 Origin tile (`dx == 0 && dy == 0`) is excluded from the patch's
-quadrant logic — vanilla owns it via its `>=` quadrant check.
+quadrant logic — vanilla owns it via its `>=` check.

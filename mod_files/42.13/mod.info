@@ -1,10 +1,11 @@
 name=Peek a View
 poster=poster.png
+icon=icon.png
 id=PeekAView
-description=Extends the wall and building cutaway range so zombies hiding in your line of sight stop being invisible.
+description=Extends vanilla's wall cutaway and tree fade ranges so zombies hiding in your character's line of sight stop being invisible.
 url=
 require=\ZombieBuddy
-modversion=1.2.3
+modversion=1.3.0
 pack=PeekAView
 javaJarFile=media/java/client/peekaview.jar
 javaPkgName=pzmod.peekaview

@@ -6,16 +6,15 @@ Vanilla ile aynı kurallar, sadece daha uzaktan tetiklenir. Röntgen görüşü 
 
 [h1]Bu mod ne yapar[/h1]
 [list]
-[*][b]Duvar kesimi[/b]: vanilla'nın ~5 karoluk soluklaşma menzilini 20 karoya kadar genişletir (varsayılan 15).
-[*][b]Ağaç solukluğu[/b]: karakterinizin görüş hattındaki ağaçlar 25 karoya kadar saydamlaşır, her yönde.
-[*][b]İki etkinleştirme koşulu[/b]: yalnızca nişan alırken (varsayılan kapalı; etkinken mod yalnızca bu duruşta çalışır) ve araçta hız eşiği (duvar kesimi ve ağaç solukluğu için bağımsız km/h eşikleri).
+[*][b]Duvar kesimi[/b]: vanilla'nın ~5 karoluk soluklaşma menzilini 20 karoya kadar genişletir (varsayılan 10).
+[*][b]Ağaç solukluğu[/b]: ağaçlar aktif olarak baktığınız yönde 25 karoya kadar yarı saydam olur. Yalnızca dış mekanda etkin; iç mekanda vanilya davranışı geçerli.
 [*]Ayrıca Build 42'deki bir render hatasını düzeltir; oyuncunun yaptığı yapılar, yakındaki vanilla duvarların kaybolmasına neden olur.
 [/list]
 
 [h1]Ayarlar[/h1]
 Seçenekler → Modlar → Peek a View, üç bölüm: Genel, Duvar kesimi, Ağaç solukluğu. [b]F8[/b] modu açar/kapatır (yeşil/kırmızı hale onaylar; Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir).
 
-Varsayılan değerler etkiyi belirgin biçimde gösterir. Menzilleri azaltın, yalnızca nişan alırken modunu açın veya hız eşiklerini sıkılaştırarak etkiyi kendi zevkinize göre ayarlayın.
+Deneyim oyun seçeneklerinden ayarlanabilir — menzilleri değiştirin, kesimi yalnızca nişan alırken çalışacak şekilde kısıtlayın veya araçlarda devre dışı bırakın.
 
 [h1]Gereksinimler[/h1]
 [list]
@@ -34,7 +33,6 @@ Varsayılan değerler etkiyi belirgin biçimde gösterir. Menzilleri azaltın, y
 [list]
 [*]TIS'in amaçladığı görünümden görsel sapma. Vanilla stilini tercih ediyorsanız bu mod size göre değil.
 [*]Yoğun şehir bloklarında, hareket ederken binalar daha hızlı görünüp kaybolabilir; bu başlangıçta dikkat dağıtıcı olabilir.
-[*]Otoyol hızlarında ağaç solukluğu tek bir karede saydam duruma geçer, böylece opak ağaç tepelerine sürmezsiniz.
 [*]Kare başına maliyet küçüktür ama sıfır değil. Düşük donanımda menzilleri birkaç karo azaltmak yardımcı olur.
 [/list]
 
@@ -44,8 +42,6 @@ Hem PeekAView hem de ZombieBuddy MIT lisanslı ve tamamen açık kaynaktır. Yam
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

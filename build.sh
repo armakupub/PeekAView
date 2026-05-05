@@ -90,6 +90,8 @@ cp "$PROJECT_ROOT/mod_files/mod.info" "$STAGE/mod.info"
 cp "$PROJECT_ROOT/mod_files/42.13/mod.info" "$STAGE/42.13/mod.info"
 cp "$PROJECT_ROOT/poster.png" "$STAGE/poster.png"
 cp "$PROJECT_ROOT/poster.png" "$STAGE/42.13/poster.png"
+cp "$PROJECT_ROOT/icon.png" "$STAGE/icon.png"
+cp "$PROJECT_ROOT/icon.png" "$STAGE/42.13/icon.png"
 cp "$JAR_OUT" "$STAGE/42.13/media/java/client/peekaview.jar"
 
 if [ -d "$PROJECT_ROOT/mod_files/42.13/media/lua" ]; then

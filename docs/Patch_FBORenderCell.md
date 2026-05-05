@@ -8,12 +8,15 @@ zombies whose tile the character can already see stop hiding behind
 opaque tree sprites.
 
 **File:** `src/pzmod/peekaview/Patch_FBORenderCell.java`
-**Gate:** early-returns unless `PeekAViewMod.fadeNWTrees == true`
-**and** `PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()` returns
-true.
+**Gates (in order):**
+- `PeekAViewMod.fadeNWTrees == true` (master toggle)
+- `PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()` (stance,
+  driving-speed, vehicle-context)
+- `!PeekAViewMod.isCameraPlayerIndoor()` (outdoor only, mirrors
+  `Patch_DrawStencilMask`)
 
-For coordinate conventions, render order, and why the fade covers all
-quadrants see [`iso-geometry.md`](iso-geometry.md).
+For coordinate conventions and render order see
+[`iso-geometry.md`](iso-geometry.md).
 
 ## Vanilla baseline
 
@@ -47,59 +50,69 @@ public static void exit(@Patch.Argument(0) IsoObject object,
 
 Bails on any of:
 - `!fadeNWTrees` or `!isActiveTreeFadeForCurrentRenderPlayer()`
+- `isCameraPlayerIndoor()`
 - `!(object instanceof IsoTree)`
 - `object.square == null`
 
 Then two paths share one method:
 
 **Path A — vanilla returned `false`.** Compute `(dx, dy)` from
-`camCharacterX/Y` to `square.x/y`. Skip if origin tile, skip if
-outside Diamond range, otherwise `result = true` to flip vanilla's
-output.
+`camCharacterX/Y` to `square.x/y`. Skip if origin tile, outside the
+diamond range, or outside the camera player's forward cone
+(`PeekAViewMod.isTileInCameraPlayerCone`). Otherwise `result = true`.
 
-**Path B — vanilla returned `true`** (SE-inside-bbox). Skip the
-quadrant logic; `result` already final. Continue to the speed-snap
-step. Running the snap on this path keeps the fade behavior
-symmetric: SE-bbox trees and our extended-quadrant trees both
-respond to driving speed identically.
+Out of cone we leave vanilla's value alone, so vanilla's close-zone
+SE-only fade runs untouched. In cone, the flip overrides vanilla
+across the diamond.
+
+**Path B — vanilla returned `true`** (SE-inside-bbox). `result`
+final; fall through to speed-snap so SE-bbox trees and our
+extended-quadrant trees respond to driving speed identically.
 
 ## Speed-proportional fade boost
 
-After Path A or B has settled `result == true`, the patch applies a
-speed-proportional fade-down step on `tree.fadeAlpha` directly:
+After `result == true`, applies a per-call decrement to
+`tree.fadeAlpha`:
 
 ```java
 float speed = PeekAViewMod.currentVehicleSpeedKmh;
-if (speed > 0f && tree.fadeAlpha > 0.25f) {
-    float cap = PeekAViewMod.TREE_FADE_SNAP_SPEED_CAP_KMH;  // 30
-    float t   = speed >= cap ? 1.0f : speed / cap;
-    tree.fadeAlpha += (0.25f - tree.fadeAlpha) * t;
+float minBoost = PeekAViewMod.TREE_FADE_SNAP_MIN_KMH;     // 10
+if (speed > minBoost && tree.fadeAlpha > 0.25f) {
+    float cap = PeekAViewMod.TREE_FADE_SNAP_SPEED_CAP_KMH; // 80
+    float t   = speed >= cap ? 1.0f : (speed - minBoost) / (cap - minBoost);
+    float decrement = (1.0f - 0.25f) * t * t * t;
+    tree.fadeAlpha -= decrement;
     if (tree.fadeAlpha < 0.25f) tree.fadeAlpha = 0.25f;
 }
 ```
 
 Vanilla's per-frame `alphaStep = 0.045 * thirtyFPSMultiplier` in
-`IsoTree.render():302` takes ~0.55 s real-time to ease 1.0 → 0.25.
-At 70 km/h ≈ 19 tile/s the player covers `treeFadeRange = 20` in ~1 s
-and the fade just barely keeps up; at 100 km/h the tree is still
-half-opaque when the bumper passes it. The boost runs every render
-call that flips translucent, lerping toward `minAlpha = 0.25` in
-proportion to current vehicle speed. At 0 km/h `t = 0` and vanilla
-owns the animation. At ≥ 30 km/h `t = 1` and the tree snaps to
-`minAlpha` in one frame.
+`IsoTree.render():302` takes ~0.55 s real-time to ease 1.0 → 0.25 —
+matches walking pace. At driving speeds vanilla lags: 70 km/h covers
+`treeFadeRange = 20` in ~1 s, 100 km/h leaves the tree half-opaque
+as the bumper passes.
+
+Below `MIN_KMH = 10` the boost is skipped; vanilla owns the fade.
+This floor exists because `isTranslucentTree` fires 6-10× per tree
+per frame, and even tiny `t³` decrements compound across that many
+calls to a perceptible total — felt instant at speeds where the
+speedometer needle barely moved.
+
+Between `MIN_KMH` and `CAP_KMH` the cubic curve ramps the per-call
+decrement: ~0.007 at 25 km/h, ~0.09 at 45 km/h, ~0.36 at 65 km/h.
+At `t = 1` (≥ cap) the decrement covers the full 0.75 range in one
+call.
+
+An earlier lerp form (`fadeAlpha += (0.25 - fadeAlpha) * t`)
+converged geometrically: with the advice firing 2-4× per frame, even
+t = 0.17 (5 km/h) collapsed the gap by ~50% per frame.
 
 Constraints:
 
-- Steps **down** only — `(minAlpha - fadeAlpha)` is always negative
-  while `fadeAlpha > minAlpha`. Range-exit / toggle-off uses
-  vanilla's fade-up step.
+- Steps **down** only. Range-exit / cone-exit uses vanilla's
+  fade-up step.
 - `tree.fadeAlpha` is a `public float`, accessible from the inlined
-  advice in `FBORenderCell` without `IllegalAccessError`. Indoor
-  `minAlpha = 0.05` is ignored — drivers are always outdoors.
-- `currentVehicleSpeedKmh` is set in `PeekAViewMod.refreshActiveCache`
-  (which runs on the first patch call per frame for the rendering
-  player). When the player is not in a vehicle the field is `0f` and
-  the boost block is a no-op.
-
-LOS untouched — `IsoTree` is not in `LosUtil` / `specialObjects`, so
-this is purely a render-layer change.
+  advice without `IllegalAccessError`. Indoor `minAlpha = 0.05` is
+  ignored — drivers are always outdoors.
+- `currentVehicleSpeedKmh` is `0f` when not in a vehicle, gating the
+  whole block.

@@ -37,7 +37,10 @@ into `outLeft` / `outRight` depending on `deltaY >= deltaX` /
 
 We reimplement the same shape scaled to `PeekAViewMod.range`:
 - `rasterSize = radius * 2 + 2`
-- `DIAMOND_HALF_WIDTH = 22.5f` (sized for max radius)
+- `diamondHalfWidth = radius * 0.9f` (mirrors vanilla's 4.5/5 ratio
+  proportionally, so each +1 step on the slider grows the emitted
+  set by a vanilla-shaped ring rather than jumping to a non-clipped
+  square)
 - N/W-quadrant exclusion preserved: only emit POIs where the player
   stands N/W of the target.
 - `deltaY >= deltaX` and `deltaY <= deltaX` both true on the diagonal
@@ -160,7 +163,7 @@ non-constant field read/written by the advice must be accessible from
 `public` on helper methods. Element mutation of `final` arrays is
 fine.
 
-Compile-time constants (`RADIUS`, `DIAMOND_HALF_WIDTH`, `MAX_COORDS`)
+Compile-time constants (`RADIUS`, `DIAMOND_HALF_WIDTH_PER_RADIUS`, `MAX_COORDS`)
 can stay private — javac folds them into literals before the advice
 ever sees a field reference.
 
@@ -233,7 +236,11 @@ Diagonal (deltaY == deltaX) emits to both. Matches vanilla.
 # Patch 2 — `Patch_DrawStencilMask`
 
 **Patched method:** `zombie.iso.IsoCell.DrawStencilMask`
-**Gate:** `fadeNWTrees == true` (opt-in tickbox).
+**Gates (in order):**
+- `PeekAViewMod.fadeNWTrees == true` (opt-in tickbox)
+- `PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()`
+- `!PeekAViewMod.isCameraPlayerIndoor()` (outdoor only, mirrors
+  `Patch_FBORenderCell`)
 
 ## Why a stencil mask matters for tree-fade
 
@@ -259,15 +266,17 @@ where its base tile is.
 ## What we add
 
 After vanilla's circle runs (`@Patch.OnExit`), we append per-tile
-stencil writes for every LOS-visible tile in the full diamond around
-the player, up to `PeekAViewMod.treeFadeRange`. The write is additive
-via `glStencilOp(7680, 7680, 7681)` with
+stencil writes for tiles in the diamond around the player up to
+`PeekAViewMod.treeFadeRange`, plus a 5-tile persistence buffer ring
+just outside it (see [Persistence](#persistence)). The write is
+additive via `glStencilOp(7680, 7680, 7681)` with
 `glStencilFunc(519, 128, 255)` — `GL_REPLACE` writes ref `128`,
 layered on top of vanilla's circle.
 
 The resulting mask shape **follows the character's actual line of
 sight** — no fade through walls, no ghost fade in unseen areas —
-because each per-tile write is gated on `sq.isCanSee(playerIndex)`.
+because each per-tile write is gated on `sq.isCanSee(playerIndex)`,
+with two persistence exceptions covering trees mid-fade-up.
 
 ## Player-index source
 
@@ -304,21 +313,59 @@ sub-pixel camera shifts.
 
 ## LOS gate — `sq.isCanSee(playerIndex)`
 
-Single LOS check in the entire tree-fade chain. Drops the per-tile
-stencil write if the rendering player has no current line of sight
-to the tile. Effects:
+Drops the per-tile stencil write if the rendering player has no
+line of sight to the tile. Trees behind walls / in fog of war get
+no stencil pixel → `GL_EQUAL` pass fails → tree renders opaque via
+`GL_NOTEQUAL` (no see-through-walls).
 
-- Trees behind walls / inside fog of war: no stencil pixel written →
-  `GL_EQUAL` pass fails → tree renders opaque via `GL_NOTEQUAL` pass,
-  even though `Patch_FBORenderCell`'s patches flagged it translucent.
-  This is the design (no see-through-walls).
-- The other two tree-fade patches do not gate on LOS — they
-  blanket-apply within range. The stencil mask is therefore the
-  authoritative gate on what the user sees as faded.
-- PZ's `isCanSee` is forward-biased — the visibility cone reaches
-  further in the character's facing direction than behind it. NW
-  trees in our full-diamond fade in/out as the player rotates, which
-  matches "fade what I'm looking toward" intuitively.
+`Patch_FBORenderCell.Patch_isTranslucentTree` uses an independent
+forward-cone gate (`isTileInCameraPlayerCone`, dot product against
+`player.getForwardDirection`) for the renderFlag flip. Both gates
+approximate "tile the player is looking at", but `isCanSee` lags
+during fast rotation (PZ updates LOS on a periodic pass), so the
+renderFlag side uses the per-frame dot product while the stencil
+side keeps `isCanSee` for its wall-blocking.
+
+### Persistence
+
+Two cases keep stencil coverage past the LOS gate so fade-up
+animations stay visible instead of snapping to opaque:
+
+**Inside the diamond** — `isCanSee` false but the tile's tree is
+mid-fade-up (`fadeAlpha < 1`):
+
+```java
+if (!sq.isCanSee(pidx)) {
+    IsoTree fadingTree = sq.getTree();
+    if (fadingTree == null || fadingTree.fadeAlpha >= 1.0f) continue;
+}
+```
+
+Without it, fade-up in the outer zone snaps when the player turns
+away (stencil drops while vanilla's `alphaStep` is still climbing
+invisibly), while the inner zone keeps animating under vanilla's
+always-on circle stencil.
+
+**Outside the diamond (buffer ring)** — iteration extends to
+`treeFadeRange + 5`; ring tiles get stencil only if a fading-up
+tree sits on them:
+
+```java
+} else {
+    IsoTree fadingTree = sq.getTree();
+    if (fadingTree == null || fadingTree.fadeAlpha >= 1.0f) continue;
+}
+```
+
+Without the buffer, a tree crossing the diamond boundary mid-fade-up
+(e.g. SE tree, player walking NW away) loses stencil instantly and
+snaps to opaque. Buffer of 5 covers vanilla's ~0.55 s fade-up at
+sprint (~3 tiles/s) with margin.
+
+Cost: one extra `sq.getTree()` per non-LOS diamond tile and per
+ring tile. `getTree` short-circuits at the first `IsoTree` in
+`square.objects` (typical 1-5 entries). At max range the buffer
+adds ~225 extra iterations (~22 µs / frame).
 
 ## Per-tile render
 
@@ -331,14 +378,17 @@ tex2.renderstrip((int) sx - halfW, (int) sy - tileFootprintYOffset,
 
 | Constant | Value | Why |
 |---|---|---|
-| `renderW` | `128 * tileScale` | Wider than iso-tile footprint (64) — symmetric overshoot |
-| `renderH` | `256 * tileScale` | Total mask height |
-| `tileFootprintYOffset` | `192 * tileScale` | Places the patch 6 tile-heights above the tile floor and ~2 below — sized to cover any PZ tree sprite's crown |
+| `renderW` | `192 * tileScale` | Wider than iso-tile footprint (64). Over-covers typical sprite ±32-64 px horizontal extent so the outermost leaves stay covered when a neighbouring tile sits just outside the diamond and writes no stencil. |
+| `renderH` | `320 * tileScale` | Total mask height. |
+| `tileFootprintYOffset` | `256 * tileScale` | Places the patch 8 tile-heights above the tile floor and ~2 below — covers the tallest tree sprites in the game, which reach ~7 tile-heights up (crown at `sy - 224 px`). |
 
-The 128×256 dimensions overshoot the iso-tile footprint on purpose:
-trees extend upward on screen from their base tile, so the stencil
-needs coverage above the tile base for the tree sprite's `GL_EQUAL`
-pass to pass the stencil test.
+The 192×320 overshoots the iso-tile footprint because tree sprites
+extend upward on screen from the base tile; the stencil needs
+coverage above the tile for the sprite's `GL_EQUAL` pass to pass.
+A smaller height overshoot leaves the top rows of the tallest
+sprites unmasked → "trunk fades, crown stays opaque". A smaller
+width leaves the outermost leaves of trees at the diamond edge
+unmasked when the neighbouring tile sits outside the diamond.
 
 ## OpenGL state
 

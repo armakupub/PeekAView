@@ -11,26 +11,19 @@ public class Patch_FBORenderCell {
 
     // Vanilla fades trees only in the SE quadrant of the player and
     // only inside its ~5-tile stencil-bbox (FBORenderCell:1772-1782).
-    // We extend the fade to the full PeekAViewMod.treeFadeRange diamond
-    // around the player (origin excluded).
+    // We extend the fade to the PeekAViewMod.treeFadeRange diamond,
+    // gated on the player's forward cone: out of cone we leave
+    // vanilla's result alone, in cone we flip it for any tile in
+    // the diamond. Drives renderFlag (required gate; IsoTree.
+    // fadeAlpha only steps DOWN when renderFlag=true) and adds a
+    // speed-proportional fade boost for vehicle speeds.
     //
-    // Patch_isTranslucentTree drives the renderFlag — required gate,
-    // since IsoTree.fadeAlpha only steps DOWN when renderFlag=true.
-    // It also applies a speed-proportional fade boost so trees snap
-    // translucent at driving speeds instead of crawling at vanilla's
-    // 0.045/frame alphaStep.
+    // LOS-blocking lives in Patch_IsoCell.Patch_DrawStencilMask;
+    // this patch is purely a render-layer flip.
     //
-    // LOS untouched — IsoTree is not in LosUtil / specialObjects, so
-    // translucency is purely a render-layer change. The actual LOS
-    // gate that decides whether a fade-flagged tree gets rendered
-    // translucent lives in Patch_IsoCell.Patch_DrawStencilMask.
-    //
-    // Note on access context: @Patch advice is inlined into the target
-    // class's bytecode at runtime. Any non-constant field our advice
-    // reads or writes must be accessible from the target — private
-    // fields throw IllegalAccessError at runtime. Compile-time
-    // constants can stay private because javac folds them into
-    // literals before the advice sees a field reference.
+    // @Patch advice inlines into the target's bytecode, so non-
+    // constant fields it reads or writes must be accessible from
+    // there. Compile-time constants stay private (javac folds them).
 
     @Patch(className = "zombie.iso.fboRenderChunk.FBORenderCell",
            methodName = "isTranslucentTree")
@@ -42,20 +35,14 @@ public class Patch_FBORenderCell {
             try {
                 if (!PeekAViewMod.fadeNWTrees) return;
                 if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
-                // Outdoor-only: indoor scenes never reveal new trees
-                // through the extended fade diamond (LOS is room-bound),
-                // so the patch is pure overhead there. Bailing out
-                // indoor also avoids any chance of B42 indoor side
-                // effects piggy-backing on the tree-fade render path.
+                // Outdoor-only — mirrors the gate in Patch_DrawStencilMask.
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (!(object instanceof IsoTree)) return;
                 if (object.square == null) return;
 
-                // Flip translucent for any tile in the treeFadeRange
-                // diamond around the player (origin excluded). The
-                // LOS gate in Patch_DrawStencilMask decides what
-                // actually fades on screen — flagging every diamond
-                // tile here is safe.
+                // Flip only inside the diamond AND in the cone. Out
+                // of cone we leave vanilla's result alone so close
+                // NW/N/W trees stay opaque when not looked at.
                 if (!result) {
                     int camX = PZMath.fastfloor(IsoCamera.frameState.camCharacterX);
                     int camY = PZMath.fastfloor(IsoCamera.frameState.camCharacterY);
@@ -68,22 +55,30 @@ public class Patch_FBORenderCell {
                     int ady = dy < 0 ? -dy : dy;
                     if (adx + ady > PeekAViewMod.treeFadeRange) return;
 
+                    if (!PeekAViewMod.isTileInCameraPlayerCone(object.square)) return;
+
                     result = true;
                 }
 
                 // Speed-proportional fade boost on top of vanilla's
-                // per-frame alphaStep. Runs for both vanilla- and
-                // patch-flipped trees so all sides respond the same
-                // to driving speed. Steps DOWN only — range-exit
-                // fade-up stays vanilla.
+                // alphaStep. Steps DOWN only — fade-up stays vanilla.
+                // Below MIN_KMH (~walking pace) we don't touch fadeAlpha
+                // at all so vanilla's 0.55 s rate owns the animation;
+                // even tiny t³ values would otherwise compound across
+                // the 6-10 isTranslucentTree calls per tree per frame.
+                // Between MIN_KMH and SPEED_CAP_KMH the cubic ramp
+                // builds toward snap; at/above SPEED_CAP_KMH the
+                // decrement covers the full vanilla range in one call.
                 float speed = PeekAViewMod.currentVehicleSpeedKmh;
-                if (speed > 0f) {
+                float minBoost = PeekAViewMod.TREE_FADE_SNAP_MIN_KMH;
+                if (speed > minBoost) {
                     IsoTree tree = (IsoTree) object;
                     float minAlpha = 0.25f;
                     if (tree.fadeAlpha > minAlpha) {
                         float cap = PeekAViewMod.TREE_FADE_SNAP_SPEED_CAP_KMH;
-                        float t = speed >= cap ? 1.0f : speed / cap;
-                        tree.fadeAlpha += (minAlpha - tree.fadeAlpha) * t;
+                        float t = speed >= cap ? 1.0f : (speed - minBoost) / (cap - minBoost);
+                        float decrement = (1.0f - minAlpha) * t * t * t;
+                        tree.fadeAlpha -= decrement;
                         if (tree.fadeAlpha < minAlpha) tree.fadeAlpha = minAlpha;
                     }
                 }

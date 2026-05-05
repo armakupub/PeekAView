@@ -6,16 +6,15 @@ Same rules as vanilla, just triggered from further out. No X-ray, no see-through
 
 [h1]What this mod does[/h1]
 [list]
-[*][b]Wall cutaway[/b]: extends vanilla's ~5-tile cutaway range up to 20 tiles (default 15).
-[*][b]Tree fade[/b]: trees in your character's line of sight become translucent up to 25 tiles, in any direction.
-[*][b]Two gates[/b]: aim/nimble-stance only (off by default; when on, the mod only runs while you're in that stance) and an in-vehicle speed cutoff (independent km/h thresholds for cutaway and tree fade).
+[*][b]Wall cutaway[/b]: extends vanilla's ~5-tile cutaway range up to 20 tiles (default 10).
+[*][b]Tree fade[/b]: trees fade in the direction you're actively looking, up to 25 tiles. Outdoors only; indoors falls back to vanilla.
 [*]Also fixes a B42 render bug where player-built structures cause nearby vanilla walls to disappear.
 [/list]
 
 [h1]Settings[/h1]
 Options → Mods → Peek a View, three sections: Global, Wall cutaway, Tree fade. [b]F8[/b] toggles the mod on/off (green/red halo confirms; rebindable in Options → Keybind under [noparse][PeekAView][/noparse]).
 
-Defaults are tuned to show the effect clearly. Reduce ranges, enable aim/nimble-stance only, or tighten driving thresholds to scale it back to your taste.
+The experience can be tuned in-game — adjust ranges, restrict cutaway to aim-state only, or disable cutaway in vehicles.
 
 [h1]Requirements[/h1]
 [list]
@@ -34,7 +33,6 @@ Defaults are tuned to show the effect clearly. Reduce ranges, enable aim/nimble-
 [list]
 [*]Visual departure from TIS's intended look. If you prefer the vanilla style, this mod isn't for you.
 [*]In dense city blocks, buildings can fade in and out more quickly as you move, which can be distracting at first.
-[*]At highway speeds tree fade snaps to its faded state in one frame so you don't drive into opaque crowns.
 [*]Per-frame cost is small but not zero. On lower-end hardware, dropping the ranges a few tiles helps.
 [/list]
 
@@ -44,8 +42,6 @@ Both PeekAView and ZombieBuddy are MIT-licensed and fully open source. The patch
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

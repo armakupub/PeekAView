@@ -6,16 +6,15 @@ Mesmas regras do vanilla, apenas acionadas de mais longe. Sem visão de raio-X, 
 
 [h1]O que este mod faz[/h1]
 [list]
-[*][b]Corte de paredes[/b]: estende o alcance de esmaecimento vanilla de ~5 tiles até 20 tiles (padrão 15).
-[*][b]Esmaecimento de árvores[/b]: as árvores na linha de visão do seu personagem ficam translúcidas até 25 tiles, em qualquer direção.
-[*][b]Duas condições de ativação[/b]: apenas ao mirar (desativado por padrão; quando ativo, o mod só funciona nessa postura) e um limite de velocidade em veículo (limites km/h independentes para corte de paredes e esmaecimento de árvores).
+[*][b]Corte de paredes[/b]: estende o alcance de esmaecimento vanilla de ~5 tiles até 20 tiles (padrão 10).
+[*][b]Esmaecimento de árvores[/b]: as árvores ficam translúcidas na direção em que você está olhando ativamente, até 25 casas. Apenas ao ar livre; em interiores, vale o comportamento vanilla.
 [*]Também corrige um bug de renderização do Build 42 onde estruturas construídas pelo jogador fazem paredes vanilla próximas desaparecerem.
 [/list]
 
 [h1]Configurações[/h1]
 Opções → Mods → Peek a View, três seções: Geral, Corte de paredes, Esmaecimento de árvores. [b]F8[/b] liga/desliga o mod (halo verde/vermelho confirma; reatribuível em Opções → Atalhos sob [noparse][PeekAView][/noparse]).
 
-Os valores padrão mostram o efeito claramente. Reduza os alcances, ative apenas ao mirar, ou aperte os limites de velocidade para ajustar o efeito ao seu gosto.
+A experiência pode ser ajustada nas opções do jogo — altere os alcances, restrinja o corte apenas à mira, ou desative-o em veículos.
 
 [h1]Requisitos[/h1]
 [list]
@@ -34,7 +33,6 @@ Os valores padrão mostram o efeito claramente. Reduza os alcances, ative apenas
 [list]
 [*]Desvio visual em relação à aparência pretendida pela TIS. Se você prefere o estilo vanilla, este mod não é para você.
 [*]Em quarteirões urbanos densos, os edifícios podem aparecer e desaparecer mais rapidamente quando você se move, o que pode distrair no início.
-[*]Em velocidades de rodovia, o esmaecimento de árvores muda para o estado translúcido em um único quadro para que você não dirija em copas opacas.
 [*]O custo por quadro é pequeno mas não zero. Em hardware modesto, reduzir os alcances algumas tiles ajuda.
 [/list]
 
@@ -44,8 +42,6 @@ Tanto o PeekAView quanto o ZombieBuddy estão sob licença MIT e são totalmente
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

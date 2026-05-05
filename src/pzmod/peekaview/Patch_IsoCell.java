@@ -15,6 +15,7 @@ import zombie.iso.IsoCell;
 import zombie.iso.IsoUtils;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.objects.IsoTree;
 
 public class Patch_IsoCell {
 
@@ -25,7 +26,17 @@ public class Patch_IsoCell {
     public static class Patch_GetSquaresAroundPlayerSquare {
 
         private static final int MAX_RADIUS = PeekAViewMod.MAX_RANGE;
-        private static final float DIAMOND_HALF_WIDTH = 22.5f;
+
+        // Diamond half-width scales with radius to match vanilla's
+        // shape proportionally. Vanilla uses 4.5 at its effective
+        // radius of 5 (raster 10 wide, deltaX/Y in [-4, +5]); we
+        // mirror that ratio so radius R clips at half-width 0.9·R.
+        // Earlier we used a constant 22.5 (sized for MAX_RADIUS)
+        // which made the diamond never clip at small radii — at
+        // radius 6 the 14-wide raster emitted ~196 tiles where
+        // vanilla's R=5 path emits ~50, so each +1 step on the
+        // slider above MIN added far more tiles than expected.
+        private static final float DIAMOND_HALF_WIDTH_PER_RADIUS = 4.5f / 5.0f;
 
         // Inside this box around the player we mirror vanilla exactly
         // (no wall-adjacency / LOS filter). 5 covers vanilla's 10x10
@@ -83,13 +94,7 @@ public class Patch_IsoCell {
 
                 // Slider at MIN_RANGE = vanilla cutaway. Fall through
                 // so vanilla's 10×10 raster + diamond-half-width-4.5
-                // shape runs unmodified. Our reimplementation diverges
-                // slightly (rasterSize = radius*2+2 adds an extra
-                // ring; DIAMOND_HALF_WIDTH = 22.5 is sized for max
-                // radius and doesn't clip at small radii), so even at
-                // radius==5 the extended path emits tiles vanilla
-                // would not. Pass-through guarantees 1:1 vanilla
-                // behavior at the user's "off / vanilla" slider end.
+                // shape runs unmodified.
                 if (PeekAViewMod.range <= PeekAViewMod.MIN_RANGE) return false;
 
                 float px = player.getX();
@@ -129,6 +134,7 @@ public class Patch_IsoCell {
                 if (radius < PeekAViewMod.MIN_RANGE) radius = PeekAViewMod.MIN_RANGE;
                 if (radius > MAX_RADIUS) radius = MAX_RADIUS;
                 int rasterSize = radius * 2 + 2;
+                float diamondHalfWidth = (float) radius * DIAMOND_HALF_WIDTH_PER_RADIUS;
 
                 int startX = PZMath.fastfloor(px - (float) radius);
                 int startY = PZMath.fastfloor(py - (float) radius);
@@ -139,8 +145,8 @@ public class Patch_IsoCell {
                         if (x == pxFloor && y == pyFloor) continue;
                         float deltaX = (float) x - px;
                         float deltaY = (float) y - py;
-                        if (!(deltaY < deltaX + DIAMOND_HALF_WIDTH)) continue;
-                        if (!(deltaY > deltaX - DIAMOND_HALF_WIDTH)) continue;
+                        if (!(deltaY < deltaX + diamondHalfWidth)) continue;
+                        if (!(deltaY > deltaX - diamondHalfWidth)) continue;
                         IsoGridSquare iterSquare = cell.getGridSquare(x, y, z);
                         if (iterSquare == null) continue;
 
@@ -260,18 +266,17 @@ public class Patch_IsoCell {
 
     // Vanilla DrawStencilMask renders a circular alpha texture
     // (media/mask_circledithernew.png) once per frame centered on the
-    // player. The stencil buffer it writes caps where translucent
-    // passes (tree fade, wall cutaway) can render on screen — outside
-    // the mask, nothing. Vanilla's size matches the ~5-tile cutaway
-    // raster, so our N/W/NE/SW tree fades are invisible beyond that.
+    // player. The stencil it writes caps where translucent passes
+    // (tree fade, wall cutaway) can render — outside the mask,
+    // nothing. Vanilla's size matches the ~5-tile cutaway raster.
     //
-    // We keep vanilla's circle unchanged (accurate close range, cheap)
-    // and after it runs, add additional stencil coverage per LOS-lit
-    // tile in the three fade quadrants relative to the player, up to
-    // PeekAViewMod.treeFadeRange. Stencil is additive via GL_REPLACE with
-    // ref 128, so extra writes layer on top of vanilla's circle. The
-    // resulting mask shape matches the character's actual line of
-    // sight — no fade through walls, no ghost fade in unseen areas.
+    // We keep vanilla's circle and after it runs, add per-tile
+    // stencil writes in the treeFadeRange diamond gated by
+    // sq.isCanSee (no fade through walls, no ghost fade in unseen
+    // forest). Persistence exception: a tile keeps coverage while
+    // its tree is mid-fade-up (fadeAlpha < 1) so the alphaStep
+    // climb stays visible instead of snapping to opaque on cone
+    // exit. Stencil is additive via GL_REPLACE with ref 128.
     @Patch(className = "zombie.iso.IsoCell",
            methodName = "DrawStencilMask")
     public static class Patch_DrawStencilMask {
@@ -310,18 +315,22 @@ public class Patch_IsoCell {
                 int range = PeekAViewMod.treeFadeRange;
                 int ts = Core.tileScale;
 
-                // Per-tile mask geometry. 128×256 overshoots the iso-
-                // tile footprint (64×32) on purpose: trees extend
-                // upward on screen from their base tile, so we need
-                // stencil coverage ABOVE the tile base for the tree
-                // sprite's GL_EQUAL pass to pass the stencil test.
-                // tileFootprintYOffset = 192 places the patch 6 tile-
-                // heights above the floor, sized to cover any PZ
-                // tree sprite's crown.
-                int renderW = 128 * ts;
-                int renderH = 256 * ts;
+                // Per-tile mask geometry. 192×320 overshoots the iso-
+                // tile footprint (64×32) on purpose: tree sprites
+                // extend upward on screen from the base tile, so the
+                // stencil needs coverage ABOVE the tile for the
+                // sprite's GL_EQUAL pass to pass. The tallest sprites
+                // reach ~7 tile-heights up (crown at sy - 224 px);
+                // tileFootprintYOffset = 256 covers them with margin.
+                // renderW = 192 (halfW = 96) over-covers the typical
+                // sprite ±32-64 px horizontal extent so the outermost
+                // leaves don't end up uncovered when the neighbouring
+                // tile sits just outside the diamond range and writes
+                // no stencil there.
+                int renderW = 192 * ts;
+                int renderH = 320 * ts;
                 int halfW = renderW / 2;
-                int tileFootprintYOffset = 192 * ts;
+                int tileFootprintYOffset = 256 * ts;
 
                 IndieGL.glStencilMask(255);
                 IndieGL.enableStencilTest();
@@ -341,27 +350,45 @@ public class Patch_IsoCell {
                 // flickery moiré at sub-pixel camera shifts.
                 int vanillaSkip = PeekAViewMod.MIN_RANGE - 1;
 
-                for (int dy = -range; dy <= range; ++dy) {
-                    for (int dx = -range; dx <= range; ++dx) {
+                // Iterate range + persistence buffer. Tiles inside
+                // the diamond run the normal LOS-or-fade gate; tiles
+                // in the buffer ring only get stencil writes if a
+                // fading-up tree is still on them. Without the
+                // buffer, a tree whose tile leaves the diamond mid-
+                // fade-up snaps to opaque; the ring keeps the
+                // alphaStep climb visible until fadeAlpha == 1.
+                // Buffer of 5 covers vanilla's ~0.55 s recovery at
+                // sprint speed (~3 tiles/s) with margin.
+                final int persistenceBuffer = 5;
+                int extendedRange = range + persistenceBuffer;
+
+                for (int dy = -extendedRange; dy <= extendedRange; ++dy) {
+                    for (int dx = -extendedRange; dx <= extendedRange; ++dx) {
                         int adx = dx < 0 ? -dx : dx;
                         int ady = dy < 0 ? -dy : dy;
-                        if (adx + ady > range) continue;
+                        if (adx + ady > extendedRange) continue;
                         if (adx <= vanillaSkip && ady <= vanillaSkip) continue;
 
-                        // Full diamond — every tile in range (origin
-                        // excluded by the vanillaSkip check above).
-                        // The LOS gate (`sq.isCanSee(pidx)` below)
-                        // suppresses stencil writes for tiles outside
-                        // the rendering player's visibility cone, so
-                        // NW/N-axis/W-axis tiles only get coverage
-                        // when the player is actually looking that
-                        // way — no ghost-fade in unseen forest.
+                        boolean inDiamond = (adx + ady <= range);
 
                         int tx = px + dx;
                         int ty = py + dy;
                         IsoGridSquare sq = cell.getGridSquare(tx, ty, pz);
                         if (sq == null) continue;
-                        if (!sq.isCanSee(pidx)) continue;
+
+                        if (inDiamond) {
+                            // LOS gate. Persistence exception: a tile
+                            // that just left LOS keeps coverage while
+                            // its tree fades back up.
+                            if (!sq.isCanSee(pidx)) {
+                                IsoTree fadingTree = sq.getTree();
+                                if (fadingTree == null || fadingTree.fadeAlpha >= 1.0f) continue;
+                            }
+                        } else {
+                            // Buffer ring: persistence only.
+                            IsoTree fadingTree = sq.getTree();
+                            if (fadingTree == null || fadingTree.fadeAlpha >= 1.0f) continue;
+                        }
 
                         float sx = IsoUtils.XToScreen(tx, ty, pz, 0) - offX;
                         float sy = IsoUtils.YToScreen(tx, ty, pz, 0) - offY;

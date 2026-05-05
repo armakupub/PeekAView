@@ -6,16 +6,15 @@ Mêmes règles que vanilla, simplement déclenchées depuis plus loin. Pas de ra
 
 [h1]Ce que fait ce mod[/h1]
 [list]
-[*][b]Coupe de murs[/b] : étend la portée d'estompage de ~5 tuiles vanilla jusqu'à 20 tuiles (par défaut 15).
-[*][b]Estompage des arbres[/b] : les arbres dans la ligne de vue de votre personnage deviennent translucides jusqu'à 25 tuiles, dans toutes les directions.
-[*][b]Deux conditions d'activation[/b] : visée uniquement (désactivée par défaut ; lorsqu'elle est active, le mod ne fonctionne que dans cette posture) et un seuil de vitesse en véhicule (seuils km/h indépendants pour la coupe et l'estompage des arbres).
+[*][b]Coupe de murs[/b] : étend la portée d'estompage de ~5 tuiles vanilla jusqu'à 20 tuiles (par défaut 10).
+[*][b]Estompage des arbres[/b] : les arbres deviennent translucides dans la direction où vous regardez activement, jusqu'à 25 tuiles. En extérieur uniquement ; en intérieur, le comportement vanilla s'applique.
 [*]Corrige également un bug de rendu B42 où les structures construites par le joueur font disparaître les murs vanilla à proximité.
 [/list]
 
 [h1]Paramètres[/h1]
 Options → Mods → Peek a View, trois sections : Général, Coupe de murs, Estompage des arbres. [b]F8[/b] active/désactive le mod (halo vert/rouge pour confirmation ; réassignable dans Options → Touches sous [noparse][PeekAView][/noparse]).
 
-Les valeurs par défaut montrent l'effet clairement. Réduisez les portées, activez la visée uniquement, ou resserrez les seuils de vitesse pour ajuster l'effet à votre goût.
+L'expérience peut être ajustée dans les options du jeu — modifiez les portées, restreignez la coupe à la visée uniquement, ou désactivez-la en véhicule.
 
 [h1]Prérequis[/h1]
 [list]
@@ -34,7 +33,6 @@ Les valeurs par défaut montrent l'effet clairement. Réduisez les portées, act
 [list]
 [*]Écart visuel par rapport à l'esthétique voulue par TIS. Si vous préférez le style vanilla, ce mod n'est pas pour vous.
 [*]Dans les pâtés de maisons denses, les bâtiments peuvent apparaître et disparaître plus rapidement quand vous bougez, ce qui peut être distrayant au début.
-[*]À vitesse d'autoroute, l'estompage des arbres bascule en transparent en une seule frame pour éviter de foncer dans des couronnes opaques.
 [*]Le coût par image est faible mais pas nul. Sur du matériel modeste, baisser les portées de quelques tuiles aide.
 [/list]
 
@@ -44,8 +42,6 @@ PeekAView et ZombieBuddy sont tous deux sous licence MIT et entièrement open so
 [*][b]PeekAView[/b] : [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b] : [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 

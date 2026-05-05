@@ -6,16 +6,15 @@ Te same zasady co w vanilla, tylko uruchamiane z większej odległości. Bez wid
 
 [h1]Co robi ten mod[/h1]
 [list]
-[*][b]Wygaszanie ścian[/b]: rozszerza zasięg wygaszania z vanilla z ~5 pól do 20 pól (domyślnie 15).
-[*][b]Wygaszanie drzew[/b]: drzewa w linii wzroku twojej postaci stają się przezroczyste do 25 pól, w każdym kierunku.
-[*][b]Dwa warunki aktywacji[/b]: tylko podczas celowania (domyślnie wyłączone; gdy aktywne, mod działa tylko w tej postawie) oraz próg prędkości w pojeździe (niezależne progi km/h dla wygaszania ścian i drzew).
+[*][b]Wygaszanie ścian[/b]: rozszerza zasięg wygaszania z vanilla z ~5 pól do 20 pól (domyślnie 10).
+[*][b]Wygaszanie drzew[/b]: drzewa stają się przezroczyste w kierunku, w którym aktywnie patrzysz, do 25 pól. Tylko na zewnątrz; w pomieszczeniach obowiązuje zachowanie vanilla.
 [*]Naprawia również błąd renderowania w Build 42, w którym struktury zbudowane przez gracza powodują znikanie pobliskich ścian vanilla.
 [/list]
 
 [h1]Ustawienia[/h1]
 Opcje → Mody → Peek a View, trzy sekcje: Ogólne, Wygaszanie ścian, Wygaszanie drzew. [b]F8[/b] włącza/wyłącza moda (zielona/czerwona aureola potwierdza; do przemapowania w Opcje → Sterowanie pod [noparse][PeekAView][/noparse]).
 
-Domyślne wartości pokazują efekt wyraźnie. Zmniejsz zasięgi, włącz tryb tylko podczas celowania albo zaostrz progi prędkości, aby dostosować efekt do swojego gustu.
+Działanie można dostosować w opcjach gry — zmień zasięgi, ogranicz wygaszanie ścian tylko do celowania lub wyłącz je w pojazdach.
 
 [h1]Wymagania[/h1]
 [list]
@@ -34,7 +33,6 @@ Domyślne wartości pokazują efekt wyraźnie. Zmniejsz zasięgi, włącz tryb t
 [list]
 [*]Wizualne odejście od wyglądu zamierzonego przez TIS. Jeśli wolisz styl vanilla, ten mod nie jest dla ciebie.
 [*]W gęstych kwartałach miejskich budynki mogą szybciej pojawiać się i znikać podczas ruchu, co na początku może rozpraszać.
-[*]Przy prędkościach autostradowych wygaszanie drzew w jednej klatce przeskakuje na w pełni przezroczyste, żebyś nie wjeżdżał w nieprzezroczyste korony.
 [*]Koszt na klatkę jest mały, ale nie zerowy. Na słabszym sprzęcie pomaga zmniejszenie zasięgów o kilka pól.
 [/list]
 
@@ -44,8 +42,6 @@ Zarówno PeekAView, jak i ZombieBuddy są na licencji MIT i w pełni open source
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
 [/list]
-
-[url=https://ko-fi.com/armaku][img]https://i.imgur.com/wNYQY71.png[/img][/url]
 
 [hr][/hr]
 
