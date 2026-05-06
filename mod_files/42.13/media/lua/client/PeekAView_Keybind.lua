@@ -42,6 +42,12 @@ local function onKeyPressed(key)
         return
     end
 
+    -- opt:setValue only updates the in-memory ModOption; PZAPI persists
+    -- to ModOptions.ini on Apply from the options screen. Without this
+    -- save, hotkey toggles are lost across restarts and the next launch
+    -- reads the last screen-applied value.
+    PZAPI.ModOptions:save()
+
     local label = getText(newValue and "UI_PAV_EnabledText" or "UI_PAV_DisabledText")
     local color = newValue and HaloTextHelper.getColorGreen() or HaloTextHelper.getColorRed()
     showHalo(label, color)
