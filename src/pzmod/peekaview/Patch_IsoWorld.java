@@ -7,6 +7,7 @@ import zombie.characters.IsoGameCharacter;
 import zombie.core.math.PZMath;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
+import zombie.GameTime;
 import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoWorld;
 import zombie.iso.SpriteDetails.IsoObjectType;
@@ -78,6 +79,27 @@ public class Patch_IsoWorld {
             if (!readDrawWorld(self)) return;
 
             IsoCamera.FrameState fs = IsoCamera.frameState;
+
+            // Pause-resistant freeze: when the game is paused
+            // (GameTime.isGamePaused() — speed==0 or client-side paused
+            // or empty server) and a fakeWindow was active on the
+            // immediately previous frame, keep the last fake state
+            // visible by bumping frameCounter only. Other state is
+            // already correct from the last active frame and the game
+            // thread is not advancing during pause anyway. The
+            // (frameCount - ffs.frameCounter) <= 1 gate ensures only a
+            // just-active fakeWindow gets thawed; an old fakeWindow
+            // from a previous unrelated activation falls through to
+            // the normal (now-stale) flow.
+            if (GameTime.isGamePaused()) {
+                int idxP = fs.playerIndex;
+                FakeFrameState ffsP = FakeWindow.get(idxP);
+                if (ffsP != null && (fs.frameCount - ffsP.frameCounter) <= 1) {
+                    ffsP.frameCounter = fs.frameCount;
+                    return;
+                }
+            }
+
             IsoGridSquare square = fs.camCharacterSquare;
             if (square == null) return;
             if (camChar.getVehicle() != null) return;
