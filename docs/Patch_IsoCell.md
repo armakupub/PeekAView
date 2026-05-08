@@ -275,10 +275,21 @@ where its base tile is.
 ## What we add
 
 After vanilla's circle runs (`@Patch.OnExit`), we append per-tile
-stencil writes for tiles in the diamond around the player up to
-`PeekAViewMod.treeFadeRange`, plus a 5-tile persistence buffer ring
-just outside it (see [Persistence](#persistence)). The write is
-additive via `glStencilOp(7680, 7680, 7681)` with
+stencil writes around the player. Coverage shape is **asymmetric**:
+
+- **SE quadrant** (`dx >= 0 && dy >= 0`): always extends to
+  `MAX_TREE_FADE_RANGE` (25 tiles) regardless of the slider.
+  This matches vanilla's natural fade domain (`isTranslucentTree`
+  returns true for any on-screen SE-quadrant tile).
+- **Other quadrants**: extend to the slider value `treeFadeRange`,
+  the slider-controlled forward-cone reach.
+- A 5-tile **persistence buffer ring** sits outside both, gated on
+  fading-up trees (see [Persistence](#persistence)).
+
+Distance is **Euclidean** (`dx*dx + dy*dy <= range²`), not Manhattan
+diamond, so diagonal travel doesn't shrink coverage asymmetrically.
+
+The write is additive via `glStencilOp(7680, 7680, 7681)` with
 `glStencilFunc(519, 128, 255)` — `GL_REPLACE` writes ref `128`,
 layered on top of vanilla's circle.
 
@@ -308,17 +319,23 @@ working in and out of vehicles.
 ## Geometry
 
 ```
-Diamond range:   if (adx + ady > range) skip
-Inner skip:      if (adx <= 4 && ady <= 4) skip   ← vanillaSkip = MIN_RANGE-1
-Origin skipped via the inner-skip rule (adx == 0 && ady == 0 ≤ 4).
-No quadrant filter — every tile in the diamond gets a stencil write.
+Outer bound:     if (distSq > extendedRangeSq) skip
+Inner skip:      if (distSq <= vanillaSkipSq) skip   ← vanillaSkip = MIN_RANGE-1 (cutaway)
+Per-quadrant:    inSE  = (dx >= 0 && dy >= 0)
+                 effRangeSq = inSE ? seQuadrantRangeSq : otherQuadrantRangeSq
+                 inCircle = (distSq <= effRangeSq)
 ```
 
-`vanillaSkip = MIN_RANGE - 1 = 4` because vanilla's circular stencil
-already covers roughly the inner 4 tiles around the player. Skipping
-that area avoids overlapping our per-tile dither with vanilla's
-gradient — the two independent patterns produce a flickery moiré at
-sub-pixel camera shifts.
+Where `seQuadrantRange = MAX_TREE_FADE_RANGE` (25, fixed) and
+`otherQuadrantRange = treeFadeRange` (the slider). The loop
+iterates a square box up to `loopRange = max(other, se) + 5` and
+filters per-tile.
+
+`vanillaSkip = MIN_RANGE - 1 = 4` (cutaway's MIN_RANGE) because
+vanilla's circular stencil already covers roughly the inner 4 tiles
+around the player. Skipping that area avoids overlapping our per-tile
+dither with vanilla's gradient — the two independent patterns produce
+a flickery moiré at sub-pixel camera shifts.
 
 ## LOS gate — `sq.isCanSee(playerIndex)`
 
@@ -327,20 +344,22 @@ line of sight to the tile. Trees behind walls / in fog of war get
 no stencil pixel → `GL_EQUAL` pass fails → tree renders opaque via
 `GL_NOTEQUAL` (no see-through-walls).
 
-`Patch_FBORenderCell.Patch_isTranslucentTree` uses an independent
-forward-cone gate (`isTileInCameraPlayerCone`, dot product against
-`player.getForwardDirection`) for the renderFlag flip. Both gates
-approximate "tile the player is looking at", but `isCanSee` lags
-during fast rotation (PZ updates LOS on a periodic pass), so the
-renderFlag side uses the per-frame dot product while the stencil
-side keeps `isCanSee` for its wall-blocking.
+`Patch_FBORenderCell.Patch_isTranslucentTree` uses two independent
+forward-cone gates (`isTileInTreeFadeCone` for the inZone branch,
+`isTileClearlyBehindCameraPlayer` for the refade branch, both dot
+products against `player.getForwardDirection`) for the renderFlag
+flip. The cone-side gates and `isCanSee` both approximate "tile the
+player is looking at", but `isCanSee` lags during fast rotation (PZ
+updates LOS on a periodic pass), so the renderFlag side uses the
+per-frame dot product while the stencil side keeps `isCanSee` for
+its wall-blocking.
 
 ### Persistence
 
 Two cases keep stencil coverage past the LOS gate so fade-up
 animations stay visible instead of snapping to opaque:
 
-**Inside the diamond** — `isCanSee` false but the tile's tree is
+**Inside the circle** — `isCanSee` false but the tile's tree is
 mid-fade-up (`fadeAlpha < 1`):
 
 ```java
@@ -355,9 +374,9 @@ away (stencil drops while vanilla's `alphaStep` is still climbing
 invisibly), while the inner zone keeps animating under vanilla's
 always-on circle stencil.
 
-**Outside the diamond (buffer ring)** — iteration extends to
-`treeFadeRange + 5`; ring tiles get stencil only if a fading-up
-tree sits on them:
+**Outside the circle (buffer ring)** — iteration extends to
+`loopRange + 5`; ring tiles get stencil only if a fading-up tree
+sits on them:
 
 ```java
 } else {
@@ -366,12 +385,12 @@ tree sits on them:
 }
 ```
 
-Without the buffer, a tree crossing the diamond boundary mid-fade-up
-(e.g. SE tree, player walking NW away) loses stencil instantly and
-snaps to opaque. Buffer of 5 covers vanilla's ~0.55 s fade-up at
-sprint (~3 tiles/s) with margin.
+Without the buffer, a tree crossing the per-quadrant boundary
+mid-fade-up (e.g. tree just outside `treeFadeRange` in a non-SE
+direction) loses stencil instantly and snaps to opaque. Buffer of 5
+covers vanilla's ~0.55 s fade-up at sprint (~3 tiles/s) with margin.
 
-Cost: one extra `sq.getTree()` per non-LOS diamond tile and per
+Cost: one extra `sq.getTree()` per non-LOS in-circle tile and per
 ring tile. `getTree` short-circuits at the first `IsoTree` in
 `square.objects` (typical 1-5 entries). At max range the buffer
 adds ~225 extra iterations (~22 µs / frame).

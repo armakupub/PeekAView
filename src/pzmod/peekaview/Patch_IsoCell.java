@@ -277,10 +277,10 @@ public class Patch_IsoCell {
     // nothing. Vanilla's size matches the ~5-tile cutaway raster.
     //
     // We keep vanilla's circle and after it runs, add per-tile
-    // stencil writes in the treeFadeRange diamond gated by
-    // sq.isCanSee (no fade through walls, no ghost fade in unseen
-    // forest). Persistence exception: a tile keeps coverage while
-    // its tree is mid-fade-up (fadeAlpha < 1) so the alphaStep
+    // stencil writes in a Euclidean circle of radius treeFadeRange
+    // gated by sq.isCanSee (no fade through walls, no ghost fade in
+    // unseen forest). Persistence exception: a tile keeps coverage
+    // while its tree is mid-fade-up (fadeAlpha < 1) so the alphaStep
     // climb stays visible instead of snapping to opaque on cone
     // exit. Stencil is additive via GL_REPLACE with ref 128.
     @Patch(className = "zombie.iso.IsoCell",
@@ -331,7 +331,7 @@ public class Patch_IsoCell {
                 // renderW = 192 (halfW = 96) over-covers the typical
                 // sprite ±32-64 px horizontal extent so the outermost
                 // leaves don't end up uncovered when the neighbouring
-                // tile sits just outside the diamond range and writes
+                // tile sits just outside the circle range and writes
                 // no stencil there.
                 int renderW = 192 * ts;
                 int renderH = 320 * ts;
@@ -356,33 +356,41 @@ public class Patch_IsoCell {
                 // flickery moiré at sub-pixel camera shifts.
                 int vanillaSkip = PeekAViewMod.MIN_RANGE - 1;
 
-                // Iterate range + persistence buffer. Tiles inside
-                // the diamond run the normal LOS-or-fade gate; tiles
-                // in the buffer ring only get stencil writes if a
-                // fading-up tree is still on them. Without the
-                // buffer, a tree whose tile leaves the diamond mid-
-                // fade-up snaps to opaque; the ring keeps the
-                // alphaStep climb visible until fadeAlpha == 1.
-                // Buffer of 5 covers vanilla's ~0.55 s recovery at
-                // sprint speed (~3 tiles/s) with margin.
+                // Asymmetric coverage: SE-quadrant always covers
+                // MAX_TREE_FADE_RANGE because that's vanilla's natural
+                // fade domain (FBORenderCell.isTranslucentTree returns
+                // true for any on-screen SE-quadrant tile regardless of
+                // slider) and the user expects vanilla's fade to keep
+                // working independent of our slider. Other quadrants
+                // follow the slider-controlled cone reach. Persistence
+                // buffer ring around both keeps fading-up trees stencil-
+                // covered until fadeAlpha == 1.
+                int seQuadrantRange = PeekAViewMod.MAX_TREE_FADE_RANGE;
+                int otherQuadrantRange = range;
+                int loopRange = Math.max(otherQuadrantRange, seQuadrantRange);
                 final int persistenceBuffer = 5;
-                int extendedRange = range + persistenceBuffer;
+                int extendedRange = loopRange + persistenceBuffer;
+                int extendedRangeSq = extendedRange * extendedRange;
+                int seQuadrantRangeSq = seQuadrantRange * seQuadrantRange;
+                int otherQuadrantRangeSq = otherQuadrantRange * otherQuadrantRange;
+                int vanillaSkipSq = vanillaSkip * vanillaSkip;
 
                 for (int dy = -extendedRange; dy <= extendedRange; ++dy) {
                     for (int dx = -extendedRange; dx <= extendedRange; ++dx) {
-                        int adx = dx < 0 ? -dx : dx;
-                        int ady = dy < 0 ? -dy : dy;
-                        if (adx + ady > extendedRange) continue;
-                        if (adx <= vanillaSkip && ady <= vanillaSkip) continue;
+                        int distSq = dx * dx + dy * dy;
+                        if (distSq > extendedRangeSq) continue;
+                        if (distSq <= vanillaSkipSq) continue;
 
-                        boolean inDiamond = (adx + ady <= range);
+                        boolean inSEQuadrant = (dx >= 0 && dy >= 0);
+                        int effRangeSqForTile = inSEQuadrant ? seQuadrantRangeSq : otherQuadrantRangeSq;
+                        boolean inCircle = (distSq <= effRangeSqForTile);
 
                         int tx = px + dx;
                         int ty = py + dy;
                         IsoGridSquare sq = cell.getGridSquare(tx, ty, pz);
                         if (sq == null) continue;
 
-                        if (inDiamond) {
+                        if (inCircle) {
                             // LOS gate. Persistence exception: a tile
                             // that just left LOS keeps coverage while
                             // its tree fades back up.

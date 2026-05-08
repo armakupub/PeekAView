@@ -27,7 +27,7 @@ Same rules as vanilla. No X-ray, no see-through walls, no enemy outlines. Your c
 2. Subscribe to **[Peek a View](https://steamcommunity.com/sharedfiles/filedetails/?id=3710281407)**.
 3. Enable both mods in the in-game mod list and launch the game.
 
-Because Peek a View ships a Java JAR, the **first** time you launch the game after installing it, ZombieBuddy will show a native approval dialog with the mod name, the signing author's Steam name and ID, the author's Steam ban status, and an `updated` date. Tick `Allow` to approve this specific JAR, or also tick `Trust` to silently accept future updates signed by the same author key without re-approving on each release. A persist-decision checkbox at the bottom saves your choice.
+Because Peek a View ships a Java JAR, the **first** time you launch the game after installing it, ZombieBuddy will show a native approval dialog with the mod name and an `updated` date. Tick `Allow` to approve this specific JAR. A persist-decision checkbox at the bottom saves your choice for future updates.
 
 ## Compatibility
 
@@ -55,7 +55,7 @@ Trees in your character's forward view become translucent so you can see what's 
 | Setting | Range / Default | What it does |
 |---|---|---|
 | Enable | on | Toggles the tree fade feature. |
-| Range | 5–25, default 15 | How far trees fade around the player. Lower values improve performance. |
+| Range | 15–25, default 20 | How far trees fade around the player. Lower values improve performance. |
 
 ## Stair view
 

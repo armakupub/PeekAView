@@ -137,8 +137,8 @@ end
 local treeFadeRangeOpt = modOptions:addSlider(
     "treeFadeRange",
     getText("UI_PAV_TreeFadeRangeLabel"),
-    5, 25, 1,
-    15,
+    15, 25, 1,
+    20,
     getText("UI_PAV_TreeFadeRangeTooltip"))
 treeFadeRangeOpt.onChangeApply = function(self, value)
     applyToJava("setTreeFadeRange", value)

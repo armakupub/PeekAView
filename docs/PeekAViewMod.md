@@ -23,11 +23,12 @@ state.
 | `MIN_RANGE` | 5 | Wall-cutaway lower bound. At this slider value `Patch_GetSquaresAroundPlayerSquare` falls through to vanilla. |
 | `MAX_RANGE` | 20 | Wall-cutaway upper bound; raster arrays in `Patch_IsoCell` are sized for this. |
 | `DEFAULT_RANGE` | 10 | Wall-cutaway slider default. |
-| `MIN_TREE_FADE_RANGE` | 5 | Tree-fade lower bound. |
-| `MAX_TREE_FADE_RANGE` | 25 | Tree-fade upper bound (independent of cutaway). |
-| `DEFAULT_TREE_FADE_RANGE` | 15 | Tree-fade slider default. |
-| `TREE_FADE_SNAP_MIN_KMH` | 10f | km/h floor for the fade boost in `Patch_isTranslucentTree`. Below this speed the boost is skipped and vanilla's `alphaStep` owns the fade — without this floor, even tiny `t³` values compound across the 6-10 `isTranslucentTree` calls per tree per frame and the snap feels instant at any non-zero speed. |
-| `TREE_FADE_SNAP_SPEED_CAP_KMH` | 80f | km/h cap for the fade boost. Between `MIN_KMH` and `CAP_KMH` the per-call decrement follows a cubic ramp `(speed - MIN) / (CAP - MIN)`; at or above the cap the decrement covers the full 0.75 fade range in one call. |
+| `MIN_TREE_FADE_RANGE` | 15 | Tree-fade slider lower bound. Below this the forward-cone reach is too narrow for the mod to add value beyond vanilla. |
+| `MAX_TREE_FADE_RANGE` | 25 | Tree-fade slider upper bound (independent of cutaway). Also the fixed SE-quadrant stencil reach in `Patch_DrawStencilMask`. |
+| `DEFAULT_TREE_FADE_RANGE` | 20 | Tree-fade slider default. |
+| `TREE_FADE_SNAP_MIN_KMH` | 10f | km/h floor for the fade boost in `Patch_isTranslucentTree`. Below this speed the boost is skipped and vanilla's `alphaStep` owns the fade. Without the floor, even tiny `t³` values compound across the 6-10 `isTranslucentTree` calls per tree per frame and the snap feels instant at any non-zero speed. |
+| `TREE_FADE_SNAP_SPEED_CAP_KMH` | 50f | km/h cap for the fade boost. Between `MIN_KMH` and `CAP_KMH` the per-call step follows a cubic ramp `(speed - MIN) / (CAP - MIN)`; at or above the cap the step covers the full 0.75 range in one call. Same curve for both the in-zone DOWN-snap and the clearlyBehind UP-snap. |
+| `TREE_REFADE_BEHIND_THRESHOLD_DOT` | 0.34f | Geometric threshold (`(tile→player)·forward > t`) classifying a tile as clearly behind the player. 0.34 partitions the 360° tree-fade cone into a 220° forward DOWN-fade zone and a 140° back UP-refade zone. Vision-independent, so Eagle-Eyed / fatigue / panic don't widen or narrow the back zone. |
 
 ## State fields
 
@@ -48,7 +49,8 @@ tolerate a one-frame lag.
 | `treeFadeRange` | int | `DEFAULT_TREE_FADE_RANGE` | Tree-fade slider value. |
 | `currentVehicleSpeedKmh` | float | `0f` | Per-frame cache (absolute value), written in `refreshActiveCache`. Read by `Patch_isTranslucentTree.exit` for the speed-proportional fade boost. `0f` when not in a vehicle. |
 | `isVehicleReversing` | boolean | `false` | Per-frame flag, written in `refreshActiveCache`. `true` when in a vehicle moving backward faster than the 1 km/h dead-zone. Read by `isTileInCameraPlayerCone` to flip the forward direction so the cone follows direction-of-travel when reversing. |
-| `currentCameraPlayerConeDot` | float | `-0.2f` | Per-frame cache of the rendering player's vanilla cone, capped at 0.0 so the vehicle override (`cone = 1.0`, 360°) doesn't widen the tree-fade gate beyond forward 180°. Sourced from `IsoGameCharacter.calculateVisibilityData`. |
+| `currentCameraPlayerConeDot` | float | `-0.2f` | Per-frame cache of the rendering player's vanilla cone, capped at `0.0` so the vehicle override (`cone = 1.0`, 360°) doesn't widen the zombie-alpha gate beyond forward 180°. Used by `isTileInCameraPlayerCone` (zombie alpha in `Patch_IsoObject`). Sourced from `IsoGameCharacter.calculateVisibilityData`. |
+| `currentTreeFadeConeDot` | float | `-0.2f` | Per-frame cache of the same vanilla cone, **uncapped**. Used by `isTileInTreeFadeCone` (tree-fade in `Patch_FBORenderCell`). In a vehicle stays at `1.0` so the tree-fade cone is 360°, leaving `clearlyBehind` (dot > 0.34) as the only way out — eliminates the gap a narrower cone would open between in-cone and clearly-behind, where vanilla's SE-quadrant logic could toggle `result` and flicker the tile. For walking, vanilla returns `≤ 0` and this matches `currentCameraPlayerConeDot`. |
 
 ## Setters
 
@@ -214,43 +216,73 @@ A separate `peekAViewPhantomTraceLogged` flag logs once per JVM
 lifetime on first false detection so `console.txt` shows a clear
 signal that the self-deactivation engaged.
 
-### `isTileInCameraPlayerCone(IsoGridSquare sq)`
+### Cone-test helpers
 
-Forward-cone test:
-`(player_pos - tile_center) · player_forward < currentCameraPlayerConeDot + 0.25`.
-Per-frame instantaneous, computed directly from
-`player.getForwardDirectionX/Y()` — `isCanSee` would lag during
-fast rotation and pop close trees in/out.
+Three forward-cone tests share the same dot-product math against
+`player.getForwardDirection`, with different thresholds and use
+sites. All three:
 
-`currentCameraPlayerConeDot` is refreshed once per frame in
-`refreshActiveCache` from `p.calculateVisibilityData().getCone()`,
-so the cone inherits vanilla's state:
+```
+(player_pos - tile_center) normalized · player_forward
+```
 
-| State | Vanilla cone | After cap at 0.0 | Threshold (+0.25) |
-|-------|-------------|------------------|-------------------|
-| Default | -0.2 | -0.2 | +0.05 |
-| Eagle-Eyed | +0.0 | 0.0 | +0.25 |
-| Fatigued (>0.6) | -0.2 - fatigue·2.5 | unchanged | narrower |
-| Panicked (level 4) | additional -0.2 | unchanged | narrower |
-| Drunk | additional -INTOXICATION·0.002 | unchanged | slight narrowing |
-| In a vehicle | 1.0 | **capped to 0.0** | +0.25 (forward 180° + buffer, not 360°) |
+with `isVehicleReversing` flipping the forward direction so the cone
+follows direction-of-travel when the vehicle backs up. Computed
+per-call from live player position; `isCanSee` would lag during
+fast rotation and pop close tiles in/out.
 
-Vanilla's vehicle override (`cone = 1.0`, effectively 360°) is meant
-for LOS visibility in driving contexts. For our tree-fade gate we
-cap at 0.0 so the cone stays forward-focused — otherwise trees
-behind the vehicle would also fade, which doesn't match the "fade
-what the player is looking at" intent.
+Per-frame caches (`currentCameraPlayerConeDot`,
+`currentTreeFadeConeDot`) are refreshed in `refreshActiveCache` from
+`p.calculateVisibilityData().getCone()`. Vanilla cone values:
 
-The `+0.25` buffer absorbs float-noise flicker at the cone's
-perpendicular boundary (`dot == 0` when `player_forward` is
-axis-aligned, which every cardinal walk/drive heading is). At
-narrower cones (fatigue, panic) the threshold stays negative so
-perpendicular is firmly out — no `dot == 0` boundary case at any
-cone state, no per-axis special cases.
+| State | Vanilla cone |
+|-------|-------------|
+| Default | -0.2 |
+| Eagle-Eyed | +0.0 |
+| Fatigued (>0.6) | -0.2 - fatigue·2.5 |
+| Panicked (level 4) | additional -0.2 |
+| Drunk | additional -INTOXICATION·0.002 |
+| In a vehicle | 1.0 (360° in vanilla LOS) |
 
-Used by `Patch_isTranslucentTree` for the renderFlag flip;
-`Patch_DrawStencilMask` keeps `sq.isCanSee` for wall-blocking
-(see `Patch_IsoCell.md`).
+#### `isTileInCameraPlayerCone(IsoGridSquare sq)`
+
+Test: `dot < currentCameraPlayerConeDot + 0.05`. Used by
+`Patch_IsoObject` for the zombie alpha-override gate. Cap at `0.0`
+on the cached cone-dot so the vehicle override doesn't widen this
+gate past forward 180° — zombies behind the vehicle still use
+vanilla LOS alpha rather than the cone-cleared alpha.
+
+| State | Cached cone-dot | In-cone test |
+|-------|-----------------|--------------|
+| Default | -0.2 | dot < -0.15 |
+| Eagle-Eyed | 0.0 | dot < +0.05 |
+| In vehicle | 1.0 → capped to 0.0 | dot < +0.05 |
+
+#### `isTileInTreeFadeCone(IsoGridSquare sq)`
+
+Test: `dot < currentTreeFadeConeDot + 0.05`. Used by
+`Patch_FBORenderCell.Patch_isTranslucentTree` for the inZone
+classification. **Uncapped** so vehicle keeps its 360°. Without the
+cap the cone always covers everything except `clearlyBehind` — no
+in-between vanilla zone where vanilla's SE-quadrant decision could
+toggle `result` per frame and flicker the tile.
+
+| State | Cached cone-dot | In-cone test |
+|-------|-----------------|--------------|
+| Default (walking) | -0.2 | dot < -0.15 (~163°) |
+| In vehicle | 1.0 | dot < 1.05 (always true, 360°) |
+
+#### `isTileClearlyBehindCameraPlayer(IsoGridSquare sq)`
+
+Test: `dot > TREE_REFADE_BEHIND_THRESHOLD_DOT` (0.34). Used by
+`Patch_isTranslucentTree` for the refade-snap branch. Geometric and
+character-state-independent — what's "clearly behind direction-of-
+travel" doesn't scale with vision capability.
+
+The 0.05 stability buffer applied to `isTileInCameraPlayerCone` and
+`isTileInTreeFadeCone` keeps the cone boundary clear of axis-aligned
+tile positions (perpendicular dot=0, cardinals at ±1) where float
+noise would otherwise flip the gate per frame.
 
 ## Logging
 

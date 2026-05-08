@@ -20,16 +20,17 @@ public class PeekAViewMod {
     public static final int MAX_RANGE = 20;
     public static final int DEFAULT_RANGE = 10;
 
-    public static final int MIN_TREE_FADE_RANGE = 5;
+    public static final int MIN_TREE_FADE_RANGE = 15;
     public static final int MAX_TREE_FADE_RANGE = 25;
-    public static final int DEFAULT_TREE_FADE_RANGE = 15;
+    public static final int DEFAULT_TREE_FADE_RANGE = 20;
 
     // Speed range for Patch_isTranslucentTree's fade boost. Below
     // MIN: pure vanilla alphaStep (no boost). Between MIN and CAP:
     // cubic ramp from no-boost to full-snap. At/above CAP: snap in
-    // one call.
+    // one call. Applied symmetrically: DOWN when in zone, UP when
+    // clearly behind (refade behind moving vehicle).
     public static final float TREE_FADE_SNAP_MIN_KMH = 10f;
-    public static final float TREE_FADE_SNAP_SPEED_CAP_KMH = 80f;
+    public static final float TREE_FADE_SNAP_SPEED_CAP_KMH = 50f;
 
     // volatile: render thread reads; Lua UI thread writes via setters.
     public static volatile boolean enabled = true;
@@ -260,15 +261,23 @@ public class PeekAViewMod {
         isVehicleReversing = signedSpeed < -1.0f;
 
         // One VisibilityData alloc per frame; avoids re-allocating per
-        // tile inside the cone gate. Cap at 0.0 so vanilla's vehicle
-        // override (cone = 1.0, effectively 360°) doesn't widen our
-        // tree-fade gate beyond the forward 180° hemisphere — trait
-        // and state modifiers below 0 (fatigue, panic, default,
-        // Eagle-Eyed at 0.0) all pass through unchanged.
+        // tile inside the cone gates. Two derived fields:
+        //   currentCameraPlayerConeDot — capped at 0.0 (zombie cone,
+        //     forward 180° hemisphere). Trait and state modifiers below
+        //     0 (fatigue, panic, default, Eagle-Eyed at 0.0) pass
+        //     through unchanged; vehicle 1.0 caps to 0.0.
+        //   currentTreeFadeConeDot — uncapped (tree cone). Vehicle 1.0
+        //     stays at 1.0 → 360° tree-fade. Avoids the flicker zone
+        //     that opens between an artificially-narrowed cone and the
+        //     clearlyBehind threshold where vanilla's SE-quadrant
+        //     decision oscillates per frame.
         try {
-            currentCameraPlayerConeDot = Math.min(p.calculateVisibilityData().getCone(), 0.0f);
+            float vanillaCone = p.calculateVisibilityData().getCone();
+            currentCameraPlayerConeDot = Math.min(vanillaCone, 0.0f);
+            currentTreeFadeConeDot = vanillaCone;
         } catch (Throwable t) {
             currentCameraPlayerConeDot = -0.2f;
+            currentTreeFadeConeDot = -0.2f;
         }
 
         // Cutaway: section enable, then aim-stance gate, then vehicle
@@ -304,15 +313,39 @@ public class PeekAViewMod {
     // Per-frame cache of the rendering player's vanilla cone (refreshed
     // in refreshActiveCache from IsoGameCharacter.calculateVisibilityData).
     // Picks up fatigue, drunk, panic, Eagle-Eyed and vehicle (cone=1.0).
+    // Capped at 0.0 — used by zombie alpha gating (Patch_IsoObject) where
+    // the forward-180° hemisphere is the right semantic.
     public static volatile float currentCameraPlayerConeDot = -0.2f;
 
-    // Buffer added to the cached cone when testing tile in-cone. A
-    // strict forward cone has its boundary at perpendicular (dot == 0
-    // when player_forward is axis-aligned), where float noise flips
-    // the gate per frame and axis-aligned trees flicker. 0.25 clears
-    // the boundary at the default cone (-0.2 + 0.25 = +0.05) and keeps
-    // clearly-behind tiles out.
-    private static final float TREE_FADE_CONE_STABILITY_BUFFER = 0.25f;
+    // Same source, no cap — used only by tree-fade (Patch_FBORenderCell).
+    // In a vehicle vanilla returns 1.0 (360° awareness), and tree-fade
+    // wants that full sweep so trees just past perpendicular don't fall
+    // into a vanilla-owned zone where the SE-quadrant logic flickers
+    // result between true/false. clearlyBehind (dot > 0.34) still carves
+    // out the back-cone for refade-snap; the priority order in the patch
+    // makes that the dominant classification.
+    public static volatile float currentTreeFadeConeDot = -0.2f;
+
+    // Small stability buffer added to the cached cone-dot when testing
+    // tiles in-cone. 0.05 keeps the boundary clear of axis-aligned
+    // tree positions (perpendicular dot=0, cardinals at ±1) where
+    // float noise would otherwise flip the gate per frame. Walking
+    // default char (cone-dot=-0.2) gets boundary at -0.15 ≈ vanilla
+    // LOS cone (~163° vs vanilla's 157°). Vehicle (cone-dot=1.0,
+    // uncapped) always passes dot < 1.05 — buffer is a no-op on the
+    // 360° tree-fade.
+    private static final float TREE_FADE_CONE_STABILITY_BUFFER = 0.05f;
+
+    // Threshold for "clearly behind" tile classification, used by the
+    // refade-snap path in Patch_isTranslucentTree. Geometric, not
+    // character-state-derived: a tile with (tile→player)·forward
+    // greater than this is in the back ~140° cone regardless of the
+    // dynamic vision cone in front. Boundary partitions the uncapped
+    // tree-fade cone into a 220° forward DOWN-fade zone and a 140°
+    // back UP-refade zone — matches the user's perceived in-vehicle
+    // visible LOS area, which is narrower than a full hemisphere
+    // would suggest.
+    public static final float TREE_REFADE_BEHIND_THRESHOLD_DOT = 0.34f;
 
     // True iff the tile is in the rendering player's forward cone.
     // Computed per-frame instead of read from IsoGridSquare.isCanSee,
@@ -349,6 +382,72 @@ public class PeekAViewMod {
         }
         float dot = dx * fdx + dy * fdy;
         return dot < currentCameraPlayerConeDot + TREE_FADE_CONE_STABILITY_BUFFER;
+    }
+
+    // Same dot math as isTileInCameraPlayerCone but with the uncapped
+    // tree-fade cone. In a vehicle this returns true for the full 360°
+    // sweep, eliminating the gap between the zombie cone (180°) and
+    // clearlyBehind (140° back) where vanilla's SE-quadrant logic would
+    // otherwise drive the result toggle that the user sees as flicker.
+    public static boolean isTileInTreeFadeCone(IsoGridSquare sq) {
+        if (sq == null) return false;
+        int pIdx = IsoCamera.frameState.playerIndex;
+        if (pIdx < 0 || pIdx >= IsoPlayer.MAX) return false;
+        IsoPlayer p = IsoPlayer.players[pIdx];
+        if (p == null) return false;
+
+        float tx = (float) sq.x + 0.5f;
+        float ty = (float) sq.y + 0.5f;
+        float dx = p.getX() - tx;
+        float dy = p.getY() - ty;
+        float lenSq = dx * dx + dy * dy;
+        if (lenSq < 0.0001f) return true;
+        float invLen = 1.0f / (float) Math.sqrt(lenSq);
+        dx *= invLen;
+        dy *= invLen;
+
+        float fdx = p.getForwardDirectionX();
+        float fdy = p.getForwardDirectionY();
+        if (isVehicleReversing) {
+            fdx = -fdx;
+            fdy = -fdy;
+        }
+        float dot = dx * fdx + dy * fdy;
+        return dot < currentTreeFadeConeDot + TREE_FADE_CONE_STABILITY_BUFFER;
+    }
+
+    // True iff the tile is clearly behind the rendering player, i.e.
+    // in the back ~140° cone relative to direction-of-travel. Uses a
+    // fixed threshold (TREE_REFADE_BEHIND_THRESHOLD_DOT) instead of
+    // mirroring currentCameraPlayerConeDot because "behind" is a
+    // geometric property of motion, not vision capability — Eagle-Eyed
+    // doesn't change what's physically behind the vehicle. Same dot
+    // math as isTileInCameraPlayerCone but with the back-threshold.
+    public static boolean isTileClearlyBehindCameraPlayer(IsoGridSquare sq) {
+        if (sq == null) return false;
+        int pIdx = IsoCamera.frameState.playerIndex;
+        if (pIdx < 0 || pIdx >= IsoPlayer.MAX) return false;
+        IsoPlayer p = IsoPlayer.players[pIdx];
+        if (p == null) return false;
+
+        float tx = (float) sq.x + 0.5f;
+        float ty = (float) sq.y + 0.5f;
+        float dx = p.getX() - tx;
+        float dy = p.getY() - ty;
+        float lenSq = dx * dx + dy * dy;
+        if (lenSq < 0.0001f) return false;
+        float invLen = 1.0f / (float) Math.sqrt(lenSq);
+        dx *= invLen;
+        dy *= invLen;
+
+        float fdx = p.getForwardDirectionX();
+        float fdy = p.getForwardDirectionY();
+        if (isVehicleReversing) {
+            fdx = -fdx;
+            fdy = -fdy;
+        }
+        float dot = dx * fdx + dy * fdy;
+        return dot > TREE_REFADE_BEHIND_THRESHOLD_DOT;
     }
 
     public void init() {

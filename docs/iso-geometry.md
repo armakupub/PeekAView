@@ -86,36 +86,56 @@ crown outside the mask where `GL_NOTEQUAL` renders it opaque —
 [`Patch_IsoCell.md`](Patch_IsoCell.md#per-tile-render) for the
 overshoot constants.
 
-## Why we fade all four quadrants
+## What we fade and why
 
-Tree-fade applies to every tile in the `treeFadeRange` diamond around
-the player, excluding the player tile itself. Three reasons that
-matter together:
+Vanilla naturally fades only the SE quadrant (`tile.x >= camCharX
+&& tile.y >= camCharY`) inside its ~5-tile stencil bbox. We extend
+the fade in two directions:
 
-- **SE / E-axis / S-axis** trees sit on the south-east side of the
-  anti-diagonal — they can occlude the player sprite directly. Vanilla
-  already fades these inside its ~5-tile bbox; we extend to the full
-  diamond.
-- **NE / SW** trees are partially in the front half-plane (depending
-  on which delta dominates) and sit visually beside the player on
-  screen. Their sprites can sweep across the player when the camera
-  pans.
-- **NW / N-axis / W-axis** trees are behind the player in render order
-  and cannot occlude the player sprite directly. But tall sprites in
-  those positions cover screen area **above** the player on screen —
-  exactly the area the user looks toward when scanning northward in
-  the world. A high pine 3 tile-heights above the screen-player blocks
-  the view of zombies further out in that screen direction.
+- **Forward-cone extension**: trees inside a slider-controlled
+  Euclidean circle (radius = `treeFadeRange`) AND inside the player's
+  forward cone (dot < cone-dot + 0.05 buffer) get faded. The cone
+  uses vanilla's per-frame cone-dot uncapped, so a vehicle's 360°
+  awareness lets every direction qualify until the back-cone gate
+  carves out what's behind.
+- **Refade-snap behind**: trees with dot > 0.34 (back ~140°) are
+  classified `clearlyBehind`. In a vehicle the speed-snap pushes
+  `fadeAlpha` upward at the same rate the down-snap pulled it down,
+  so trees passing behind a moving car solidify quickly instead of
+  leaving a long ghost-trail.
 
-Two cone gates suppress fade outside the player's visibility: the
-renderFlag flip in `Patch_FBORenderCell` uses
-`isTileInCameraPlayerCone` (per-frame forward-direction dot
-product), the stencil writes in `Patch_DrawStencilMask` use
-`sq.isCanSee` (PZ's LOS pass, includes wall-blocking). Together:
-"fade what I'm looking toward, never through walls". NW trees fade
-on cone entry, walls block fade through them, out-of-cone trees
-recover to opaque without snapping (stencil persists while
-`fadeAlpha` climbs back).
+Anti-diagonal note: in iso projection, **NW / N-axis / W-axis** trees
+sit behind the player in render order and cannot occlude the player
+sprite directly, but their tall sprites cover screen area **above**
+the player. A high pine 3 tile-heights above the screen-player blocks
+the view of zombies further out in that screen direction. The
+forward-cone extension exists for these cases — vanilla's SE-only
+fade leaves them opaque.
+
+Two gates suppress fade outside the player's visibility: the
+renderFlag flip in `Patch_FBORenderCell` uses `isTileInTreeFadeCone`
+(per-frame forward-direction dot product) plus
+`isTileClearlyBehindCameraPlayer` (the back-cone classifier). The
+stencil writes in `Patch_DrawStencilMask` use `sq.isCanSee` (PZ's
+LOS pass, includes wall-blocking). Together: "fade what I'm looking
+toward, never through walls; refade behind direction-of-travel".
 
 Origin tile (`dx == 0 && dy == 0`) is excluded from the patch's
-quadrant logic — vanilla owns it via its `>=` check.
+classification — vanilla owns it via its `>=` check.
+
+## Stencil shape: asymmetric
+
+`Patch_DrawStencilMask` writes per-tile stencil coverage so the
+extended-fade tiles can render translucent (vanilla's small mask
+only covers ~5 tiles). The shape is asymmetric:
+
+- **SE quadrant** (`dx >= 0 && dy >= 0`): always extends to
+  `MAX_TREE_FADE_RANGE = 25` tiles regardless of the slider. Matches
+  vanilla's natural fade domain (vanilla's `isTranslucentTree`
+  returns true for any on-screen SE-quadrant tile).
+- **Other quadrants**: extend to the slider value. Slider only
+  controls the forward-cone reach.
+
+Distance is **Euclidean** (`dx*dx + dy*dy <= range²`), not Manhattan.
+Manhattan diamonds shrink the effective reach asymmetrically on
+diagonal travel; the circle is direction-symmetric.

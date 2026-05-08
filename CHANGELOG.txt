@@ -1,11 +1,11 @@
 Peek a View - Changelog
 =======================
 
-1.4.0 - 2026-05-07
-  - New "Stair view" section: re-implementation of the Staircast Workshop mod (steamcommunity.com/sharedfiles/filedetails/?id=3684713089) with a different read-path architecture for the position-mutation window. Same idea — while standing on stairs, the upper floor renders so you can see what's at the top before climbing. Zombies on the upper floor that are in your forward view become visible through the climb, not just at the last step; turn around or look the wrong way and they fade out the same way line-of-sight handles other obstacles. If you also have the original Staircast subscribed, PeekAView detects it at runtime and yields, leaving its own stair feature inert.
-  - Wall cutaway: now has its own Enable toggle in the Wall cutaway section, separate from the master Enable. Turning it off disables the cutaway extension and the B42 wall-hiding bug fix together; tree fade and stair view stay independent. The "Active only when aiming" tickbox also moved from the Global section into the Wall cutaway section, since it only modifies cutaway behaviour.
-  - Now self-deactivates on the next save reload after removal from the mod list. Project Zomboid keeps mod code in memory across save reloads, so disabling PeekAView mid-session previously kept the effects visible until a full PZ restart. The mod's own in-game settings already worked instantly and are unchanged.
-  - Mod is now a signed JAR for ZombieBuddy 2.1.0+ again. ZBS sidecar lets ZB verify that the JAR comes from this author key and was not modified after signing.
+1.4.0 - 2026-05-09
+  - New "Stair view" section: while climbing stairs, the upper floor renders so you can see what's waiting upstairs. Zombies on the upper floor in your forward view become visible through the climb. If Staircast is also subscribed, PeekAView yields to it.
+  - Wall cutaway: own Enable toggle, separate from the master. The "Active only when aiming" tickbox moved into the same section.
+  - Tree fade: rework. The fade tracks your vision direction more accurately, and trees you've driven past refade quickly behind a moving vehicle.
+  - Self-deactivates on the next save reload after removal from the mod list.
 
 1.3.0 - 2026-05-05
   - Tree fade: smooth now, no more trees cut into pieces while fading. Trees behind the character stay visible.

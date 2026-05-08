@@ -109,7 +109,7 @@ other settings touched.
 |--------|-----|-----------------|--------|
 | Title | `UI_PAV_TreeFadeSectionTitle` | — | — |
 | TickBox | `fadeNWTrees` | default `true` | `setFadeNWTrees(v)` |
-| Slider | `treeFadeRange` | 5–25, step 1, default 15 | `setTreeFadeRange(v)` |
+| Slider | `treeFadeRange` | 15–25, step 1, default 20 | `setTreeFadeRange(v)` |
 
 ### Stair view
 

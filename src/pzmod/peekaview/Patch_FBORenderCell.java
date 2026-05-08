@@ -15,12 +15,15 @@ public class Patch_FBORenderCell {
 
     // Vanilla fades trees only in the SE quadrant of the player and
     // only inside its ~5-tile stencil-bbox (FBORenderCell:1772-1782).
-    // We extend the fade to the PeekAViewMod.treeFadeRange diamond,
-    // gated on the player's forward cone: out of cone we leave
-    // vanilla's result alone, in cone we flip it for any tile in
-    // the diamond. Drives renderFlag (required gate; IsoTree.
-    // fadeAlpha only steps DOWN when renderFlag=true) and adds a
-    // speed-proportional fade boost for vehicle speeds.
+    // We extend the fade to a Euclidean circle of radius
+    // PeekAViewMod.treeFadeRange, gated on the player's forward
+    // cone: out of cone we leave vanilla's result alone, in cone we
+    // flip it for any tile inside the circle. Euclidean (not
+    // Manhattan) so diagonal travel doesn't shrink the effective
+    // reach asymmetrically. Drives renderFlag (required gate;
+    // IsoTree.fadeAlpha only steps DOWN when renderFlag=true) and
+    // adds a bidirectional speed-proportional fade snap for vehicle
+    // speeds: DOWN when in zone, UP when clearly behind.
     //
     // LOS-blocking lives in Patch_IsoCell.Patch_DrawStencilMask;
     // this patch is purely a render-layer flip.
@@ -44,9 +47,26 @@ public class Patch_FBORenderCell {
                 if (!(object instanceof IsoTree)) return;
                 if (object.square == null) return;
 
-                // Flip only inside the diamond AND in the cone. Out
-                // of cone we leave vanilla's result alone so close
-                // NW/N/W trees stay opaque when not looked at.
+                // Classify the tile for the bidirectional speed-snap:
+                //   clearlyBehind — back ~140° cone (geometric, vision-
+                //                   independent). Snap-UP for refade.
+                //                   Checked first so trees behind the
+                //                   player route to refade, not fade,
+                //                   even if they're inside the tree-
+                //                   fade cone (vehicle cone is 360° so
+                //                   anything behind would otherwise
+                //                   overlap inZone).
+                //   inZone        — Euclidean radius (slider) AND tree-
+                //                   fade cone. Drives renderFlag, snap
+                //                   accelerates vanilla's DOWN step.
+                // Tree-fade cone uses the uncapped vanilla cone (360° in
+                // vehicles) so there's no gap between in-cone and
+                // clearly-behind where vanilla's SE-quadrant logic could
+                // toggle result and flicker the tile in the user's view.
+                // For walking the tree-fade cone collapses back to the
+                // dynamic forward cone (vanilla returns ≤0 on foot).
+                boolean inZone = result;
+                boolean clearlyBehind = false;
                 if (!result) {
                     int camX = PZMath.fastfloor(IsoCamera.frameState.camCharacterX);
                     int camY = PZMath.fastfloor(IsoCamera.frameState.camCharacterY);
@@ -55,35 +75,40 @@ public class Patch_FBORenderCell {
 
                     if (dx == 0 && dy == 0) return;
 
-                    int adx = dx < 0 ? -dx : dx;
-                    int ady = dy < 0 ? -dy : dy;
-                    if (adx + ady > PeekAViewMod.treeFadeRange) return;
-
-                    if (!PeekAViewMod.isTileInCameraPlayerCone(object.square)) return;
-
-                    result = true;
+                    if (PeekAViewMod.isTileClearlyBehindCameraPlayer(object.square)) {
+                        clearlyBehind = true;
+                    } else {
+                        int range = PeekAViewMod.treeFadeRange;
+                        if (dx * dx + dy * dy <= range * range
+                            && PeekAViewMod.isTileInTreeFadeCone(object.square)) {
+                            inZone = true;
+                            result = true;
+                        }
+                    }
                 }
 
                 // Speed-proportional fade boost on top of vanilla's
-                // alphaStep. Steps DOWN only — fade-up stays vanilla.
-                // Below MIN_KMH (~walking pace) we don't touch fadeAlpha
-                // at all so vanilla's 0.55 s rate owns the animation;
-                // even tiny t³ values would otherwise compound across
-                // the 6-10 isTranslucentTree calls per tree per frame.
-                // Between MIN_KMH and SPEED_CAP_KMH the cubic ramp
-                // builds toward snap; at/above SPEED_CAP_KMH the
-                // decrement covers the full vanilla range in one call.
+                // alphaStep. Below MIN_KMH (~walking pace) we don't
+                // touch fadeAlpha at all so vanilla's 0.55 s rate owns
+                // the animation; even tiny t³ values would otherwise
+                // compound across the 6-10 isTranslucentTree calls per
+                // tree per frame. Between MIN_KMH and SPEED_CAP_KMH
+                // the cubic ramp builds toward snap; at/above
+                // SPEED_CAP_KMH a single call covers the full range.
                 float speed = PeekAViewMod.currentVehicleSpeedKmh;
                 float minBoost = PeekAViewMod.TREE_FADE_SNAP_MIN_KMH;
                 if (speed > minBoost) {
                     IsoTree tree = (IsoTree) object;
                     float minAlpha = 0.25f;
-                    if (tree.fadeAlpha > minAlpha) {
-                        float cap = PeekAViewMod.TREE_FADE_SNAP_SPEED_CAP_KMH;
-                        float t = speed >= cap ? 1.0f : (speed - minBoost) / (cap - minBoost);
-                        float decrement = (1.0f - minAlpha) * t * t * t;
-                        tree.fadeAlpha -= decrement;
+                    float cap = PeekAViewMod.TREE_FADE_SNAP_SPEED_CAP_KMH;
+                    float t = speed >= cap ? 1.0f : (speed - minBoost) / (cap - minBoost);
+                    float step = (1.0f - minAlpha) * t * t * t;
+                    if (inZone && tree.fadeAlpha > minAlpha) {
+                        tree.fadeAlpha -= step;
                         if (tree.fadeAlpha < minAlpha) tree.fadeAlpha = minAlpha;
+                    } else if (clearlyBehind && tree.fadeAlpha < 1.0f) {
+                        tree.fadeAlpha += step;
+                        if (tree.fadeAlpha > 1.0f) tree.fadeAlpha = 1.0f;
                     }
                 }
             } catch (Throwable t) {

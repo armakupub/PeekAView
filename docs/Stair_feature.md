@@ -368,9 +368,11 @@ The patch shadows `IsoObject.getAlpha(int)`. Conditions for override
 3. `self.square.z == ffs.fakeSquare.z` — only zombies on the upper
    floor's z-layer.
 4. `PeekAViewMod.isTileInCameraPlayerCone(self.square)` — the
-   forward-cone test reused from tree-fade. Zombies behind the
-   camChar (turn-around case) fall back to vanilla LOS alpha and
-   fade out naturally.
+   zombie-side forward-cone test. Same dot-product math as the
+   tree-fade cone but with the cone-dot capped at `0.0`, so the
+   gate stays at forward 180° in vehicles instead of opening to
+   360°. Zombies behind the camChar (turn-around case) fall back
+   to vanilla LOS alpha and fade out naturally.
 
 When all conditions hold the patch returns `1.0f` from `getAlpha`
 **and** writes `setAlpha(playerIndex, 1.0f)` on the same call. The
