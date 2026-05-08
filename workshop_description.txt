@@ -45,7 +45,13 @@ Several caches keep the runtime cost close to vanilla. Standing still and walkin
 PeekAView is MIT-licensed and fully open source. The patches only touch specific PZ rendering classes.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[*][b]Stair view based on[/b]: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3684713089]Staircast[/url] (Workshop mod by copiumsawsed); read-path implementation in [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url]
+[/list]
+
+[h1]Attribution[/h1]
+[list]
+[*][b]Cutaway-on-stairs idea + FakeFrameState pattern + choice of patched render classes[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, original Workshop mod).
+[*][b]Read-path implementation[/b] (reflective x/y/z field-write + ThreadLocal-gated shadow on IsoMovingObject getters): first published as our standalone fork [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+[*][b]PeekAView extensions on the staircast-rp foundation[/b]: stair-tile latch, cone-vision zombie alpha override with smooth fade-out, getModIDs-based external-stair detection, self-check, pause-resistant freeze, multi-patch ordering fixes.
 [/list]
 
 [hr][/hr]

@@ -1,20 +1,19 @@
-[h1]Veja o que seu personagem vê[/h1]
+[h1]Expanda sua visão[/h1]
 
-No PZ vanilla, paredes e telhados só somem em um raio de cerca de 5 tiles ao redor do seu personagem, e árvores apenas em um pequeno círculo ao redor dele. O [i]jogador[/i] na frente da tela, portanto, sempre vê menos do que o [i]personagem[/i] realmente percebe: um zumbi encostado nos fundos de uma casa, um canto de cerca que você não consegue contornar com o olhar, uma árvore bem na sua frente na estrada. [b]Peek a View[/b] estende essas mesmas mecânicas de esmaecimento do vanilla para mais longe, para que o que chega à sua tela corresponda aproximadamente ao que seu personagem já perceberia.
+Project Zomboid esconde muito do que seu personagem realmente veria, atrás de paredes, árvores e andares superiores. PeekAView estende três passes de renderização para que sua tela se aproxime do que seu personagem vê. Três funções independentes:
 
-Mesmas regras do vanilla, apenas acionadas de mais longe. Sem visão de raio-X, sem paredes transparentes, sem contornos de inimigos. Uma árvore esmaecida não concede linha de visão. O que estiver atrás ainda precisa estar na linha de visão do seu personagem para aparecer, e um zumbi parcialmente em uma tile de arbusto ou árvore pode permanecer escondido. As regras de visibilidade do vanilla continuam valendo: portas fechadas, cortinas, névoa de guerra continuam escondendo o que sempre esconderam.
-
-[h1]O que este mod faz[/h1]
 [list]
-[*][b]Corte de paredes[/b]: estende o alcance de esmaecimento vanilla de ~5 tiles até 20 tiles (padrão 10).
-[*][b]Esmaecimento de árvores[/b]: as árvores ficam translúcidas na direção em que você está olhando ativamente, até 25 casas. Apenas ao ar livre; em interiores, vale o comportamento vanilla.
-[*]Também corrige um bug de renderização do Build 42 onde estruturas construídas pelo jogador fazem paredes vanilla próximas desaparecerem.
+[*][b]Corte de paredes[/b]: as paredes desaparecem a uma distância maior, para que cantos e portas revelem antes o que há atrás delas conforme você se aproxima.
+[*][b]Esmaecimento de árvores[/b]: árvores no seu campo de visão ficam translúcidas. Identifique zumbis atrás de fileiras de árvores onde a linha de visão alcança; direção mais segura com visibilidade antecipada de obstáculos.
+[*][b]Visão de escada[/b]: o andar superior é renderizado enquanto você sobe as escadas, para que você veja o que está esperando lá em cima antes de chegar.
 [/list]
 
-[h1]Configurações[/h1]
-Opções → Mods → Peek a View, três seções: Geral, Corte de paredes, Esmaecimento de árvores. [b]F8[/b] liga/desliga o mod (halo verde/vermelho confirma; reatribuível em Opções → Atalhos sob [noparse][PeekAView][/noparse]).
+Mesmas regras do vanilla. Sem visão de raio-X, sem paredes transparentes, sem contornos de inimigos. A linha de visão do seu personagem ainda decide o que é realmente visível.
 
-A experiência pode ser ajustada nas opções do jogo — altere os alcances, restrinja o corte apenas à mira, ou desative-o em veículos.
+[h1]Configurações[/h1]
+Cada função é independente. Use as três juntas, só a que precisa, ou alguma combinação. Cada função tem seu próprio interruptor de ativação, e os alcances de corte de paredes e esmaecimento de árvores são ajustáveis no menu de Opções.
+
+Opções → Mods → Peek a View, quatro seções: Geral, Corte de paredes, Esmaecimento de árvores, Visão de escada. [b]F8[/b] ativa/desativa o interruptor principal no jogo (halo verde/vermelho confirma; reatribuível em Opções → Atalhos sob [noparse][PeekAView][/noparse]).
 
 [h1]Requisitos[/h1]
 [list]
@@ -24,23 +23,35 @@ A experiência pode ser ajustada nas opções do jogo — altere os alcances, re
 
 [h1]Compatibilidade[/h1]
 [list]
-[*]Atualmente não há incompatibilidades conhecidas com outros mods de Project Zomboid.
-[*]Singleplayer e multiplayer (renderização apenas do lado do cliente, sem mudanças no servidor).
-[*]Localizado em EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
+[*]Seguro adicionar ou remover durante uma partida: nenhum dado de save é alterado. Os efeitos visuais somem na próxima recarga do save após a remoção do mod da lista de mods.
+[*]Apenas do lado do cliente: cada jogador que quiser o efeito precisa ter o mod (e ZombieBuddy) instalados.
 [/list]
 
-[h1]Compromissos[/h1]
-[list]
-[*]Desvio visual em relação à aparência pretendida pela TIS. Se você prefere o estilo vanilla, este mod não é para você.
-[*]Em quarteirões urbanos densos, os edifícios podem aparecer e desaparecer mais rapidamente quando você se move, o que pode distrair no início.
-[*]O custo por quadro é pequeno mas não zero. Em hardware modesto, reduzir os alcances algumas tiles ajuda.
-[/list]
+[h1]FAQ[/h1]
+
+[b]Há conflito com o mod Staircast do Workshop?[/b]
+Não. Se ambos estiverem inscritos, PeekAView detecta o Staircast em tempo de execução e cede a própria visão de escada, então os dois rodam juntos.
+
+[b]Funciona em multijogador?[/b]
+Sim, apenas do lado do cliente. Cada cliente também precisa ter o ZombieBuddy instalado.
+
+[b]Desativei o PeekAView da lista de mods no meio da sessão, mas os efeitos ainda aparecem. E agora?[/b]
+Project Zomboid mantém o código dos mods em memória entre recargas de save, então desativar o PeekAView da lista de mods no meio da sessão não o para sozinho. Três jeitos de removê-lo: (1) desligá-lo nas opções próprias do mod (efeito imediato), (2) recarregar o save (o PeekAView checa a lista de mods ativa em cada carregamento e se autodesativa se não estiver mais lá), ou (3) reiniciar o PZ. É uma limitação do framework já reportada.
+
+[b]Afeta o desempenho?[/b]
+Vários caches mantêm o custo de execução próximo do vanilla. Ficar parado e andar a pé são os caminhos mais baratos. Reduza os deslizadores de alcance se seu hardware estiver sofrendo.
 
 [h1]Código fonte[/h1]
-Tanto o PeekAView quanto o ZombieBuddy estão sob licença MIT e são totalmente de código aberto. Os patches só tocam classes específicas de renderização do PZ. Sem acesso a arquivos, sem acesso à rede, nada fora do próprio código do PZ.
+PeekAView é licenciado sob MIT e completamente open source. Os patches só tocam classes específicas de renderização do PZ.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
+[/list]
+
+[h1]Atribuição[/h1]
+[list]
+[*][b]Conceito cutaway-on-stairs + padrão FakeFrameState + escolha das classes de renderização patcheadas[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, mod original do Workshop).
+[*][b]Implementação read-path[/b] (escrita reflexiva dos campos x/y/z + shadow ThreadLocal-gated nos getters de IsoMovingObject): publicada inicialmente como meu fork independente [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+[*][b]Extensões PeekAView sobre a base do staircast-rp[/b]: stair-tile-latch, override do alpha dos zumbis em cone-vision com fade-out suave, detecção external-stair via getModIDs, self-check, freeze resistente à pausa, fixes de ordem multi-patch.
 [/list]
 
 [hr][/hr]

@@ -32,16 +32,24 @@ PZAPI.ModOptions ──► Lua ──► applyToJava ──► PeekAViewMod.setX
        Patch_isAdjacentToOrphan
 ```
 
+Plus runtime self-checks via `ZomboidFileSystem.getModIDs()` read on
+the render thread:
+- `isPeekAViewActive()` — fail-closed gate against ZombieBuddy
+  advice persistence (see ZB#13). Self-deactivates rendering when
+  PeekAView leaves the active mod set within the same JVM lifetime.
+- `isExternalStairFeatureActive()` — yield to upstream Staircast or
+  to our own staircast-rp when either is loaded on the same save.
+
 ## File Index
 
 | File | Describes |
 |------|-----------|
 | [`iso-geometry.md`](iso-geometry.md) | World coordinates, iso projection, render order (anti-diagonal), sprite extent vs. tile footprint, why we fade all four quadrants |
-| [`PeekAViewMod.md`](PeekAViewMod.md) | Main class, state fields, cutaway / tree-fade gates, per-frame memo, upstream Staircast detection, render-state helpers |
+| [`PeekAViewMod.md`](PeekAViewMod.md) | Main class, state fields, cutaway / tree-fade gates, per-frame memo, external stair-feature detection (Staircast or StaircastRP), self-check against ZombieBuddy advice persistence, render-state helpers |
 | [`Patch_IsoCell.md`](Patch_IsoCell.md) | POI raster expansion + cache + wall/LOS filter (vanilla pass-through at `MIN_RANGE`); tree-fade stencil-mask extension; non-FBO stair render-pass swap |
 | [`Patch_FBORenderCutaways.md`](Patch_FBORenderCutaways.md) | cutawayVisit dedup + B42 adjacency-kill fix |
 | [`Patch_FBORenderCell.md`](Patch_FBORenderCell.md) | Tree-fade `isTranslucentTree` extension + speed-proportional fade boost; FBO stair render-pass swap and inverted player-sprite restore |
-| [`Stair_feature.md`](Stair_feature.md) | Stair view feature: render-time camera uplift while on stairs, the multi-patch coordination via `FakeWindow` ThreadLocal, read-path shadow on `IsoMovingObject` getters, lighting / weather / tree-pass uplift, upstream Staircast yield-on-detect |
+| [`Stair_feature.md`](Stair_feature.md) | Stair view feature: render-time camera uplift while on stairs, the multi-patch coordination via `FakeWindow` ThreadLocal, read-path shadow on `IsoMovingObject` getters, lighting / weather / tree-pass uplift, external stair-feature yield-on-detect, pause-resistant fake-window freeze across in-game pause boundaries |
 | [`PeekAView_Options.md`](PeekAView_Options.md) | Lua options UI + defensive bridge + Java-missing detection |
 | [`TESTING.md`](TESTING.md) | Manual test notes from the 1.2.0 prep cycle plus open split-screen item |
 

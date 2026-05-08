@@ -81,7 +81,7 @@ public class Patch_IsoWorld {
             IsoCamera.FrameState fs = IsoCamera.frameState;
 
             // Pause-resistant freeze: when the game is paused
-            // (GameTime.isGamePaused() — speed==0 or client-side paused
+            // (GameTime.isGamePaused(): speed==0 or client-side paused
             // or empty server) and a fakeWindow was active on the
             // immediately previous frame, keep the last fake state
             // visible by bumping frameCounter only. Other state is

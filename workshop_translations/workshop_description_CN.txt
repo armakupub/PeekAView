@@ -1,20 +1,19 @@
-[h1]看到你的角色所看到的[/h1]
+[h1]扩展你的视野[/h1]
 
-原版 PZ 中，墙壁和屋顶只在你角色周围约 5 格的半径内淡出，而树木只在角色周围一个小圆圈内淡出。屏幕前的[i]玩家[/i]因此始终看到的比[i]角色[/i]实际感知到的更少：靠在房屋背面的僵尸、你无法绕过去看的栅栏拐角、就在你前方道路上的一棵树。[b]Peek a View[/b] 将原版的同一套淡出机制扩展到更远处，让屏幕上呈现的内容大致与你角色本应感知到的一致。
+Project Zomboid 把许多本来你的角色能看到的东西藏在墙壁、树木和上层楼之后。PeekAView 扩展了三个渲染通道，让你的屏幕更接近角色的视野。三个独立功能：
 
-与原版相同的规则，只是从更远处触发。无 X 光透视，无透明墙壁，无敌人轮廓。淡化的树不会授予视线。它后面的东西仍然必须在你角色的视线内才能出现，部分站在灌木或树木格上的僵尸仍然可能保持隐藏。原版的可见性规则依然适用：关闭的门、窗帘、战争迷雾仍然遮挡它们一直遮挡的内容。
-
-[h1]此 Mod 的功能[/h1]
 [list]
-[*][b]墙壁切除[/b]：将原版约 5 格的淡出范围扩展到最多 20 格（默认 10）。
-[*][b]树木淡化[/b]：树木在你主动注视的方向上变得透明，最远 25 格。仅在户外生效；室内使用原版行为。
-[*]还修复了 Build 42 的渲染错误，玩家建造的结构会导致附近的原版墙壁消失。
+[*][b]墙壁切除[/b]：墙壁在更远的距离被切除，使转角和门框在你接近时更早显示出后方的内容。
+[*][b]树木淡化[/b]：你视野中的树木变为半透明。在视线可达之处发现树列后的僵尸；提早看见障碍物，让驾驶更安全。
+[*][b]楼梯视图[/b]：当你正在攀爬楼梯时上层楼会被渲染，让你在到达之前就能看到上面等待的东西。
 [/list]
 
-[h1]设置[/h1]
-选项 → Mod → Peek a View，三个区段：通用、墙壁切除、树木淡化。[b]F8[/b] 切换 Mod 开关（绿/红光晕确认；可在 选项 → 按键设置 中的 [noparse][PeekAView][/noparse] 重新绑定）。
+与原版相同的规则。无 X 光透视，无透明墙壁，无敌人轮廓。你角色的视线仍然决定什么是真正可见的。
 
-可在游戏选项中调整体验——更改范围、将切除限制为仅在瞄准时启用，或在车辆中禁用切除。
+[h1]设置[/h1]
+每项功能都是独立的。你可以三项一起开启、只开启需要的一项，或介于其间。每项功能都有自己的启用开关，墙壁和树木淡化的范围可在选项菜单中调整。
+
+选项 → Mod → Peek a View，四个区段：通用、墙壁切除、树木淡化、楼梯视图。[b]F8[/b] 在游戏内切换主开关（绿色/红色光晕确认；可在 选项 → 按键设置 中的 [noparse][PeekAView][/noparse] 重新绑定）。
 
 [h1]要求[/h1]
 [list]
@@ -24,23 +23,35 @@
 
 [h1]兼容性[/h1]
 [list]
-[*]目前未发现与其他 Project Zomboid Mod 的不兼容。
-[*]单人和多人游戏（仅客户端渲染，无需服务器更改）。
-[*]已本地化为：EN、DE、FR、ES、RU、PL、PT-BR、IT、TR、CN、KO、JP。
+[*]在游戏会话中可安全添加或移除：不会改动存档数据。从 Mod 列表移除该 Mod 后，视觉效果会在下次存档加载时清除。
+[*]仅客户端：每位想要此效果的玩家都需要安装该 Mod（以及 ZombieBuddy）。
 [/list]
 
-[h1]权衡[/h1]
-[list]
-[*]与 TIS 所设计的外观存在视觉偏离。如果你偏好原版风格，此 Mod 不适合你。
-[*]在密集的城市街区中，移动时建筑物可能会更快地出现和消失，初期可能会令人分心。
-[*]每帧的成本很小但并非零。在低端硬件上，将范围减少几格会有帮助。
-[/list]
+[h1]常见问题[/h1]
+
+[b]与 Staircast Workshop Mod 是否冲突？[/b]
+不冲突。如果两个都已订阅，PeekAView 会在运行时检测到 Staircast，并让出自己的楼梯视图，两者可以共同运行。
+
+[b]在多人游戏中能用吗？[/b]
+可以，仅客户端。每个客户端也需要安装 ZombieBuddy。
+
+[b]我在游戏会话中将 PeekAView 从 Mod 列表中禁用了，但效果仍然显示。怎么办？[/b]
+Project Zomboid 在不同存档加载之间将 Mod 代码保留在内存中，因此在会话中将 PeekAView 从 Mod 列表中禁用并不会自行停止它。三种清除方式：（1）在 Mod 自身的选项中关闭（立即生效）；（2）重新加载存档（PeekAView 会在每次存档加载时检查活动 Mod 列表，如果不再存在则自我停用）；或（3）重启 PZ。这是已经报告过的框架级限制。
+
+[b]会影响性能吗？[/b]
+多个缓存机制让运行时开销接近原版。站立和步行是开销最小的路径。如果你的硬件吃力，请降低范围滑块。
 
 [h1]源代码[/h1]
-PeekAView 和 ZombieBuddy 都采用 MIT 许可证并完全开源。补丁仅触及特定的 PZ 渲染类。无文件访问，无网络访问，PZ 自身代码之外无任何内容。
+PeekAView 采用 MIT 许可证并完全开源。补丁仅触及特定的 PZ 渲染类。
 [list]
 [*][b]PeekAView[/b]：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[*][b]ZombieBuddy[/b]：[url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
+[/list]
+
+[h1]鸣谢[/h1]
+[list]
+[*][b]Cutaway-on-stairs 概念 + FakeFrameState 模式 + 被修补的渲染类选择[/b]：[url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url]（MIT，原始 Workshop Mod）。
+[*][b]Read-path 实现[/b]（对 x/y/z 字段的反射性写入 + IsoMovingObject getter 上的 ThreadLocal-gated shadow）：最初作为我的独立分支 [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url]（MIT）发布。
+[*][b]在 staircast-rp 基础上的 PeekAView 扩展[/b]：stair-tile-latch、带柔和淡出的 cone-vision 僵尸 alpha 覆盖、基于 getModIDs 的外部 stair 检测、self-check、对暂停具备韧性的 freeze、multi-patch 顺序修正。
 [/list]
 
 [hr][/hr]

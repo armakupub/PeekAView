@@ -97,6 +97,12 @@ Technical documentation for contributors is under [`docs/`](docs/).
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3710281407
 - **staircast-rp:** https://github.com/armakupub/staircast-rp (read-path implementation referenced by the Stair view feature)
 
+## Attribution
+
+- **Cutaway-on-stairs idea + FakeFrameState pattern + choice of patched render classes**: [copiumsawsed/pz-Staircast](https://github.com/copiumsawsed/pz-Staircast) (MIT, original Workshop mod).
+- **Read-path implementation** (reflective `x/y/z` field-write + ThreadLocal-gated shadow on `IsoMovingObject` getters): first published as our standalone fork [armakupub/staircast-rp](https://github.com/armakupub/staircast-rp) (MIT).
+- **PeekAView extensions on the staircast-rp foundation**: stair-tile latch, cone-vision zombie alpha override with smooth fade-out, getModIDs-based external-stair detection, self-check, pause-resistant freeze, multi-patch ordering fixes.
+
 ## License
 
 MIT, see `LICENSE`.

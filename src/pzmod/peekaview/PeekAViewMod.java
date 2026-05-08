@@ -121,7 +121,7 @@ public class PeekAViewMod {
     //
     // Probed before any FakeWindow mutation in Patch_IsoWorld.computeFake;
     // mutating x/y/z on a non-render thread without the read-path shadow
-    // risks the updateFalling infinite-loop / character death.
+    // risks the updateFalling infinite-loop.
     //
     // Reads the live session's mod list from ZomboidFileSystem.
     // Class.forName looked tempting (one classloader hashmap lookup) but

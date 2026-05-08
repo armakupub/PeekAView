@@ -45,6 +45,31 @@ the start of each world render pass.
 
 On gate failure: return early, no `FakeWindow` mutation.
 
+**Pause handling.** Between the hard gates and the strict checks,
+`computeFake` reads `GameTime.isGamePaused()` (PZ public API,
+single-source-of-truth across single-player, client, and dedicated-
+server modes). If paused **and** a fakeWindow was active on the
+immediately previous frame (`fs.frameCount - ffs.frameCounter <= 1`),
+`computeFake` bumps `ffs.frameCounter` to the current frame and
+returns. No other state is mutated.
+
+Effect: downstream patches see `FakeWindow.isReady()` true and keep
+rendering the last fake state. Char + upper floor stay visible across
+the pause boundary. The `<= 1` gate ensures only a just-active
+fakeWindow gets thawed; an old fakeWindow from a previous unrelated
+activation falls through to the normal flow.
+
+Why this is needed: PZ decouples render-thread from game-thread
+during pause. `IsoCamera.frameState.frameCount` keeps advancing
+(render-thread runs to keep the UI responsive), but the game-thread
+freezes. Frame-counter-based hysteresis windows (`recentlyActive`,
+`ascendingRecently`) all expire in 30 frames (~0.5 s), at which point
+the strict checks would return early without updating
+`ffs.frameCounter` — `isReady` goes false, and the downstream render
+patches fall through to vanilla. Without this freeze, mid-climb pause
+snaps from "stair-view active" to vanilla within half a second,
+blanking both the upper floor and the char sprite.
+
 On gate pass: strict checks for the rendering player — `IsoCamera.getCameraCharacter()`
 non-null, `IsoCamera.frameState.camCharacterSquare` non-null, not in a
 vehicle, has an active model, on a stair tile (`HasElevatedFloor`),
@@ -423,11 +448,14 @@ upstream Staircast (which is not under our control), while
 
 ## Attribution
 
-Based on the [Staircast Workshop mod](https://steamcommunity.com/sharedfiles/filedetails/?id=3684713089)
-by copiumsawsed. The cutaway-on-stairs idea, the `FakeFrameState`
-pattern, and the patched PZ classes are from the upstream. The
-reflective field-write of only `x/y/z` (skipping `setX/Y/Z`'s
-side-effects on `nx` / `scriptnx`) and the ThreadLocal-gated read-path
-that shadows real values back to non-render threads are this mod's
-contribution. Full reasoning lives in
-[`armakupub/staircast-rp/UPSTREAM_ISSUE.md`](https://github.com/armakupub/staircast-rp/blob/main/UPSTREAM_ISSUE.md).
+- **Cutaway-on-stairs idea + FakeFrameState pattern + choice of patched render classes**: [copiumsawsed/pz-Staircast](https://github.com/copiumsawsed/pz-Staircast) (MIT, original Workshop mod).
+- **Read-path implementation** (reflective `x/y/z` field-write that skips `setX/Y/Z`'s side-effects on `nx`/`scriptnx` + ThreadLocal-gated read-path shadow on `IsoMovingObject.getX/Y/Z/getCurrentSquare`): first published as our standalone fork [armakupub/staircast-rp](https://github.com/armakupub/staircast-rp) (MIT).
+- **PeekAView extensions on the staircast-rp foundation** (this document):
+  - Stair-tile latch (`peakCharZ` + `lastZIncreaseFrame` + `ascendingRecently`) — bridges animation key-pose stationary frames during the climb without flickering.
+  - Cone-vision zombie alpha override (`Patch_IsoObject.Patch_getAlpha`) — zombies on the upper floor in the player's forward cone become visible during the climb, not only at the last step.
+  - Smooth fade-out via `setAlpha` field-write — vanilla `updateAlpha` decay handles the transition instead of a 1.0→0 hard snap.
+  - getModIDs-based external-stair detection (`isExternalStairFeatureActive()`) — replaces `Class.forName`, robust against ZombieBuddy advice persistence.
+  - `isPeekAViewActive()` self-check — self-deactivates on save reload after mod-list removal ([ZombieBuddy#13](https://github.com/zed-0xff/ZombieBuddy/issues/13) mitigation).
+  - Pause-resistant fake-window freeze — keeps state across the in-game pause boundary using `GameTime.isGamePaused()`.
+  - Multi-patch ordering fixes — flag-set BEFORE reflective `writeFakePos` (closes a sub-µs window where `updateFalling` could see fake-Z and trigger the infinite stair-fall loop).
+  - Strict-pass `onStair`-gate upfront — prevents `lastStrictActivationFrame` refresh on non-stair indoor floor tiles.

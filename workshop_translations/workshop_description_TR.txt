@@ -1,20 +1,19 @@
-[h1]Karakterinizin gördüğünü siz de görün[/h1]
+[h1]Görüşünüzü genişletin[/h1]
 
-Vanilla PZ'de duvarlar ve çatılar yalnızca karakterinizin etrafındaki yaklaşık 5 karoluk bir yarıçap içinde soluklaşır, ağaçlar ise yalnızca karakterin etrafındaki küçük bir daire içinde. Ekranın önündeki [i]oyuncu[/i] bu yüzden sürekli olarak [i]karakterin[/i] gerçekten algıladığından daha azını görür: bir evin arkasına yaslanmış bir zombi, gözle dönüp arkasına bakamadığınız bir çit köşesi, yolda tam önünüzdeki bir ağaç. [b]Peek a View[/b] vanilla'nın bu aynı soluklaşma mekaniğini daha uzağa genişletir, böylece ekranınıza ulaşan şey karakterinizin zaten algılayabileceğine kabaca uyar.
+Project Zomboid, karakterinizin aslında görebileceği pek çok şeyi duvarların, ağaçların ve üst katların ardına saklar. PeekAView üç render geçişini genişletir, böylece ekranınız karakterinizin gözlerine yaklaşır. Üç bağımsız özellik:
 
-Vanilla ile aynı kurallar, sadece daha uzaktan tetiklenir. Röntgen görüşü yok, şeffaf duvar yok, düşman silüeti yok. Soluklaşmış bir ağaç görüş hattı vermez. Arkasındaki şey görünmek için yine karakterinizin görüş hattında olmalı ve kısmen bir çalı veya ağaç karosunda duran bir zombi gizli kalabilir. Vanilla'nın görünürlük kuralları geçerliliğini korur: kapalı kapılar, perdeler, savaş sisi her zaman gizledikleri şeyleri gizlemeye devam eder.
-
-[h1]Bu mod ne yapar[/h1]
 [list]
-[*][b]Duvar kesimi[/b]: vanilla'nın ~5 karoluk soluklaşma menzilini 20 karoya kadar genişletir (varsayılan 10).
-[*][b]Ağaç solukluğu[/b]: ağaçlar aktif olarak baktığınız yönde 25 karoya kadar yarı saydam olur. Yalnızca dış mekanda etkin; iç mekanda vanilya davranışı geçerli.
-[*]Ayrıca Build 42'deki bir render hatasını düzeltir; oyuncunun yaptığı yapılar, yakındaki vanilla duvarların kaybolmasına neden olur.
+[*][b]Duvar kesimi[/b]: duvarlar daha uzak mesafede soluklaşır, böylece köşeler ve kapı çerçeveleri yaklaşırken arkalarındaki şeyleri daha erken gösterir.
+[*][b]Ağaç solukluğu[/b]: görüş alanınızdaki ağaçlar yarı saydam olur. Görüş hattının ulaştığı yerlerde ağaç sıralarının arkasındaki zombileri tespit edin; engellerin daha erken görünmesiyle daha güvenli sürüş.
+[*][b]Merdiven görüşü[/b]: merdiven çıkarken üst kat render edilir, böylece yukarıda sizi neyin beklediğini varmadan önce görürsünüz.
 [/list]
 
-[h1]Ayarlar[/h1]
-Seçenekler → Modlar → Peek a View, üç bölüm: Genel, Duvar kesimi, Ağaç solukluğu. [b]F8[/b] modu açar/kapatır (yeşil/kırmızı hale onaylar; Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir).
+Vanilla ile aynı kurallar. Röntgen görüşü yok, şeffaf duvar yok, düşman silüeti yok. Karakterinizin görüş hattı yine neyin gerçekten görünür olduğuna karar verir.
 
-Deneyim oyun seçeneklerinden ayarlanabilir — menzilleri değiştirin, kesimi yalnızca nişan alırken çalışacak şekilde kısıtlayın veya araçlarda devre dışı bırakın.
+[h1]Ayarlar[/h1]
+Her özellik bağımsızdır. Üçünü birden, sadece ihtiyacınız olanı veya bir karışımını çalıştırabilirsiniz. Her özelliğin kendi etkinleştirme anahtarı vardır, duvar ve ağaç solukluğu menzilleri Seçenekler menüsünden ayarlanabilir.
+
+Seçenekler → Modlar → Peek a View, dört bölüm: Genel, Duvar kesimi, Ağaç solukluğu, Merdiven görüşü. [b]F8[/b] oyun içinde ana anahtarı açıp kapatır (yeşil/kırmızı hale onaylar; Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir).
 
 [h1]Gereksinimler[/h1]
 [list]
@@ -24,23 +23,35 @@ Deneyim oyun seçeneklerinden ayarlanabilir — menzilleri değiştirin, kesimi 
 
 [h1]Uyumluluk[/h1]
 [list]
-[*]Şu anda diğer Project Zomboid modlarıyla bilinen bir uyumsuzluk yok.
-[*]Tek oyunculu ve çok oyunculu (yalnızca istemci tarafı render, sunucu değişikliği yok).
-[*]EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP dillerinde yerelleştirildi.
+[*]Oturum sırasında güvenli şekilde eklenebilir veya kaldırılabilir: kayıt verilerine dokunulmaz. Modu mod listesinden kaldırdıktan sonra görsel etkiler bir sonraki kayıt yüklemesinde temizlenir.
+[*]Yalnızca istemci tarafı: etkiyi isteyen her oyuncunun modu (ve ZombieBuddy'yi) yüklü olması gerekir.
 [/list]
 
-[h1]Ödünleşimler[/h1]
-[list]
-[*]TIS'in amaçladığı görünümden görsel sapma. Vanilla stilini tercih ediyorsanız bu mod size göre değil.
-[*]Yoğun şehir bloklarında, hareket ederken binalar daha hızlı görünüp kaybolabilir; bu başlangıçta dikkat dağıtıcı olabilir.
-[*]Kare başına maliyet küçüktür ama sıfır değil. Düşük donanımda menzilleri birkaç karo azaltmak yardımcı olur.
-[/list]
+[h1]SSS[/h1]
+
+[b]Staircast Workshop modu ile çakışıyor mu?[/b]
+Hayır. Her ikisi de aboneyse, PeekAView Staircast'i çalışma zamanında algılar ve kendi merdiven görüşünü devreden çıkarır, böylece ikisi birlikte çalışabilir.
+
+[b]Çok oyunculu modda çalışıyor mu?[/b]
+Evet, yalnızca istemci tarafı. Her istemcinin de ZombieBuddy yüklü olması gerekir.
+
+[b]Oturum sırasında PeekAView'i mod listesinden devre dışı bıraktım ama etkiler hâlâ görünüyor. Şimdi ne yapayım?[/b]
+Project Zomboid mod kodunu kayıt yüklemeleri arasında bellekte tutar, bu yüzden PeekAView'i oturum sırasında mod listesinden devre dışı bırakmak modu kendiliğinden durdurmaz. Modu temizlemenin üç yolu: (1) modun kendi seçeneklerinde kapatın (anında etkili), (2) kayıtınızı yeniden yükleyin (PeekAView her kayıt yüklemesinde aktif mod listesini kontrol eder ve artık listede değilse kendini devre dışı bırakır), veya (3) PZ'yi yeniden başlatın. Bu, bildirilmiş bir framework sınırlamasıdır.
+
+[b]Performansı etkiler mi?[/b]
+Birkaç önbellek mekanizması çalışma maliyetini vanilla'ya yakın tutar. Yerinde durmak ve yürümek en ucuz yollardır. Donanımınız zorlanıyorsa menzil kaydırıcılarını düşürün.
 
 [h1]Kaynak kodu[/h1]
-Hem PeekAView hem de ZombieBuddy MIT lisanslı ve tamamen açık kaynaktır. Yamalar yalnızca belirli PZ render sınıflarına dokunur. Dosya erişimi yok, ağ erişimi yok, PZ'nin kendi kodu dışında hiçbir şey yok.
+PeekAView MIT lisanslı ve tamamen açık kaynaktır. Yamalar yalnızca belirli PZ render sınıflarına dokunur.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[*][b]ZombieBuddy[/b]: [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
+[/list]
+
+[h1]Atıf[/h1]
+[list]
+[*][b]Cutaway-on-stairs konsepti + FakeFrameState deseni + yamalı render sınıflarının seçimi[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, orijinal Workshop modu).
+[*][b]Read-path uygulaması[/b] (yansımalı x/y/z alan yazımı + IsoMovingObject getter'larında ThreadLocal-gated shadow): ilk olarak bağımsız fork'um [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT) olarak yayımlandı.
+[*][b]staircast-rp temeli üzerine PeekAView eklentileri[/b]: stair-tile-latch, cone-vision zombie alpha override yumuşak fade-out ile, getModIDs tabanlı external-stair algılama, self-check, duraklamaya dayanıklı freeze, multi-patch sıralama düzeltmeleri.
 [/list]
 
 [hr][/hr]

@@ -1,20 +1,19 @@
-[h1]Voyez ce que votre personnage voit[/h1]
+[h1]Élargissez votre vision[/h1]
 
-Dans le PZ vanilla, les murs et les toits ne s'estompent que dans un rayon d'environ 5 tuiles autour de votre personnage, et les arbres uniquement dans un petit cercle autour de lui. Le [i]joueur[/i] derrière l'écran voit donc systématiquement moins que ce que le [i]personnage[/i] perçoit réellement : un zombie appuyé contre l'arrière d'une maison, un coin de clôture que vous ne pouvez pas contourner du regard, un arbre directement devant vous sur la route. [b]Peek a View[/b] étend ces mêmes mécaniques d'estompage de vanilla plus loin, pour que ce qui arrive sur votre écran corresponde à peu près à ce que votre personnage perçoit déjà.
+Project Zomboid cache beaucoup de choses que votre personnage verrait réellement, derrière les murs, les arbres et les étages supérieurs. PeekAView étend trois passes de rendu, pour que votre écran se rapproche de ce que voit votre personnage. Trois fonctions indépendantes :
 
-Mêmes règles que vanilla, simplement déclenchées depuis plus loin. Pas de rayons X, pas de murs transparents, pas de contours d'ennemis. Un arbre estompé n'accorde pas de ligne de vue. Ce qui se trouve derrière doit toujours être dans la ligne de vue de votre personnage pour apparaître, et un zombie qui se tient en partie sur une tuile de buisson ou d'arbre peut rester caché. Les règles de visibilité de vanilla s'appliquent toujours : portes fermées, rideaux, brouillard de guerre cachent toujours ce qu'ils ont toujours caché.
-
-[h1]Ce que fait ce mod[/h1]
 [list]
-[*][b]Coupe de murs[/b] : étend la portée d'estompage de ~5 tuiles vanilla jusqu'à 20 tuiles (par défaut 10).
-[*][b]Estompage des arbres[/b] : les arbres deviennent translucides dans la direction où vous regardez activement, jusqu'à 25 tuiles. En extérieur uniquement ; en intérieur, le comportement vanilla s'applique.
-[*]Corrige également un bug de rendu B42 où les structures construites par le joueur font disparaître les murs vanilla à proximité.
+[*][b]Coupe de murs[/b] : les murs disparaissent à plus grande distance, pour que les coins et les portes révèlent plus tôt ce qui se trouve derrière eux quand vous approchez.
+[*][b]Estompage des arbres[/b] : les arbres dans votre champ de vision deviennent translucides. Repérez les zombies derrière les rangées d'arbres là où la ligne de vue le permet ; conduite plus sûre avec une visibilité anticipée des obstacles.
+[*][b]Vue d'escalier[/b] : l'étage supérieur est rendu pendant que vous montez les escaliers, pour que vous voyiez ce qui vous attend en haut avant d'y arriver.
 [/list]
 
-[h1]Paramètres[/h1]
-Options → Mods → Peek a View, trois sections : Général, Coupe de murs, Estompage des arbres. [b]F8[/b] active/désactive le mod (halo vert/rouge pour confirmation ; réassignable dans Options → Touches sous [noparse][PeekAView][/noparse]).
+Mêmes règles que vanilla. Pas de rayons X, pas de murs transparents, pas de contours d'ennemis. La ligne de vue de votre personnage décide toujours de ce qui est réellement visible.
 
-L'expérience peut être ajustée dans les options du jeu — modifiez les portées, restreignez la coupe à la visée uniquement, ou désactivez-la en véhicule.
+[h1]Paramètres[/h1]
+Chaque fonction est indépendante. Activez les trois, juste celle dont vous avez besoin, ou un mélange. Chaque fonction a son propre interrupteur d'activation, et les portées de coupe de murs et d'estompage des arbres sont réglables dans le menu Options.
+
+Options → Mods → Peek a View, quatre sections : Général, Coupe de murs, Estompage des arbres, Vue d'escalier. [b]F8[/b] active/désactive l'interrupteur principal en jeu (halo vert/rouge pour confirmation ; réassignable dans Options → Touches sous [noparse][PeekAView][/noparse]).
 
 [h1]Prérequis[/h1]
 [list]
@@ -24,23 +23,35 @@ L'expérience peut être ajustée dans les options du jeu — modifiez les port�
 
 [h1]Compatibilité[/h1]
 [list]
-[*]Aucune incompatibilité connue avec d'autres mods de Project Zomboid à ce jour.
-[*]Solo et multijoueur (rendu côté client uniquement, aucune modification serveur).
-[*]Localisé en EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
+[*]Sûr à ajouter ou retirer en cours de partie : aucune donnée de sauvegarde modifiée. Les effets visuels disparaissent au prochain rechargement de sauvegarde après le retrait du mod de la liste des mods.
+[*]Côté client uniquement : chaque joueur qui veut l'effet doit avoir le mod (et ZombieBuddy) installé.
 [/list]
 
-[h1]Compromis[/h1]
-[list]
-[*]Écart visuel par rapport à l'esthétique voulue par TIS. Si vous préférez le style vanilla, ce mod n'est pas pour vous.
-[*]Dans les pâtés de maisons denses, les bâtiments peuvent apparaître et disparaître plus rapidement quand vous bougez, ce qui peut être distrayant au début.
-[*]Le coût par image est faible mais pas nul. Sur du matériel modeste, baisser les portées de quelques tuiles aide.
-[/list]
+[h1]FAQ[/h1]
+
+[b]Y a-t-il un conflit avec le mod Staircast du Workshop ?[/b]
+Non. Si les deux sont abonnés, PeekAView détecte Staircast au runtime et cède sa propre vue d'escalier, donc les deux peuvent fonctionner ensemble.
+
+[b]Fonctionne-t-il en multijoueur ?[/b]
+Oui, côté client uniquement. Chaque client doit également avoir ZombieBuddy installé.
+
+[b]J'ai désactivé PeekAView de la liste des mods en cours de session, mais les effets sont encore visibles. Que faire ?[/b]
+Project Zomboid garde le code des mods en mémoire entre les rechargements de sauvegardes, donc désactiver PeekAView de la liste des mods en cours de session ne l'arrête pas tout seul. Trois façons de le supprimer : (1) le désactiver dans les options propres au mod (effet immédiat), (2) recharger votre sauvegarde (PeekAView vérifie la liste de mods active à chaque chargement et se désactive automatiquement s'il n'y est plus), ou (3) redémarrer PZ. C'est une limitation du framework déjà signalée.
+
+[b]Cela affecte-t-il les performances ?[/b]
+Plusieurs caches maintiennent le coût d'exécution proche du vanilla. Rester immobile et marcher à pied sont les chemins les moins coûteux. Réduisez les curseurs de portée si votre matériel a du mal.
 
 [h1]Code source[/h1]
-PeekAView et ZombieBuddy sont tous deux sous licence MIT et entièrement open source. Les patches ne touchent que des classes de rendu PZ spécifiques. Aucun accès aux fichiers, aucun accès réseau, rien en dehors du code de PZ lui-même.
+PeekAView est sous licence MIT et entièrement open source. Les patches ne touchent que des classes de rendu PZ spécifiques.
 [list]
 [*][b]PeekAView[/b] : [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[*][b]ZombieBuddy[/b] : [url=https://github.com/zed-0xff/ZombieBuddy]github.com/zed-0xff/ZombieBuddy[/url]
+[/list]
+
+[h1]Attribution[/h1]
+[list]
+[*][b]Concept cutaway-on-stairs + pattern FakeFrameState + choix des classes de rendu patchées[/b] : [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, mod Workshop original).
+[*][b]Implémentation read-path[/b] (écriture réflexive des champs x/y/z + shadow ThreadLocal-gated sur les getters d'IsoMovingObject) : initialement publiée comme mon fork autonome [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+[*][b]Extensions PeekAView sur la base de staircast-rp[/b] : stair-tile-latch, override de l'alpha des zombies en cone-vision avec fade-out doux, détection externe-stair via getModIDs, self-check, freeze résistant à la pause, fixes d'ordre multi-patch.
 [/list]
 
 [hr][/hr]
