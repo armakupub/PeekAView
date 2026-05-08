@@ -59,19 +59,19 @@ enableOpt.onChangeApply = function(self, value)
     applyToJava("setEnabled", value)
 end
 
-local aimStanceOnlyOpt = modOptions:addTickBox(
-    "aimStanceOnly",
-    getText("UI_PAV_AimStanceOnlyLabel"),
-    false,
-    getText("UI_PAV_AimStanceOnlyTooltip"))
-aimStanceOnlyOpt.onChangeApply = function(self, value)
-    applyToJava("setAimStanceOnly", value)
-end
-
 modOptions:addDescription("UI_PAV_Spacer")
 
 -- == Wall cutaway ==
 addSection(modOptions, "UI_PAV_WallCutawaySectionTitle")
+
+local cutawayEnabledOpt = modOptions:addTickBox(
+    "cutawayEnabled",
+    getText("UI_PAV_CutawayEnabledLabel"),
+    true,
+    getText("UI_PAV_CutawayEnabledTooltip"))
+cutawayEnabledOpt.onChangeApply = function(self, value)
+    applyToJava("setCutawayEnabled", value)
+end
 
 -- Persistence key bumped from "range" to "cutawayRange" in 1.3.0
 -- so the slider resets to its new default 10 (down from 15) on
@@ -89,6 +89,15 @@ rangeOpt.onChangeApply = function(self, value)
 end
 
 modOptions:addDescription("UI_PAV_RangePerformanceDescription")
+
+local aimStanceOnlyOpt = modOptions:addTickBox(
+    "aimStanceOnly",
+    getText("UI_PAV_AimStanceOnlyLabel"),
+    false,
+    getText("UI_PAV_AimStanceOnlyTooltip"))
+aimStanceOnlyOpt.onChangeApply = function(self, value)
+    applyToJava("setAimStanceOnly", value)
+end
 
 -- Binary on/off in vehicles. Replaces the prior km/h slider in 1.3.0.
 -- Default on — pairs with the lower cutaway range default (10) since
@@ -129,10 +138,38 @@ local treeFadeRangeOpt = modOptions:addSlider(
     "treeFadeRange",
     getText("UI_PAV_TreeFadeRangeLabel"),
     5, 25, 1,
-    20,
+    15,
     getText("UI_PAV_TreeFadeRangeTooltip"))
 treeFadeRangeOpt.onChangeApply = function(self, value)
     applyToJava("setTreeFadeRange", value)
+end
+
+modOptions:addDescription("UI_PAV_Spacer")
+
+-- == Stairs ==
+addSection(modOptions, "UI_PAV_StairsSectionTitle")
+
+-- One-shot probe of upstream Staircast presence. Java side gates
+-- internally regardless of this UI state — the description here is
+-- purely informational so the user understands why the stair feature
+-- silently does nothing.
+local stairConflictActive = false
+if PeekAView.javaReady and ModJava.isExternalStairFeatureActive then
+    local ok, result = pcall(ModJava.isExternalStairFeatureActive)
+    if ok then stairConflictActive = result end
+end
+
+if stairConflictActive then
+    modOptions:addDescription("UI_PAV_StairsConflictDescription")
+end
+
+local stairEnabledOpt = modOptions:addTickBox(
+    "stairEnabled",
+    getText("UI_PAV_StairEnabledLabel"),
+    true,
+    getText("UI_PAV_StairEnabledTooltip"))
+stairEnabledOpt.onChangeApply = function(self, value)
+    applyToJava("setStairEnabled", value)
 end
 
 -- PZAPI.ModOptions:load() only auto-runs on first Options-screen open.
@@ -141,21 +178,25 @@ end
 local function syncToJava()
     PZAPI.ModOptions:load()
     applyToJava("setEnabled", enableOpt:getValue())
+    applyToJava("setCutawayEnabled", cutawayEnabledOpt:getValue())
     applyToJava("setAimStanceOnly", aimStanceOnlyOpt:getValue())
     applyToJava("setRange", rangeOpt:getValue())
     applyToJava("setCutawayActiveInVehicle", cutawayActiveInVehicleOpt:getValue())
     applyToJava("setFixB42Adjacency", fixB42Opt:getValue())
     applyToJava("setFadeNWTrees", fadeNWTreesOpt:getValue())
     applyToJava("setTreeFadeRange", treeFadeRangeOpt:getValue())
+    applyToJava("setStairEnabled", stairEnabledOpt:getValue())
 end
 
 Events.OnGameBoot.Add(syncToJava)
 
 PeekAView.syncToJava = syncToJava
 PeekAView.enableOpt = enableOpt
+PeekAView.cutawayEnabledOpt = cutawayEnabledOpt
 PeekAView.aimStanceOnlyOpt = aimStanceOnlyOpt
 PeekAView.rangeOpt = rangeOpt
 PeekAView.cutawayActiveInVehicleOpt = cutawayActiveInVehicleOpt
 PeekAView.fixB42Opt = fixB42Opt
 PeekAView.fadeNWTreesOpt = fadeNWTreesOpt
 PeekAView.treeFadeRangeOpt = treeFadeRangeOpt
+PeekAView.stairEnabledOpt = stairEnabledOpt

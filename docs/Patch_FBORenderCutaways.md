@@ -125,6 +125,9 @@ without the bleed.
 
 Early returns if:
 - `!result` (vanilla already said no — nothing to override)
+- `!PeekAViewMod.enabled` (master switch off)
+- `!PeekAViewMod.cutawayEnabled` (cutaway section disabled — the B42
+  fix is part of the cutaway category and is gated together)
 - `!fixB42Adjacency` (user toggle off)
 - `PeekAViewMod.isCameraPlayerIndoor()` — outdoor-only gate, see
   [Why outdoor only](#why-outdoor-only) below.
@@ -220,7 +223,8 @@ emptyoutside-adjacent cells).
 ### Advice
 
 `@Patch.OnExit`, `@Patch.Return(readOnly = false) boolean result`.
-Early returns: `!result`, `!fixB42Adjacency`,
+Early returns: `!result`, `!PeekAViewMod.enabled`,
+`!PeekAViewMod.cutawayEnabled`, `!fixB42Adjacency`,
 `PeekAViewMod.isCameraPlayerIndoor()` (see [Why outdoor only](#why-outdoor-only)),
 `square == null`, `square.associatedBuilding == null`. Otherwise
 `result = false`.

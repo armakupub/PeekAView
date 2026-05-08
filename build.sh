@@ -4,7 +4,7 @@ set -euo pipefail
 # --- Paths ---
 PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$PROJECT_ROOT/src"
-BUILD_DIR="$PROJECT_ROOT/build"
+BUILD_DIR="${BUILD_DIR:-$PROJECT_ROOT/build}"
 CLASSES_DIR="$BUILD_DIR/classes"
 JAR_OUT="$BUILD_DIR/peekaview.jar"
 
@@ -81,6 +81,55 @@ cp "$PROJECT_ROOT/LICENSE" "$CLASSES_DIR/META-INF/LICENSE"
 echo "[build] Packaging jar..."
 "$JAR" --create --file "$JAR_OUT" -C "$CLASSES_DIR" .
 
+# --- Optional ZBS signing (ZombieBuddy v2.1.0+ .zbs sidecar) ---
+# Active only when both ZBS_STEAM_ID64 and ZBS_PRIVATE_KEY_FILE are set
+# (typically via build.local). Sidecar format and canonical payload come
+# from ZombieBuddy ZBSVerifier.java: payload is "ZBS:<sid>:<sha256_hex>",
+# Ed25519-signed, raw 64-byte signature → 128 hex chars.
+ZBS_OUT="${JAR_OUT}.zbs"
+rm -f "$ZBS_OUT"
+if [ -n "${ZBS_STEAM_ID64:-}" ] && [ -n "${ZBS_PRIVATE_KEY_FILE:-}" ]; then
+    echo "[build] Signing jar (.zbs sidecar)..."
+    if [ ! -f "$ZBS_PRIVATE_KEY_FILE" ]; then
+        echo "[build] ERROR: ZBS_PRIVATE_KEY_FILE not found: $ZBS_PRIVATE_KEY_FILE" >&2
+        exit 1
+    fi
+    for cmd in openssl sha256sum xxd; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            echo "[build] ERROR: '$cmd' is required for ZBS signing but not on PATH." >&2
+            exit 1
+        fi
+    done
+    JAR_SHA256=$(sha256sum "$JAR_OUT" | awk '{print $1}' | tr 'A-F' 'a-f')
+    PAYLOAD="ZBS:${ZBS_STEAM_ID64}:${JAR_SHA256}"
+    # openssl pkeyutl -rawin needs an input file (Ed25519 is oneshot and the
+    # tool can't size-probe stdin). Tempfile + trap-on-cleanup keeps it tidy.
+    # printf '%s' avoids the trailing newline that 'echo' would add, which
+    # would change the signed bytes.
+    PAYLOAD_FILE="$BUILD_DIR/zbs-payload.tmp"
+    SIG_BIN_FILE="$BUILD_DIR/zbs-sig.tmp"
+    trap 'rm -f "$PAYLOAD_FILE" "$SIG_BIN_FILE"' EXIT
+    printf '%s' "$PAYLOAD" > "$PAYLOAD_FILE"
+    openssl pkeyutl -sign \
+        -inkey "$ZBS_PRIVATE_KEY_FILE" -keyform DER -rawin \
+        -in "$PAYLOAD_FILE" -out "$SIG_BIN_FILE"
+    SIG_HEX=$(xxd -p -c 256 "$SIG_BIN_FILE")
+    rm -f "$PAYLOAD_FILE" "$SIG_BIN_FILE"
+    trap - EXIT
+    if [ "${#SIG_HEX}" -ne 128 ]; then
+        echo "[build] ERROR: signature is ${#SIG_HEX} hex chars, expected 128 (Ed25519 raw 64 bytes)." >&2
+        exit 1
+    fi
+    {
+        printf 'ZBS\n'
+        printf 'SteamID64:%s\n' "$ZBS_STEAM_ID64"
+        printf 'Signature:%s\n' "$SIG_HEX"
+    } > "$ZBS_OUT"
+    echo "[build]   .zbs:    $ZBS_OUT"
+else
+    echo "[build] Skipping ZBS signing (set ZBS_STEAM_ID64 + ZBS_PRIVATE_KEY_FILE in build.local to enable)."
+fi
+
 # --- Stage mod directory ---
 echo "[build] Staging mod directory..."
 STAGE="$BUILD_DIR/stage/PeekAView"
@@ -93,6 +142,9 @@ cp "$PROJECT_ROOT/poster.png" "$STAGE/42.13/poster.png"
 cp "$PROJECT_ROOT/icon.png" "$STAGE/icon.png"
 cp "$PROJECT_ROOT/icon.png" "$STAGE/42.13/icon.png"
 cp "$JAR_OUT" "$STAGE/42.13/media/java/client/peekaview.jar"
+if [ -f "$ZBS_OUT" ]; then
+    cp "$ZBS_OUT" "$STAGE/42.13/media/java/client/peekaview.jar.zbs"
+fi
 
 if [ -d "$PROJECT_ROOT/mod_files/42.13/media/lua" ]; then
     cp -r "$PROJECT_ROOT/mod_files/42.13/media/lua" "$STAGE/42.13/media/lua"

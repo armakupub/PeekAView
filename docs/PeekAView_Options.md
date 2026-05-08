@@ -62,7 +62,7 @@ When `javaReady == false`, two extra descriptions are prepended above
 the first section title: `UI_PAV_JavaMissingDescription` and
 `UI_PAV_Spacer`.
 
-The screen is grouped into three sections, each opened by a section
+The screen is grouped into four sections, each opened by a section
 title (rendered via `addTitle` if PZAPI exposes it, else via a regular
 description as a graceful fallback — see `addSection` helper in
 `PeekAView_Options.lua`).
@@ -73,17 +73,29 @@ description as a graceful fallback — see `addSection` helper in
 |--------|-----|-----------------|--------|
 | Title | `UI_PAV_GlobalSectionTitle` | — | — |
 | TickBox | `enable` | default `true` | `setEnabled(v)` |
-| TickBox | `aimStanceOnly` | default `false` | `setAimStanceOnly(v)` |
 
 ### Wall cutaway
 
 | Widget | Key | Range / Default | Setter |
 |--------|-----|-----------------|--------|
 | Title | `UI_PAV_WallCutawaySectionTitle` | — | — |
+| TickBox | `cutawayEnabled` | default `true` | `setCutawayEnabled(v)` |
 | Slider | `cutawayRange` | 5–20, step 1, default 10 | `setRange(v)` |
 | Description | `UI_PAV_RangePerformanceDescription` | — | — |
+| TickBox | `aimStanceOnly` | default `false` | `setAimStanceOnly(v)` |
 | TickBox | `cutawayActiveInVehicle` | default `true` | `setCutawayActiveInVehicle(v)` |
 | TickBox | `fixB42` | default `true` | `setFixB42Adjacency(v)` |
+
+`cutawayEnabled` is the section enable. When off, the cutaway
+extension and the B42 fix are both gated off; the aim and vehicle
+toggles below it are no-ops in that state but their persisted values
+are kept for when the section is re-enabled.
+
+`aimStanceOnly` only modifies cutaway behaviour; tree-fade and stair
+view ignore it. It was placed in the Global section in earlier
+versions and moved here in 1.4.0 alongside the other cutaway-only
+modifiers; the persistence key (`aimStanceOnly`) is unchanged so
+saved values carry across.
 
 The `cutawayRange` key was renamed from `range` in 1.3.0 so the
 slider resets to the new default of 10 (down from 15) on first launch
@@ -97,7 +109,29 @@ other settings touched.
 |--------|-----|-----------------|--------|
 | Title | `UI_PAV_TreeFadeSectionTitle` | — | — |
 | TickBox | `fadeNWTrees` | default `true` | `setFadeNWTrees(v)` |
-| Slider | `treeFadeRange` | 5–25, step 1, default 20 | `setTreeFadeRange(v)` |
+| Slider | `treeFadeRange` | 5–25, step 1, default 15 | `setTreeFadeRange(v)` |
+
+### Stair view
+
+| Widget | Key | Range / Default | Setter |
+|--------|-----|-----------------|--------|
+| Title | `UI_PAV_StairsSectionTitle` | — | — |
+| Description (conditional) | `UI_PAV_StairsConflictDescription` | — | — |
+| TickBox | `stairEnabled` | default `true` | `setStairEnabled(v)` |
+
+The conditional description is added at section-build time only when
+`PeekAViewMod.isExternalStairFeatureActive()` returns `true` (one-shot
+probe at Lua module load). It informs the user that the Java side
+yields its stair view feature while upstream Staircast is loaded.
+Java-side gating is unconditional and independent of this UI line —
+the description is purely informational.
+
+The translation key for the section title is `UI_PAV_StairsSectionTitle`
+even though the displayed value is "Stair view" (and translated
+equivalents). The key name is historical; only the value changed in
+1.4.0. Renaming the key would invalidate no persisted user values
+(addSection writes nothing) but would force a one-time mass-edit
+across 12 locale files.
 
 All setters dispatch through `applyToJava(name, v)`.
 
@@ -112,12 +146,14 @@ load-and-push on `OnGameBoot`:
 local function syncToJava()
     PZAPI.ModOptions:load()
     applyToJava("setEnabled", enableOpt:getValue())
+    applyToJava("setCutawayEnabled", cutawayEnabledOpt:getValue())
     applyToJava("setAimStanceOnly", aimStanceOnlyOpt:getValue())
     applyToJava("setRange", rangeOpt:getValue())
     applyToJava("setCutawayActiveInVehicle", cutawayActiveInVehicleOpt:getValue())
     applyToJava("setFixB42Adjacency", fixB42Opt:getValue())
     applyToJava("setFadeNWTrees", fadeNWTreesOpt:getValue())
     applyToJava("setTreeFadeRange", treeFadeRangeOpt:getValue())
+    applyToJava("setStairEnabled", stairEnabledOpt:getValue())
 end
 
 Events.OnGameBoot.Add(syncToJava)
@@ -130,30 +166,32 @@ every `applyToJava` is a no-op — boot still completes cleanly.
 
 ```lua
 PeekAView.syncToJava = syncToJava
-PeekAView.enableOpt / aimStanceOnlyOpt
+PeekAView.enableOpt / cutawayEnabledOpt / aimStanceOnlyOpt
 PeekAView.rangeOpt / cutawayActiveInVehicleOpt / fixB42Opt
 PeekAView.fadeNWTreesOpt / treeFadeRangeOpt
+PeekAView.stairEnabledOpt
 ```
 
 ## Translations
 
 Keys live in `media/lua/shared/Translate/<LANG>/UI.json`. 12 languages
 ship: EN, DE, FR, ES, RU, PL, PTBR, IT, TR, CN, KO, JP (same set as
-PassThroughWindow / AutoFFWalkTo). Folder is `PTBR` (no dash); user-facing
-label is `PT-BR`.
+PassThroughWindow / AutoFFWalkTo). Folder is `PTBR` (no dash);
+user-facing label is `PT-BR`.
 
 Keys:
 - `UI_PAV_ModName`
-- Section titles: `UI_PAV_GlobalSectionTitle` / `UI_PAV_WallCutawaySectionTitle` / `UI_PAV_TreeFadeSectionTitle`
-- Global section: `UI_PAV_EnableLabel` / `UI_PAV_EnableTooltip`, `UI_PAV_AimStanceOnlyLabel` / `UI_PAV_AimStanceOnlyTooltip`
-- Wall cutaway section: `UI_PAV_RangeLabel` / `UI_PAV_RangeTooltip`, `UI_PAV_RangePerformanceDescription`, `UI_PAV_CutawayActiveInVehicleLabel` / `UI_PAV_CutawayActiveInVehicleTooltip`, `UI_PAV_FixB42Label` / `UI_PAV_FixB42Tooltip`
+- Section titles: `UI_PAV_GlobalSectionTitle` / `UI_PAV_WallCutawaySectionTitle` / `UI_PAV_TreeFadeSectionTitle` / `UI_PAV_StairsSectionTitle`
+- Global section: `UI_PAV_EnableLabel` / `UI_PAV_EnableTooltip`
+- Wall cutaway section: `UI_PAV_CutawayEnabledLabel` / `UI_PAV_CutawayEnabledTooltip`, `UI_PAV_RangeLabel` / `UI_PAV_RangeTooltip`, `UI_PAV_RangePerformanceDescription`, `UI_PAV_AimStanceOnlyLabel` / `UI_PAV_AimStanceOnlyTooltip`, `UI_PAV_CutawayActiveInVehicleLabel` / `UI_PAV_CutawayActiveInVehicleTooltip`, `UI_PAV_FixB42Label` / `UI_PAV_FixB42Tooltip`
 - Tree fade section: `UI_PAV_FadeNWTreesLabel` / `UI_PAV_FadeNWTreesTooltip`, `UI_PAV_TreeFadeRangeLabel` / `UI_PAV_TreeFadeRangeTooltip`
+- Stair view section: `UI_PAV_StairEnabledLabel` / `UI_PAV_StairEnabledTooltip`, `UI_PAV_StairsConflictDescription`
 - `UI_PAV_Spacer` (single space, used via `addDescription` as vertical separator)
 - `UI_PAV_EnabledText` / `UI_PAV_DisabledText` (halo toggle text)
 - `UI_PAV_JavaMissingDescription` (red banner shown above the options list when `javaReady == false`)
 - `UI_PAV_JavaMissingHalo` (halo shown by F8 keybind when `javaReady == false`)
 - `UI_optionscreen_binding_PeekAView` / `UI_optionscreen_binding_PeekAView Toggle`
 
-All tooltips are kept short (one sentence) — the user sees what each
-control does at a glance without being overloaded by implementation
-detail.
+The `UI_PAV_StairsSectionTitle` key is legacy: in 1.3.0 the section
+was named "Stairs"; in 1.4.0 it became "Stair view" (label change
+only, key unchanged so the rename does not require a data migration).

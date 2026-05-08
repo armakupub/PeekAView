@@ -90,11 +90,13 @@ public class Patch_FBORenderCutaways {
                                 @Patch.Return(readOnly = false) boolean result) {
             if (!result) return;
             try {
-                // Master switch + own checkbox only. No aimStanceOnly
-                // gate: the vanilla B42 adjacency bug exists at vanilla
-                // cutaway range too, so the fix must run regardless of
-                // stance — otherwise the bug pops in/out with aiming.
+                // Master switch + cutaway-section enable + own checkbox.
+                // No aimStanceOnly gate: the vanilla B42 adjacency bug
+                // exists at vanilla cutaway range too, so the fix must
+                // run regardless of stance — otherwise the bug pops
+                // in/out with aiming.
                 if (!PeekAViewMod.enabled) return;
+                if (!PeekAViewMod.cutawayEnabled) return;
                 if (!PeekAViewMod.fixB42Adjacency) return;
                 // Outdoor-only: indoor we let vanilla cutaway flow
                 // through to avoid B42-fix bleed-throughs of
@@ -161,9 +163,11 @@ public class Patch_FBORenderCutaways {
                                 @Patch.Return(readOnly = false) boolean result) {
             if (!result) return;
             try {
-                // Master switch + own checkbox only — no aimStanceOnly
-                // gate. See Patch_shouldCutaway.exit for rationale.
+                // Master switch + cutaway-section enable + own checkbox.
+                // No aimStanceOnly gate — see Patch_shouldCutaway.exit
+                // for rationale.
                 if (!PeekAViewMod.enabled) return;
+                if (!PeekAViewMod.cutawayEnabled) return;
                 if (!PeekAViewMod.fixB42Adjacency) return;
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (square == null) return;

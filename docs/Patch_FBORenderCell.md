@@ -1,17 +1,36 @@
 # Patch_FBORenderCell
 
-Patches `zombie.iso.fboRenderChunk.FBORenderCell.isTranslucentTree`
-to extend vanilla's tree-fade so trees the character can see past
+Four `@Patch` inner classes on
+`zombie.iso.fboRenderChunk.FBORenderCell`:
+
+1. **`Patch_isTranslucentTree`** — tree-fade range extension and
+   speed-proportional fade boost (this document, sections below).
+2. **`Patch_renderInternal`** — FBO render-pass swap for the stair
+   view feature.
+3. **`Patch_isPotentiallyObscuringObject`** — gate on the upper-floor
+   z during the stair render window.
+4. **`Patch_renderPlayers`** — inverted swap so the player sprite
+   draws at its real position while the rest of the chunk renders the
+   upper floor.
+
+The three stair patches (2–4) are documented in
+[`Stair_feature.md`](Stair_feature.md). This document covers only
+`Patch_isTranslucentTree`.
+
+**File:** `src/pzmod/peekaview/Patch_FBORenderCell.java`
+
+## Patch_isTranslucentTree
+
+Extends vanilla's tree-fade so trees the character can see past
 become translucent within `PeekAViewMod.treeFadeRange`. Together with
 `Patch_DrawStencilMask` (in `Patch_IsoCell`) this makes distant
 zombies whose tile the character can already see stop hiding behind
 opaque tree sprites.
 
-**File:** `src/pzmod/peekaview/Patch_FBORenderCell.java`
 **Gates (in order):**
-- `PeekAViewMod.fadeNWTrees == true` (master toggle)
-- `PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()` (stance,
-  driving-speed, vehicle-context)
+- `PeekAViewMod.fadeNWTrees == true` (tree-fade section toggle)
+- `PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()` (master
+  enable; tree-fade gate doesn't honor stance or vehicle)
 - `!PeekAViewMod.isCameraPlayerIndoor()` (outdoor only, mirrors
   `Patch_DrawStencilMask`)
 

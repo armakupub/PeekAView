@@ -1,83 +1,83 @@
 # Peek a View
 
-Project Zomboid mod — extends the wall, building, and tree cutaway range so zombies hiding in your line of sight stop being invisible.
+> Expand your vision.
 
 ![PeekAView before and after: walls and trees fade from further away](screenshots/0_overview_collage.jpg)
 
-In vanilla PZ, walls and roofs fade out only within roughly 5 tiles of your character, and trees only within a small circle around the character. So the *player* behind the screen consistently sees less than the *character* has line of sight to: a zombie leaning on the back of a house, a fence corner you can't peek around, a tree directly in front of you on the road. **Peek a View** extends those same vanilla fade mechanics further out, so what reaches your screen matches roughly what your character would already perceive.
+Project Zomboid hides a lot of what's actually visible to your character behind walls, trees, and floors above. PeekAView extends three rendering passes so your screen catches up with your character's eyes. Three independent features:
 
-Same rules as vanilla, just triggered from further out. No X-ray, no see-through walls, no enemy outlines. A faded tree doesn't grant line of sight. Anything behind it still needs to be in your character's line of sight to appear, and a zombie standing partially on a bush or tree tile can still stay hidden. Vanilla's visibility rules still apply: closed doors, curtains, fog of war still hide what they always did.
+- **Wall cutaway**: walls and fences fade earlier as you approach them.
+- **Tree fade**: trees in your character's view become translucent.
+- **Stair view**: while climbing stairs, the upper floor already renders.
 
-## Features
+Each feature is independent. Run all three together, just the one you need, or somewhere in between. Every feature has its own Enable toggle, and the wall and tree fade ranges are tunable in the Options menu.
 
-- **Extended wall cutaway range** — configurable slider from 5 (vanilla) to 20 tiles.
-- **Tree fade** — trees in your character's view become translucent so zombies behind them are visible. Independent range slider (5–25 tiles, default 20). Outdoors only; indoors falls back to vanilla.
-- **Optional aim-only mode** — restrict wall cutaway to while you are aiming a weapon (right-click held). Tree fade runs independently.
-- **No see-through walls, no line-of-sight bypass** — same fade mechanics as vanilla, just triggered from further away. You see what the character can see, not more.
-- **B42 wall-hiding bug fix** — stops the engine from hiding upper-floor walls of vanilla buildings next to player-built stairs or floors. Applied outdoors only; indoors falls back to vanilla cutaway behavior. Toggleable.
+**F8** toggles the master Enable in-game (rebindable under `[PeekAView]` in PZ's keybind menu).
 
-### Also
-
-- **F8 hotkey** with green/red halo indicator. Rebindable under `[PeekAView]` in PZ's keybind menu.
-- **12 languages:** EN, DE, FR, ES, RU, PL, PT-BR, IT, TR, CN, KO, JP.
-- **Multiplayer-safe** — client-side rendering only, no server changes, no save modifications.
+Same rules as vanilla. No X-ray, no see-through walls, no enemy outlines. Your character's line of sight still decides what's actually visible.
 
 ## Requirements
 
 - **Project Zomboid** Build 42.13 or newer
-- **[ZombieBuddy](https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853)** — Java bytecode patching framework (required, one-time setup)
+- **[ZombieBuddy](https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853)**: Java bytecode patching framework (required, one-time setup)
 
 ## Installation
 
-1. Subscribe to **[ZombieBuddy](https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853)** on the Steam Workshop and follow its one-time setup instructions. This step is only needed once — all mods that depend on ZombieBuddy work automatically afterwards.
+1. Subscribe to **[ZombieBuddy](https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853)** on the Steam Workshop and follow its one-time setup instructions. This step is only needed once: all mods that depend on ZombieBuddy work automatically afterwards.
 2. Subscribe to **[Peek a View](https://steamcommunity.com/sharedfiles/filedetails/?id=3710281407)**.
 3. Enable both mods in the in-game mod list and launch the game.
 
-Because Peek a View ships a Java JAR, the **first** time you launch the game after installing it, ZombieBuddy will show a native approval dialog with the mod id, JAR path, last-modified date, and SHA-256 fingerprint. Click `Yes` and optionally choose to persist the decision; subsequent launches load the JAR silently until the JAR changes on disk.
+Because Peek a View ships a Java JAR, the **first** time you launch the game after installing it, ZombieBuddy will show a native approval dialog with the mod name, the signing author's Steam name and ID, the author's Steam ban status, and an `updated` date. Tick `Allow` to approve this specific JAR, or also tick `Trust` to silently accept future updates signed by the same author key without re-approving on each release. A persist-decision checkbox at the bottom saves your choice.
 
-## Settings
+## Compatibility
 
-Open `Options → Mods → Peek a View`. The screen is grouped into three sections.
+- Safe to add or remove mid-save: no save data touched. Visual effects clear on the next save reload after removing the mod from the mod list.
+- Client-side only: each player who wants the effect needs the mod (and ZombieBuddy) installed.
 
-**Global**
+## Wall cutaway
+
+Walls and fences fade as you walk toward them, not after you've already reached them. You can take wider arcs around obstacles, peek through doorways and windows from further out, and watch a building's far walls fade in your approach: you commit to entering with a clearer picture of what's on the other side.
+
+Also includes a workaround for a B42 engine bug where player-built structures next to vanilla buildings can hide the upper-floor walls of those buildings entirely.
+
+| Setting | Range / Default | What it does |
+|---|---|---|
+| Enable | on | Toggles the wall cutaway feature. The B42 fix is gated by this enable as well. |
+| Range | 5–20, default 10 | How far walls fade around the player. `5` = pure vanilla; lower values improve performance. |
+| Active only when aiming | off | Active only while aiming a weapon (right-click held). |
+| Active in vehicles | on | When on, cutaway runs while driving. When off, on foot only. |
+| Fix B42 wall-hiding bug | on | Workaround for the vanilla B42 bug. |
+
+## Tree fade
+
+Trees in your character's forward view become translucent so you can see what's behind them. Useful on foot to spot zombies hiding in tree lines, and especially useful while driving: road hazards behind a tree show up earlier instead of only once the tree has cleared the bumper.
+
+| Setting | Range / Default | What it does |
+|---|---|---|
+| Enable | on | Toggles the tree fade feature. |
+| Range | 5–25, default 15 | How far trees fade around the player. Lower values improve performance. |
+
+## Stair view
+
+While your character is on stairs, the upper floor renders during the climb instead of only after you've topped out. You see what's waiting upstairs before you reach it.
 
 | Setting | Default | What it does |
 |---|---|---|
-| Enable | on | Master switch for all features |
-| Active only when aiming | off | Wall cutaway only runs while aiming a weapon (right-click held). Tree fade is independent of this. |
+| Enable | on | Toggles the stair view feature. |
 
-**Wall cutaway**
+If the [Staircast Workshop mod](https://steamcommunity.com/sharedfiles/filedetails/?id=3684713089) is also subscribed, PeekAView detects it at runtime and yields its own stair view, so both mods can coexist.
 
-| Setting | Range / Default | What it does |
-|---|---|---|
-| Range | 5–20 tiles, default 10 | How far walls and buildings start turning transparent. `5` = pure vanilla (the patch falls through). |
-| Active in vehicles | on | When on, cutaway keeps running while you drive. When off, cutaway is disabled in any vehicle. |
-| Fix B42 wall-hiding bug | on | Workaround for a vanilla B42 engine bug (see FAQ). Runs regardless of the aim gate. Applied outdoors only; indoors uses vanilla cutaway. |
-
-**Tree fade**
-
-| Setting | Range / Default | What it does |
-|---|---|---|
-| Enable | on | Toggle the tree-fade feature |
-| Range | 5–25 tiles, default 20 | How far trees start turning transparent |
-
-**F8** toggles the master Enable switch in-game (green/red halo confirms). Rebindable under `[PeekAView]` in PZ's keybind menu.
+Based on the [Staircast Workshop mod](https://steamcommunity.com/sharedfiles/filedetails/?id=3684713089) by copiumsawsed. Read-path implementation details in [armakupub/staircast-rp](https://github.com/armakupub/staircast-rp).
 
 ## FAQ
 
-**Does it work in multiplayer?** Yes. Peek a View only affects client-side rendering — no server impact, no save modifications. ZombieBuddy must be installed on every client that loads the mod.
+**Does it conflict with the Staircast Workshop mod?** No. If both are subscribed, PeekAView detects Staircast at runtime and yields its own stair view so the two can run together.
 
-**Save compatibility?** Safe to add or remove on existing saves. The mod does not touch world data. If you want to remove it cleanly, disable it in-game first, then quit and uninstall.
+**Does it work in multiplayer?** Yes, client-side only. Every client also needs ZombieBuddy installed.
 
-**Is tree fade X-ray?** No. It only fades tree sprites your character can already see past from their angle — exactly what the character sees. A zombie standing inside a bush stays hidden, just like in vanilla.
+**I disabled PeekAView in the mod list mid-session but the effects are still showing. What now?** Project Zomboid keeps mod code in memory across save reloads, so disabling PeekAView in the mod list mid-session doesn't shut it down on its own. Three ways to clear it: (1) toggle it off via the mod's own in-game settings (instant), (2) reload your save (PeekAView checks the active mod list on each save load and self-deactivates if it's no longer there), or (3) restart PZ. This is an already-reported framework-level limitation.
 
-**What's the "B42 wall-hiding bug"?** In Build 42, placing player-built stairs or floors near a vanilla building can make the adjacent upper-floor walls of that vanilla building disappear entirely — not cutaway, just not rendered. Peek a View ships a workaround that's on by default. The workaround runs outdoors only — indoors the mod falls back to vanilla cutaway, which avoids a known side effect where player-built tiles can become visible through cut walls when the camera player is inside an adjacent vanilla building. Turn it off under `Fix B42 wall-hiding bug` if you want to observe the vanilla behavior. Engine-side fallback without the fix: keep at least a 2-tile gap between player-built structures and vanilla walls, or place them on a different Z-level.
-
-**Why ZombieBuddy?** Peek a View is a Java mod. Changing the behavior of a compiled PZ method isn't achievable with a standard Lua mod, and ZombieBuddy's bytecode patching keeps the mod working across minor PZ updates without editing the PZ jar.
-
-**Does it conflict with other cutaway mods?** Peek a View patches seven specific engine methods via ZombieBuddy. Other ZombieBuddy-based mods patching the same methods may interact — test case by case. No known conflicts as of Build 42.13.
-
-**Does it affect performance?** Several caches keep the runtime cost close to vanilla: a per-frame gate cache, frame-caches for the POI raster and the tree-fade location list, and a tile-filter that drops empty grass/road tiles from the obscuring-list. Standing still and walking on foot are effectively free. JFR-measured CPU footprint at default settings is around 2.8% of CPU samples in 120 s of driving with ~50 background mods active — the master `Enable` toggle to off measures at 0.1%. See [`docs/PeekAViewMod.md`](docs/PeekAViewMod.md) for the raw breakdown.
+**Does it affect performance?** Several caches keep the runtime cost close to vanilla. Standing still and walking on foot are the cheapest paths. Lower the range sliders if your hardware struggles.
 
 ## Building from Source
 
@@ -95,8 +95,8 @@ Technical documentation for contributors is under [`docs/`](docs/).
 
 - **GitHub:** https://github.com/armakupub/PeekAView
 - **Steam Workshop:** https://steamcommunity.com/sharedfiles/filedetails/?id=3710281407
-- **ZombieBuddy:** https://github.com/zed-0xff/ZombieBuddy
+- **staircast-rp:** https://github.com/armakupub/staircast-rp (read-path implementation referenced by the Stair view feature)
 
 ## License
 
-[MIT](LICENSE) — feel free to fork, modify, and redistribute. Attribution appreciated.
+MIT, see `LICENSE`.

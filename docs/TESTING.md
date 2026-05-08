@@ -24,12 +24,10 @@ the cone 180° so trees in direction-of-travel fade. Trees leaving
 the cone fade back to opaque smoothly via the stencil-persistence
 buffer. Vehicle in/out transitions without stuck states.
 
-**Performance** — JFR on a 120 s Rosewood→Muldraugh driving run
-puts the mod at ~2.8% CPU samples at defaults, ~0.1% with the
-master `Enable` toggle off. Tile-filter optimization confirmed
-via the `squareHasFadingInObjects` downstream-walk dropping out
-of the sample profile. Numbers in
-[`PeekAViewMod.md`](PeekAViewMod.md#performance).
+**Performance** — see [`PeekAViewMod.md`](PeekAViewMod.md#performance).
+The 1.2.0 baseline measured here is no longer representative after
+the 1.2.1 removal of `Patch_calculateObjectsObscuringPlayer`; rerun
+JFR before quoting current numbers.
 
 ## Open
 

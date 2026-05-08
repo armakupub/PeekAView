@@ -1,11 +1,15 @@
 # Patch_IsoCell
 
-Two patches on `zombie.iso.IsoCell`:
+Three patches on `zombie.iso.IsoCell`:
 
 1. **`Patch_GetSquaresAroundPlayerSquare`** — expands the POI fan that
-   seeds building cutaway (always-on, governs the `range` slider).
+   seeds building cutaway (cutaway-section toggle, governs the `range`
+   slider).
 2. **`Patch_DrawStencilMask`** — extends the stencil mask that gates
-   tree-fade visibility (gated on `fadeNWTrees` toggle, opt-in).
+   tree-fade visibility (tree-fade-section toggle).
+3. **`Patch_renderInternal`** — non-FBO render-pass swap for the stair
+   view feature. Mirrors the FBO swap in `Patch_FBORenderCell`. See
+   [`Stair_feature.md`](Stair_feature.md).
 
 **File:** `src/pzmod/peekaview/Patch_IsoCell.java`
 
@@ -92,10 +96,15 @@ through to vanilla.
 
 ### Fallthrough conditions
 
-- `!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()` (cutaway gate)
+- `!PeekAViewMod.isActiveCutawayForCurrentRenderPlayer()` (cutaway
+  gate; covers `enabled`, `cutawayEnabled`, aim-stance, vehicle-on/off)
 - `cell == null || player == null || square == null`
 - `playerIndex < 0 || playerIndex >= MAX_PLAYERS`
-- `PeekAViewMod.range <= MIN_RANGE` — vanilla pass-through
+- `PeekAViewMod.isCameraPlayerIndoor()` — indoor falls back to
+  vanilla 5-tile raster (the extension's visible effect inside
+  small rooms is too small to be worth the per-frame work)
+- `PeekAViewMod.range <= MIN_RANGE` — vanilla pass-through at
+  slider value 5
 - Any `Throwable` (logged via `PeekAViewMod.trace`)
 
 ## Cache
@@ -409,3 +418,20 @@ Restore:
 `enableStencilTest()` / `enableAlphaTest()` are not explicitly
 disabled — vanilla already had them enabled before our `OnExit`, and
 downstream passes expect them to remain on.
+
+---
+
+# Patch 3 — `Patch_renderInternal` (stair view)
+
+**Patched method:** `zombie.iso.IsoCell.renderInternal`
+
+Non-FBO mirror of `Patch_FBORenderCell.Patch_renderInternal`. Active
+when `PerformanceSettings.fboRenderChunk == false`. Per-frame logic is
+identical: gate on `FakeWindow.isReady(playerIndex)`, swap camera /
+character / square / private-field values to the upper-floor target,
+restore on `@OnExit`.
+
+The detailed coordination model — `FakeWindow` ThreadLocal, reflective
+field write of `x/y/z`, read-path shadow on the getters — lives in
+[`Stair_feature.md`](Stair_feature.md). This section only documents
+the IsoCell-specific entry point.

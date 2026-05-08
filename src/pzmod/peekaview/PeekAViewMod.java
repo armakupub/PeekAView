@@ -2,6 +2,9 @@ package pzmod.peekaview;
 
 import me.zed_0xff.zombie_buddy.Exposer;
 
+import java.util.ArrayList;
+
+import zombie.ZomboidFileSystem;
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
@@ -19,7 +22,7 @@ public class PeekAViewMod {
 
     public static final int MIN_TREE_FADE_RANGE = 5;
     public static final int MAX_TREE_FADE_RANGE = 25;
-    public static final int DEFAULT_TREE_FADE_RANGE = 20;
+    public static final int DEFAULT_TREE_FADE_RANGE = 15;
 
     // Speed range for Patch_isTranslucentTree's fade boost. Below
     // MIN: pure vanilla alphaStep (no boost). Between MIN and CAP:
@@ -30,6 +33,7 @@ public class PeekAViewMod {
 
     // volatile: render thread reads; Lua UI thread writes via setters.
     public static volatile boolean enabled = true;
+    public static volatile boolean cutawayEnabled = true;
     public static volatile int range = DEFAULT_RANGE;
     public static volatile int treeFadeRange = DEFAULT_TREE_FADE_RANGE;
     public static volatile boolean fixB42Adjacency = true;
@@ -42,6 +46,7 @@ public class PeekAViewMod {
     public static volatile boolean cutawayActiveInVehicle = true;
     public static volatile boolean aimStanceOnly = false;
     public static volatile boolean fadeNWTrees = true;
+    public static volatile boolean stairEnabled = true;
     // Per-frame |vehicle.currentSpeedKmHour|, written in
     // refreshActiveCache. Read by Patch_isTranslucentTree for the
     // speed-proportional fade boost. 0f outside a vehicle.
@@ -51,12 +56,13 @@ public class PeekAViewMod {
     // the forward direction so the cone follows direction-of-travel
     // when reversing.
     public static volatile boolean isVehicleReversing = false;
-    // Diagnostic trace rate-limit. Public so inlined patch advice can
-    // read/write from the target class's access context.
-    public static volatile long lastTraceMs = 0L;
 
     public static void setEnabled(boolean v) {
         enabled = v;
+    }
+
+    public static void setCutawayEnabled(boolean v) {
+        cutawayEnabled = v;
     }
 
     public static void setRange(int v) {
@@ -89,6 +95,98 @@ public class PeekAViewMod {
         fadeNWTrees = v;
     }
 
+    public static void setStairEnabled(boolean v) {
+        stairEnabled = v;
+    }
+
+    // Once-per-JVM trace flags for first detection so console.txt shows a
+    // clear signal that a gate engaged. Separate from the detection
+    // result; the result itself is recomputed each call.
+    private static volatile boolean externalStairFeatureTraceLogged = false;
+    private static volatile boolean peekAViewPhantomTraceLogged = false;
+
+    // Detection of an external stair-view feature in the active mod set:
+    // upstream Workshop Staircast (id "Staircast" by copiumsawsed) or its
+    // standalone read-path repo (id "StaircastRP", armakupub). Either one
+    // owns the stair-view render path and PeekAView yields its stair
+    // feature when one is present.
+    //
+    // mod.info already declares incompatible=StaircastRP, so the
+    // StaircastRP match is a phantom-safety net rather than a normal-path
+    // gate: a JVM session that activated StaircastRP earlier and then
+    // loaded a save with PeekAView (without StaircastRP) leaves
+    // StaircastRP's @Patch advice woven in via ZB's global registry. The
+    // mod-list match here is live (per save), so once StaircastRP is no
+    // longer active the gate releases.
+    //
+    // Probed before any FakeWindow mutation in Patch_IsoWorld.computeFake;
+    // mutating x/y/z on a non-render thread without the read-path shadow
+    // risks the updateFalling infinite-loop / character death.
+    //
+    // Reads the live session's mod list from ZomboidFileSystem.
+    // Class.forName looked tempting (one classloader hashmap lookup) but
+    // a class loaded by a prior save's mod activation stays in the
+    // classloader for the JVM lifetime even after that mod is disabled.
+    // PZ shares one JVM across world reloads. getModIDs() returns the
+    // list populated by the current save's loadMods() call, so it tracks
+    // runtime mod activation correctly.
+    public static boolean isExternalStairFeatureActive() {
+        boolean detected = false;
+        try {
+            ArrayList<String> modIds = ZomboidFileSystem.instance.getModIDs();
+            if (modIds != null) {
+                for (int i = 0, n = modIds.size(); i < n; i++) {
+                    String id = modIds.get(i);
+                    if ("Staircast".equals(id) || "StaircastRP".equals(id)) {
+                        detected = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            detected = false;
+        }
+        if (detected && !externalStairFeatureTraceLogged) {
+            externalStairFeatureTraceLogged = true;
+            trace("External stair feature detected — stair view yields");
+        }
+        return detected;
+    }
+
+    // Self-check against ZombieBuddy advice persistence (filed as
+    // zed-0xff/ZombieBuddy#13): once ZB scans this mod's @Patch classes,
+    // they stay in the global registry for the JVM lifetime even after
+    // PeekAView is removed from the active mod set. Without this gate,
+    // cutaway / tree-fade / stair view would keep firing in saves the
+    // user explicitly loaded without PeekAView. Reading getModIDs() once
+    // per refreshActiveCache (cutaway, tree-fade) and once per
+    // computeFake call (stair view) is cheap; the linear scan over a
+    // typical 20-50-mod list is negligible against the render cost it
+    // gates. Returns true on detection failure so legitimate sessions
+    // never lose features when getModIDs throws.
+    public static boolean isPeekAViewActive() {
+        boolean active = true;
+        try {
+            ArrayList<String> modIds = ZomboidFileSystem.instance.getModIDs();
+            if (modIds != null) {
+                active = false;
+                for (int i = 0, n = modIds.size(); i < n; i++) {
+                    if ("PeekAView".equals(modIds.get(i))) {
+                        active = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            active = true;
+        }
+        if (!active && !peekAViewPhantomTraceLogged) {
+            peekAViewPhantomTraceLogged = true;
+            trace("PeekAView not in active mod set — patches yield (ZB advice persists across mod-list changes within the same JVM)");
+        }
+        return active;
+    }
+
     // Per-frame memo for the two gates. Both gates share the same
     // cache key — `(frameCount, playerIndex)` — and refreshActiveCache
     // computes both result slots in one pass to avoid two recomputes.
@@ -100,16 +198,24 @@ public class PeekAViewMod {
     public static volatile boolean activeCacheCutaway = false;
     public static volatile boolean activeCacheTreeFade = false;
 
-    // Cutaway-side gate (POI fan, cutawayVisit, shouldCutaway,
-    // isAdjacentToOrphanStructure). Honors aimStanceOnly and
-    // cutawayActiveInVehicle.
+    // Cutaway-side gate consumed by Patch_GetSquaresAroundPlayerSquare
+    // and Patch_cutawayVisit. Honors enabled, cutawayEnabled,
+    // aimStanceOnly, and cutawayActiveInVehicle. The B42-fix patches
+    // (Patch_shouldCutaway, Patch_isAdjacentToOrphanStructure) check
+    // those flags individually instead because they intentionally
+    // ignore aimStanceOnly — the vanilla B42 bug exists at vanilla
+    // cutaway range too, so the fix runs regardless of stance.
     public static boolean isActiveCutawayForCurrentRenderPlayer() {
         refreshActiveCache();
         return activeCacheCutaway;
     }
 
-    // Tree-fade gate (isTranslucentTree, DrawStencilMask). Master-
-    // toggle only — aim-stance and vehicle context don't gate it.
+    // Tree-fade gate consumed by Patch_isTranslucentTree and
+    // Patch_DrawStencilMask. Honors only `enabled`; the per-section
+    // toggle `fadeNWTrees` is checked in the patch bodies, and
+    // aim-stance / vehicle context don't gate tree-fade (the
+    // per-frame cost is cheap and Patch_isTranslucentTree's
+    // speed-snap handles fast-driving visuals).
     public static boolean isActiveTreeFadeForCurrentRenderPlayer() {
         refreshActiveCache();
         return activeCacheTreeFade;
@@ -125,6 +231,11 @@ public class PeekAViewMod {
         activeCachePlayerIndex = pIdx;
 
         if (!enabled) {
+            activeCacheCutaway = false;
+            activeCacheTreeFade = false;
+            return;
+        }
+        if (!isPeekAViewActive()) {
             activeCacheCutaway = false;
             activeCacheTreeFade = false;
             return;
@@ -160,13 +271,13 @@ public class PeekAViewMod {
             currentCameraPlayerConeDot = -0.2f;
         }
 
-        // Cutaway: aim-stance gate, then vehicle binary toggle.
-        // Tree-fade: master toggle owns it; no aim-stance, no
-        // vehicle gate (its own per-frame cost is cheap and the
-        // speed-snap in Patch_isTranslucentTree handles fast-driving
-        // visuals).
+        // Cutaway: section enable, then aim-stance gate, then vehicle
+        // binary toggle. Tree-fade: master toggle owns it; no
+        // aim-stance, no vehicle gate (its own per-frame cost is cheap
+        // and the speed-snap in Patch_isTranslucentTree handles fast-
+        // driving visuals).
         boolean aimBlocks = aimStanceOnly && !p.isAiming();
-        if (aimBlocks) {
+        if (!cutawayEnabled || aimBlocks) {
             activeCacheCutaway = false;
         } else if (inVehicle) {
             activeCacheCutaway = cutawayActiveInVehicle;
@@ -177,8 +288,14 @@ public class PeekAViewMod {
     }
 
     // True iff the rendering player's square is inside a room.
-    // Outdoor-only gate for both B42-fix patches and both tree-fade
-    // patches.
+    // Outdoor-only gate consumed by:
+    //   - Patch_GetSquaresAroundPlayerSquare (cutaway extension;
+    //     indoor falls back to vanilla 5-tile raster)
+    //   - Patch_DrawStencilMask, Patch_isTranslucentTree (tree-fade)
+    //   - Patch_shouldCutaway, Patch_isAdjacentToOrphanStructure
+    //     (B42 fix)
+    // The stair view feature does NOT consult this — its gates run
+    // inside Patch_IsoWorld.computeFake.
     public static boolean isCameraPlayerIndoor() {
         IsoGridSquare camSq = IsoCamera.frameState.camCharacterSquare;
         return camSq != null && camSq.isInARoom();

@@ -15,6 +15,7 @@ import zombie.iso.IsoCell;
 import zombie.iso.IsoUtils;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.areas.IsoRoom;
 import zombie.iso.objects.IsoTree;
 
 public class Patch_IsoCell {
@@ -91,6 +92,11 @@ public class Patch_IsoCell {
 
                 int playerIndex = IsoCamera.frameState.playerIndex;
                 if (playerIndex < 0 || playerIndex >= MAX_PLAYERS) return false;
+
+                // Indoor: vanilla's 5-tile cutaway is enough, the
+                // extension barely changes anything visible there.
+                // Fall through so vanilla runs unmodified.
+                if (PeekAViewMod.isCameraPlayerIndoor()) return false;
 
                 // Slider at MIN_RANGE = vanilla cutaway. Fall through
                 // so vanilla's 10×10 raster + diamond-half-width-4.5
@@ -404,6 +410,136 @@ public class Patch_IsoCell {
                 IndieGL.glAlphaFunc(519, 0.0f);
             } catch (Throwable t) {
                 PeekAViewMod.trace("Patch_DrawStencilMask exit error", t);
+            }
+        }
+    }
+
+    // == Stair feature ==
+    // Non-FBO render-pass swap: same idea as Patch_FBORenderCell.Patch_renderInternal
+    // but on the legacy IsoCell path. Active only when fboRenderChunk is off.
+    @Patch(className = "zombie.iso.IsoCell", methodName = "renderInternal")
+    public static class Patch_renderInternal {
+
+        @Patch.OnEnter
+        public static void enter(
+                @Patch.Local("opened") boolean opened,
+                @Patch.Local("idx") int idx,
+                @Patch.Local("savedX") float savedX,
+                @Patch.Local("savedY") float savedY,
+                @Patch.Local("savedZ") float savedZ,
+                @Patch.Local("savedSquare") IsoGridSquare savedSquare,
+                @Patch.Local("savedCurrent") IsoGridSquare savedCurrent,
+                @Patch.Local("currentSwapped") boolean currentSwapped,
+                @Patch.Local("posMutated") boolean posMutated,
+                @Patch.Local("sqSwapped") boolean sqSwapped,
+                @Patch.Local("savedRoom") IsoRoom savedRoom,
+                @Patch.Local("savedRoomId") long savedRoomId,
+                @Patch.Local("savedExterior") boolean savedExterior) {
+            try {
+                IsoCamera.FrameState fs = IsoCamera.frameState;
+                idx = fs.playerIndex;
+                if (!FakeWindow.isReady(idx)) return;
+
+                FakeFrameState ffs = FakeWindow.get(idx);
+                if (ffs == null) return;
+
+                // Captures only — commit opened=true immediately after so
+                // any throw further down still hits exit cleanup. See
+                // FBORenderCell.Patch_renderInternal for the full ordering
+                // rationale (mirror of this patch).
+                savedX = fs.camCharacterX;
+                savedY = fs.camCharacterY;
+                savedZ = fs.camCharacterZ;
+                savedSquare = fs.camCharacterSquare;
+                opened = true;
+                FakeWindow.renderingFake.set(ffs);
+
+                fs.camCharacterX = ffs.fakePos.x;
+                fs.camCharacterY = ffs.fakePos.y;
+                fs.camCharacterZ = ffs.fakePos.z;
+                fs.camCharacterSquare = ffs.fakeSquare;
+
+                if (ffs.camChar != null && ffs.fakeSquare != null) {
+                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    ffs.camChar.setCurrent(ffs.fakeSquare);
+                    currentSwapped = true;
+                }
+
+                // Direct-field write of x/y/z bypasses setX/Y/Z (which would
+                // also touch nx, scriptnx and break stair-climb prediction).
+                // fieldMutated.set(1) BEFORE writeFakePos so non-render
+                // readers see the shadow during the gap. Rollback on
+                // Reflection failure.
+                if (ffs.camChar != null) {
+                    FakeWindow.fieldMutated.set(idx, 1);
+                    if (FakeWindow.writeFakePos(ffs.camChar, ffs.fakePos.x, ffs.fakePos.y, ffs.fakePos.z)) {
+                        posMutated = true;
+                    } else {
+                        FakeWindow.fieldMutated.set(idx, 0);
+                    }
+                }
+
+                IsoGridSquare fake = ffs.fakeSquare;
+                IsoGridSquare floor = ffs.floorSquare;
+                if (fake != null && floor != null && fake.room == null && floor.room != null) {
+                    savedRoom = fake.room;
+                    savedRoomId = fake.roomId;
+                    savedExterior = fake.getProperties().has(IsoFlagType.exterior);
+                    sqSwapped = true;
+                    fake.room = floor.room;
+                    fake.roomId = floor.getRoomID();
+                    if (savedExterior) {
+                        fake.getProperties().unset(IsoFlagType.exterior);
+                    }
+                }
+            } catch (Throwable t) {
+                PeekAViewMod.trace("stair: IsoCell.renderInternal enter failed", t);
+            }
+        }
+
+        @Patch.OnExit(onThrowable = Throwable.class)
+        public static void exit(
+                @Patch.Local("opened") boolean opened,
+                @Patch.Local("idx") int idx,
+                @Patch.Local("savedX") float savedX,
+                @Patch.Local("savedY") float savedY,
+                @Patch.Local("savedZ") float savedZ,
+                @Patch.Local("savedSquare") IsoGridSquare savedSquare,
+                @Patch.Local("savedCurrent") IsoGridSquare savedCurrent,
+                @Patch.Local("currentSwapped") boolean currentSwapped,
+                @Patch.Local("posMutated") boolean posMutated,
+                @Patch.Local("sqSwapped") boolean sqSwapped,
+                @Patch.Local("savedRoom") IsoRoom savedRoom,
+                @Patch.Local("savedRoomId") long savedRoomId,
+                @Patch.Local("savedExterior") boolean savedExterior) {
+            if (!opened) return;
+            try {
+                IsoCamera.FrameState fs = IsoCamera.frameState;
+                fs.camCharacterX = savedX;
+                fs.camCharacterY = savedY;
+                fs.camCharacterZ = savedZ;
+                fs.camCharacterSquare = savedSquare;
+
+                FakeFrameState ffs = FakeWindow.get(idx);
+                if (ffs != null) {
+                    if (posMutated && ffs.camChar != null) {
+                        FakeWindow.writeRealPos(ffs.camChar, savedX, savedY, savedZ);
+                        FakeWindow.fieldMutated.set(idx, 0);
+                    }
+                    if (currentSwapped && ffs.camChar != null) {
+                        ffs.camChar.setCurrent(savedCurrent);
+                    }
+                    if (sqSwapped && ffs.fakeSquare != null) {
+                        IsoGridSquare fake = ffs.fakeSquare;
+                        fake.room = savedRoom;
+                        fake.roomId = savedRoomId;
+                        if (savedExterior) {
+                            fake.getProperties().set(IsoFlagType.exterior);
+                        }
+                    }
+                }
+            } finally {
+                FakeWindow.renderingFake.remove();
             }
         }
     }
