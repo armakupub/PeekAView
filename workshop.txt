@@ -53,13 +53,13 @@ description=
 description=[h1]Attribution[/h1]
 description=[list]
 description=[*][b]Cutaway-on-stairs idea + FakeFrameState pattern + choice of patched render classes[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, original Workshop mod).
-description=[*][b]Read-path implementation[/b] (reflective x/y/z field-write + ThreadLocal-gated shadow on IsoMovingObject getters): first published as our standalone fork [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
-description=[*][b]PeekAView extensions on the staircast-rp foundation[/b]: stair-tile latch, cone-vision zombie alpha override with smooth fade-out, getModIDs-based external-stair detection, self-check, pause-resistant freeze, multi-patch ordering fixes.
+description=[*][b]Read-path implementation fork[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+description=[*][b]PeekAView extensions on the staircast-rp foundation[/b]: upper-floor zombies stay visible throughout the climb, as long as they're in your character's line of sight.
 description=[/list]
 description=
 description=[hr][/hr]
 description=
 description=Workshop ID: 3710281407
 description=Mod ID: PeekAView
-tags=Build 42;Balance;Realistic;QoL;WIP
+tags=Build 42;Balance;Multiplayer;Realistic;QoL
 visibility=public

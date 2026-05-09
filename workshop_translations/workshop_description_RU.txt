@@ -50,8 +50,8 @@ PeekAView лицензирован по MIT и полностью открыт. 
 [h1]Атрибуция[/h1]
 [list]
 [*][b]Концепт cutaway-on-stairs + паттерн FakeFrameState + выбор патчей классов рендеринга[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, оригинальный мод из Workshop).
-[*][b]Реализация read-path[/b] (рефлективная запись полей x/y/z + ThreadLocal-gated shadow в геттерах IsoMovingObject): впервые опубликован как мой самостоятельный форк [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
-[*][b]Расширения PeekAView на основе staircast-rp[/b]: stair-tile-latch, переопределение альфы зомби в cone-vision с мягким fade-out, обнаружение external-stair через getModIDs, self-check, freeze, устойчивый к паузе, фиксы порядка multi-patch.
+[*][b]Форк реализации read-path[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+[*][b]Расширения PeekAView на основе staircast-rp[/b]: зомби на верхнем этаже остаются видимыми на протяжении всего подъёма, пока они находятся в поле зрения вашего персонажа.
 [/list]
 
 [hr][/hr]

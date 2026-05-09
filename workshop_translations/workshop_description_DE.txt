@@ -50,8 +50,8 @@ PeekAView steht unter MIT-Lizenz und ist vollständig Open Source. Die Patches b
 [h1]Attribution[/h1]
 [list]
 [*][b]Cutaway-on-stairs-Konzept + FakeFrameState-Pattern + Wahl der gepatchten Render-Klassen[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, ursprünglicher Workshop-Mod).
-[*][b]Read-path-Implementierung[/b] (reflektives x/y/z-Field-Write + ThreadLocal-gegateter Shadow auf IsoMovingObject-Gettern): erstmals veröffentlicht als mein eigenständiger Fork [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
-[*][b]PeekAView-Erweiterungen auf der staircast-rp-Basis[/b]: Stair-tile-Latch, Cone-Vision-Zombie-Alpha-Override mit weichem Fade-out, getModIDs-basierte External-Stair-Erkennung, Self-Check, Pause-resistenter Freeze, Multi-patch-Ordering-Fixes.
+[*][b]Read-path-Implementierung als Fork[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+[*][b]PeekAView-Erweiterungen auf der staircast-rp-Basis[/b]: Zombies im oberen Stockwerk bleiben während des Aufstiegs sichtbar, solange sie in der Sichtlinie deines Charakters liegen.
 [/list]
 
 [hr][/hr]

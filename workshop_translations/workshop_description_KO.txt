@@ -50,8 +50,8 @@ PeekAView는 MIT 라이선스이며 완전히 오픈 소스입니다. 패치는 
 [h1]저작자 표시[/h1]
 [list]
 [*][b]Cutaway-on-stairs 컨셉 + FakeFrameState 패턴 + 패치된 렌더링 클래스 선택[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, 원본 Workshop 모드).
-[*][b]Read-path 구현[/b] (반사적 x/y/z 필드 쓰기 + IsoMovingObject getter의 ThreadLocal-gated shadow): 처음에는 제 독립 포크 [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT)로 게시되었습니다.
-[*][b]staircast-rp 기반 위 PeekAView 확장[/b]: stair-tile-latch, 부드러운 fade-out과 함께 cone-vision 좀비 알파 오버라이드, getModIDs 기반 외부 stair 감지, self-check, 일시정지에 강한 freeze, multi-patch 순서 수정.
+[*][b]Read-path 구현 포크[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+[*][b]staircast-rp 기반 위 PeekAView 확장[/b]: 위층 좀비는 캐릭터의 시야 안에 있는 한 오르는 동안 계속 보입니다.
 [/list]
 
 [hr][/hr]

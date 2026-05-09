@@ -50,8 +50,8 @@ PeekAView MIT lisanslı ve tamamen açık kaynaktır. Yamalar yalnızca belirli 
 [h1]Atıf[/h1]
 [list]
 [*][b]Cutaway-on-stairs konsepti + FakeFrameState deseni + yamalı render sınıflarının seçimi[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, orijinal Workshop modu).
-[*][b]Read-path uygulaması[/b] (yansımalı x/y/z alan yazımı + IsoMovingObject getter'larında ThreadLocal-gated shadow): ilk olarak bağımsız fork'um [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT) olarak yayımlandı.
-[*][b]staircast-rp temeli üzerine PeekAView eklentileri[/b]: stair-tile-latch, cone-vision zombie alpha override yumuşak fade-out ile, getModIDs tabanlı external-stair algılama, self-check, duraklamaya dayanıklı freeze, multi-patch sıralama düzeltmeleri.
+[*][b]Read-path uygulamasının fork'u[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
+[*][b]staircast-rp temeli üzerine PeekAView eklentileri[/b]: üst kat zombileri, karakterinizin görüş hattında oldukları sürece tırmanış boyunca görünür kalır.
 [/list]
 
 [hr][/hr]
