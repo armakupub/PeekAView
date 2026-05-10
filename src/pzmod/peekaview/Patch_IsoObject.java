@@ -35,6 +35,37 @@ import zombie.iso.IsoObject;
 // turn-around-and-things-fade behavior they asked for.
 public class Patch_IsoObject {
 
+    public static final int CLIMB_GRACE_FRAMES = 30;
+
+    // True while the rendering player is mid-climb or in the grace
+    // window after one. FakeWindow.get(pIdx) != null is unusable as
+    // a gate — that slot is allocated once and never cleared, so it
+    // would latch permanently after the first climb of a session.
+    // Four indicators OR'd together: latch armed, recent strict
+    // activation, recent frameCounter commit, or current square is
+    // a stair / landing tile.
+    public static boolean isClimbing(int pIdx) {
+        FakeFrameState ffs = FakeWindow.get(pIdx);
+        if (ffs == null) return camOnStairPath();
+        if (ffs.stairLatchArmed) return true;
+        int frame = IsoCamera.frameState.frameCount;
+        if (ffs.lastStrictActivationFrame >= 0
+                && frame - ffs.lastStrictActivationFrame <= CLIMB_GRACE_FRAMES) {
+            return true;
+        }
+        if (ffs.frameCounter >= 0
+                && frame - ffs.frameCounter <= CLIMB_GRACE_FRAMES) {
+            return true;
+        }
+        return camOnStairPath();
+    }
+
+    public static boolean camOnStairPath() {
+        IsoGridSquare camSq = IsoCamera.frameState.camCharacterSquare;
+        if (camSq == null) return false;
+        return camSq.HasStairs() || camSq.hasFloorAtTopOfStairs();
+    }
+
     @Patch(className = "zombie.iso.IsoObject", methodName = "getAlpha")
     public static class Patch_getAlpha {
 

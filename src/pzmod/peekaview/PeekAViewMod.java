@@ -37,7 +37,7 @@ public class PeekAViewMod {
     public static volatile boolean cutawayEnabled = true;
     public static volatile int range = DEFAULT_RANGE;
     public static volatile int treeFadeRange = DEFAULT_TREE_FADE_RANGE;
-    public static volatile boolean fixB42Adjacency = false;
+    public static volatile boolean fixB42Adjacency = true;
     // When true (default), wall cutaway runs in vehicles regardless
     // of speed. When false, cutaway is off in any vehicle. Replaces
     // the prior km/h slider — all-or-nothing matches how users

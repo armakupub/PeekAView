@@ -141,6 +141,15 @@ Release conditions:
   cleared on the same frame. No multi-frame ramp — the moment the
   drop is detected, the latch yields and the window closes through
   the hysteresis path.
+- **Landing arrival**: when the camChar steps onto a tile with
+  `hasFloorAtTopOfStairs() == true` whose Z matches `fakeSquare.z`,
+  the climb has reached its destination. `lastStrictActivationFrame`
+  and `lastZIncreaseFrame` are reset to `-1` and the local
+  `recentlyActive` is force-cleared the same frame, so the fake
+  window deactivates immediately instead of dragging the upper-floor
+  view through the 30-frame hysteresis after arrival. Without this
+  clip the room behind a corner stair flashes briefly into view as
+  the player walks off the top step.
 
 The gate at `if (!strictPass && !recentlyActive && !stairLatch) return`
 combines all three keep-open paths. Strict-pass is itself gated on
@@ -152,7 +161,11 @@ on stair tiles.
 On full pass, `FakeWindow.data[playerIndex]` is filled with:
 
 - `realPos` / `realSquare` — the player's actual world position
-- `fakePos` / `fakeSquare` — the upper-floor target (`z + 1`)
+- `fakePos` / `fakeSquare` — the upper-floor target (`z + 1`),
+  preferred to be the landing the player walks onto rather than the
+  cell directly above the stair tile (those differ for stairs that
+  end at a building corner; the cell above can sit one tile inside
+  the room and would render the interior visible mid-climb)
 - `floorSquare` — the upper-floor anchor whose `room` / `roomId` /
   `exterior` flags are inherited onto `fakeSquare` during the swap
 - `frameCounter` — `IsoCamera.frameState.frameCount`

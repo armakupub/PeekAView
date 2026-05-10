@@ -119,7 +119,21 @@ public class Patch_IsoWorld {
             // the stairs releases the latch immediately, falling back
             // to the 30-frame off-stair hysteresis.
             boolean onStair = square.HasStairs();
-            if (!onStair && ffs != null) ffs.stairLatchArmed = false;
+            if (!onStair && ffs != null) {
+                ffs.stairLatchArmed = false;
+                // Clip recentlyActive when the player has stepped
+                // onto a landing at the fake-target Z — climb is
+                // done, the hysteresis would otherwise keep the
+                // fake pass rendering the upper floor visible for
+                // ~30 frames after arrival.
+                if (square.hasFloorAtTopOfStairs()
+                        && ffs.fakeSquare != null
+                        && square.z >= ffs.fakeSquare.z) {
+                    ffs.lastStrictActivationFrame = -1;
+                    ffs.lastZIncreaseFrame = -1;
+                    recentlyActive = false;
+                }
+            }
 
             float charX = fs.camCharacterX;
             float charY = fs.camCharacterY;
@@ -191,8 +205,11 @@ public class Patch_IsoWorld {
                         square.x - (stairsNorth ? 0 : topOffset),
                         square.y - (stairsNorth ? topOffset : 0),
                         square.z + 1);
+                // Prefer floorSquare (= landing the player walks onto)
+                // over the cell directly above the stair tile, which
+                // can sit one tile inside the building at corner stairs.
                 IsoGridSquare upperSquare = square.getCell().getGridSquare(square.x, square.y, square.z + 1);
-                targetSquare = upperSquare != null ? upperSquare : floorSquare;
+                targetSquare = floorSquare != null ? floorSquare : upperSquare;
             }
             if (floorSquare == null || targetSquare == null) {
                 if ((!recentlyActive && !stairLatch) || ffs.floorSquare == null || ffs.fakeSquare == null) return;

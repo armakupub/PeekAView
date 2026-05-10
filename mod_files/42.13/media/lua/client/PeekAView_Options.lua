@@ -114,7 +114,7 @@ end
 local fixB42Opt = modOptions:addTickBox(
     "fixB42",
     getText("UI_PAV_FixB42Label"),
-    false,
+    true,
     getText("UI_PAV_FixB42Tooltip"))
 fixB42Opt.onChangeApply = function(self, value)
     applyToJava("setFixB42Adjacency", value)

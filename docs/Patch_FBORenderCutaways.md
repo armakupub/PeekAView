@@ -115,6 +115,26 @@ currently rendering player. Matches the intent of the vanilla feature
 (cutaway so the player on a player-built structure stays visible)
 without the bleed.
 
+Two additional override paths layer on top of the distance gate:
+
+**Hoppable-bypass.** Clusters that contain orphan tiles with
+`HoppableN/W` or `TallHoppableN/W` skip the distance gate. Plain
+hoppable sprites have no per-object cut, so the only way they hide
+when the player walks under them is the cluster `playerInRange` path.
+Forcing `shouldCutaway=false` for those clusters would leave railings
+drawn on top of the character on upper-floor decks.
+
+**Climb-stab.** While `Patch_IsoObject.isClimbing(playerIndex)` returns
+true, `shouldCutaway` is forced to `false` for any cluster with at
+least one non-roof orphan tile within `NEAR_PLAYER_RADIUS_TILES = 8`
+of the player. Vanilla `shouldCutaway` reads `fastfloor(camCharacterZ)`
+per call; the stair feature swaps `camCharacterZ` mid-frame, so the
+cluster's `playerInRange` would otherwise toggle frame-to-frame and
+flicker mid-deck tiles next to a stair. Roof orphan tiles
+(`roofHideBuilding != null`) are filtered out — those need to keep
+cutting during a climb so the player can see into the room above.
+Climb-stab runs independently of `fixB42Adjacency`.
+
 ### Advice
 
 `@Patch.OnExit` — reads the result and writes it back if we override:

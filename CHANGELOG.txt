@@ -1,9 +1,9 @@
 Peek a View - Changelog
 =======================
 
-1.4.1 - 2026-05-10
-  - B42 fix improvement: railings on player-built upper-floor decks are now cut away together with the floor tile, so they no longer overdraw the character standing on the floor below. Thanks to samuel.carlin037 on Steam for the report.
-  - The B42 wall-hiding fix is now off by default. The fix is not perfect: at vanilla walls affected by the bug, player-built floors built against those walls stay visible at the facade instead of fading with the cutaway. Existing users keep their saved value; new installs can opt in from the options screen.
+1.4.2 - 2026-05-10
+  - Stair view: smoother climb on player-built stairs that attach to a building's exterior wall. No more brief flash of the room behind the wall during the top-of-climb transition, and decks near the stair stay stable while climbing.
+  - B42 fix: railings on player-built upper-floor decks are cut together with the floor tile, no longer drawn over the character standing below. Thanks to samuel.carlin037 on Steam for the report.
   - Default tree-fade range lowered from 20 to 15. Existing users keep their saved value.
 
 1.4.0 - 2026-05-09

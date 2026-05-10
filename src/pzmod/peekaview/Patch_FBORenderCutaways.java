@@ -90,18 +90,41 @@ public class Patch_FBORenderCutaways {
             }
         }
 
+        // Climb-stab radius. Cluster cutaway is suppressed during
+        // isClimbing only for clusters whose orphan tiles include at
+        // least one non-roof tile within this radius of the player —
+        // far clusters keep vanilla behavior, roof clusters keep
+        // cutting so the player can see into the room above.
+        public static final int NEAR_PLAYER_RADIUS_TILES = 8;
+        public static final int NEAR_PLAYER_RADIUS_SQ =
+                NEAR_PLAYER_RADIUS_TILES * NEAR_PLAYER_RADIUS_TILES;
+
         @Patch.OnExit
         public static void exit(@Patch.This Object self,
                                 @Patch.Return(readOnly = false) boolean result) {
             if (!result) return;
             try {
+                if (!PeekAViewMod.enabled) return;
+                if (!PeekAViewMod.cutawayEnabled) return;
+                // Climb-stab runs independently of fixB42Adjacency:
+                // vanilla cluster cutaway oscillates per frame during
+                // stair climbs because checkOrphanStructures reads a
+                // camCharacterZ the stair feature swaps in and out
+                // mid-frame, producing mid-deck flicker even when the
+                // B42 fix is off.
+                int pIdx = IsoCamera.frameState.playerIndex;
+                if (Patch_IsoObject.isClimbing(pIdx)) {
+                    if (!initialized) tryInit();
+                    if (initialized && clusterHasNonRoofOrphanNearPlayer(self)) {
+                        result = false;
+                        return;
+                    }
+                }
                 // Master switch + cutaway-section enable + own checkbox.
                 // No aimStanceOnly gate: the vanilla B42 adjacency bug
                 // exists at vanilla cutaway range too, so the fix must
                 // run regardless of stance — otherwise the bug pops
                 // in/out with aiming.
-                if (!PeekAViewMod.enabled) return;
-                if (!PeekAViewMod.cutawayEnabled) return;
                 if (!PeekAViewMod.fixB42Adjacency) return;
                 // Outdoor-only: indoor we let vanilla cutaway flow
                 // through to avoid B42-fix bleed-throughs of
@@ -164,6 +187,47 @@ public class Patch_FBORenderCutaways {
                         return true;
                     }
                 }
+            }
+            return false;
+        }
+
+        // True if the cluster contains at least one orphan tile within
+        // NEAR_PLAYER_RADIUS_TILES of the rendering player AND that
+        // tile is not a roof-empty-outside classification. Roof tiles
+        // belong to vanilla buildings and need to keep cutting during
+        // climb so the room above is visible.
+        public static boolean clusterHasNonRoofOrphanNearPlayer(Object orphanStructures) {
+            long mask = Accessor.tryGet(orphanStructures, FIELD_IS_ORPHAN_SQUARE, 0L);
+            if (mask == 0L) return false;
+            Object cldRaw = Accessor.tryGet(orphanStructures, FIELD_CHUNK_LEVEL_DATA, null);
+            if (!(cldRaw instanceof FBORenderCutaways.ChunkLevelData)) return false;
+            FBORenderCutaways.ChunkLevelData cld = (FBORenderCutaways.ChunkLevelData) cldRaw;
+            FBORenderCutaways.ChunkLevelsData levelsData = cld.levelsData;
+            if (levelsData == null) return false;
+            IsoChunk chunk = levelsData.chunk;
+            if (chunk == null) return false;
+            int level = cld.level;
+
+            int px = PZMath.fastfloor(IsoCamera.frameState.camCharacterX);
+            int py = PZMath.fastfloor(IsoCamera.frameState.camCharacterY);
+            int cwx = chunk.wx * 8;
+            int cwy = chunk.wy * 8;
+
+            long m = mask;
+            while (m != 0L) {
+                int idx = Long.numberOfTrailingZeros(m);
+                m &= m - 1L;
+                int lx = idx & 7;
+                int ly = idx >>> 3;
+                int wx = cwx + lx;
+                int wy = cwy + ly;
+                int dx = wx - px;
+                int dy = wy - py;
+                if (dx * dx + dy * dy > NEAR_PLAYER_RADIUS_SQ) continue;
+                IsoGridSquare sq = chunk.getGridSquare(lx, ly, level);
+                if (sq == null) continue;
+                if (sq.roofHideBuilding != null) continue;
+                return true;
             }
             return false;
         }
