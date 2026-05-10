@@ -5,12 +5,17 @@ import java.lang.reflect.Field;
 import me.zed_0xff.zombie_buddy.Accessor;
 import me.zed_0xff.zombie_buddy.Patch;
 
+import java.util.List;
+
 import zombie.core.math.PZMath;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoChunk;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.IsoObject;
+import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.fboRenderChunk.FBORenderCutaways;
+import zombie.iso.sprite.IsoSprite;
 
 public class Patch_FBORenderCutaways {
 
@@ -105,10 +110,62 @@ public class Patch_FBORenderCutaways {
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (!initialized) tryInit();
                 if (!initialized) return;
+                // Skip the override when the cluster contains
+                // hoppable orphan tiles (player-built railings,
+                // low fences). Plain HoppableN/W has no per-object
+                // sprite cut, so the only mechanism that hides them
+                // when the player walks under them is the cluster
+                // playerInRange path. Forcing shouldCutaway=false
+                // for those clusters leaves railings drawn on top
+                // of the character. Adjacent vanilla walls remain
+                // protected by Patch_isAdjacentToOrphanStructure,
+                // so letting the cluster go in-range here only
+                // affects the orphan tiles themselves.
+                if (clusterContainsHoppable(self)) return;
                 if (isTooFarFromPlayer(self)) result = false;
             } catch (Throwable t) {
                 PeekAViewMod.trace("Patch_shouldCutaway exit error", t);
             }
+        }
+
+        public static boolean clusterContainsHoppable(Object orphanStructures) {
+            long mask = Accessor.tryGet(orphanStructures, FIELD_IS_ORPHAN_SQUARE, 0L);
+            if (mask == 0L) return false;
+            Object cldRaw = Accessor.tryGet(orphanStructures, FIELD_CHUNK_LEVEL_DATA, null);
+            if (!(cldRaw instanceof FBORenderCutaways.ChunkLevelData)) return false;
+            FBORenderCutaways.ChunkLevelData cld = (FBORenderCutaways.ChunkLevelData) cldRaw;
+            FBORenderCutaways.ChunkLevelsData levelsData = cld.levelsData;
+            if (levelsData == null) return false;
+            IsoChunk chunk = levelsData.chunk;
+            if (chunk == null) return false;
+
+            int level = cld.level;
+
+            // chunk.getGridSquare takes chunk-local x,y (0..7); the
+            // bit index decodes to local lx = idx&7, ly = idx>>>3.
+            long m = mask;
+            while (m != 0L) {
+                int idx = Long.numberOfTrailingZeros(m);
+                m &= m - 1L;
+                int lx = idx & 7;
+                int ly = idx >>> 3;
+                IsoGridSquare sq = chunk.getGridSquare(lx, ly, level);
+                if (sq == null) continue;
+                List<IsoObject> objs = sq.getObjects();
+                for (int i = 0; i < objs.size(); i++) {
+                    IsoObject obj = objs.get(i);
+                    if (obj == null) continue;
+                    IsoSprite sprite = obj.getSprite();
+                    if (sprite == null) continue;
+                    if (sprite.getProperties().has(IsoFlagType.HoppableN)
+                            || sprite.getProperties().has(IsoFlagType.HoppableW)
+                            || sprite.getProperties().has(IsoFlagType.TallHoppableN)
+                            || sprite.getProperties().has(IsoFlagType.TallHoppableW)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         // True iff no orphan tile in this cluster is within RADIUS_TILES

@@ -22,7 +22,7 @@ public class PeekAViewMod {
 
     public static final int MIN_TREE_FADE_RANGE = 15;
     public static final int MAX_TREE_FADE_RANGE = 25;
-    public static final int DEFAULT_TREE_FADE_RANGE = 20;
+    public static final int DEFAULT_TREE_FADE_RANGE = 15;
 
     // Speed range for Patch_isTranslucentTree's fade boost. Below
     // MIN: pure vanilla alphaStep (no boost). Between MIN and CAP:
@@ -37,7 +37,7 @@ public class PeekAViewMod {
     public static volatile boolean cutawayEnabled = true;
     public static volatile int range = DEFAULT_RANGE;
     public static volatile int treeFadeRange = DEFAULT_TREE_FADE_RANGE;
-    public static volatile boolean fixB42Adjacency = true;
+    public static volatile boolean fixB42Adjacency = false;
     // When true (default), wall cutaway runs in vehicles regardless
     // of speed. When false, cutaway is off in any vehicle. Replaces
     // the prior km/h slider — all-or-nothing matches how users

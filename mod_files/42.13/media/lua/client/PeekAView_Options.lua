@@ -114,7 +114,7 @@ end
 local fixB42Opt = modOptions:addTickBox(
     "fixB42",
     getText("UI_PAV_FixB42Label"),
-    true,
+    false,
     getText("UI_PAV_FixB42Tooltip"))
 fixB42Opt.onChangeApply = function(self, value)
     applyToJava("setFixB42Adjacency", value)
@@ -138,7 +138,7 @@ local treeFadeRangeOpt = modOptions:addSlider(
     "treeFadeRange",
     getText("UI_PAV_TreeFadeRangeLabel"),
     15, 25, 1,
-    20,
+    15,
     getText("UI_PAV_TreeFadeRangeTooltip"))
 treeFadeRangeOpt.onChangeApply = function(self, value)
     applyToJava("setTreeFadeRange", value)

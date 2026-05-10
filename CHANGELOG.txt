@@ -1,6 +1,11 @@
 Peek a View - Changelog
 =======================
 
+1.4.1 - 2026-05-10
+  - B42 fix improvement: railings on player-built upper-floor decks are now cut away together with the floor tile, so they no longer overdraw the character standing on the floor below. Thanks to samuel.carlin037 on Steam for the report.
+  - The B42 wall-hiding fix is now off by default. The fix is not perfect: at vanilla walls affected by the bug, player-built floors built against those walls stay visible at the facade instead of fading with the cutaway. Existing users keep their saved value; new installs can opt in from the options screen.
+  - Default tree-fade range lowered from 20 to 15. Existing users keep their saved value.
+
 1.4.0 - 2026-05-09
   - New "Stair view" section: while climbing stairs, the upper floor renders so you can see what's waiting upstairs. Zombies on the upper floor in your forward view become visible through the climb. If Staircast is also subscribed, PeekAView yields to it.
   - Wall cutaway: own Enable toggle, separate from the master. The "Active only when aiming" tickbox moved into the same section.

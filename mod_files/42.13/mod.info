@@ -5,6 +5,6 @@ id=PeekAView
 description=Wall cutaway, tree fade, and stair view: brings more of what your character sees onto your screen.
 url=
 require=\ZombieBuddy
-modversion=1.4.0
+modversion=1.4.1
 javaJarFile=media/java/client/peekaview.jar
 javaPkgName=pzmod.peekaview
