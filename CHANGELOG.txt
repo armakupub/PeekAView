@@ -1,6 +1,9 @@
 Peek a View - Changelog
 =======================
 
+1.4.3 - 2026-05-11
+  - Bugfix for B42.18: rain no longer disappears mid-climb on outdoor stairs.
+
 1.4.2 - 2026-05-10
   - Stair view: smoother climb on player-built stairs that attach to a building's exterior wall. No more brief flash of the room behind the wall during the top-of-climb transition, and decks near the stair stay stable while climbing.
   - B42 fix: railings on player-built upper-floor decks are cut together with the floor tile, no longer drawn over the character standing below. Thanks to samuel.carlin037 on Steam for the report.

@@ -423,6 +423,54 @@ public class Patch_IsoCell {
     }
 
     // == Stair feature ==
+    // Restore frameState.camCharacterSquare to realSquare for the
+    // duration of IsoCell.update. updateWeatherFx runs inside, and
+    // IsoWeatherFX.update reads camCharacterSquare.has(exterior) to
+    // gate the indoorsAlphaMod ramp; a fakeSquare leftover from the
+    // prior render — common on outdoor stair → upper-floor landing
+    // tiles that aren't marked exterior — would otherwise ramp rain
+    // alpha to zero mid-climb. RECENT_FRAMES > 0 because frameCount
+    // has already been bumped by GameWindow.frameStep when update()
+    // runs, so the strict FakeWindow.isReady equality check misses.
+    @Patch(className = "zombie.iso.IsoCell", methodName = "update")
+    public static class Patch_update {
+
+        private static final int RECENT_FRAMES = 2;
+
+        @Patch.OnEnter
+        public static void enter(
+                @Patch.Local("opened") boolean opened,
+                @Patch.Local("savedSquare") IsoGridSquare savedSquare) {
+            try {
+                IsoCamera.FrameState fs = IsoCamera.frameState;
+                int idx = fs.playerIndex;
+                if (idx < 0 || idx >= FakeWindow.MAX_PLAYERS) return;
+                FakeFrameState ffs = FakeWindow.get(idx);
+                if (ffs == null || ffs.realSquare == null) return;
+                if ((fs.frameCount - ffs.frameCounter) > RECENT_FRAMES) return;
+                if (fs.camCharacterSquare == ffs.realSquare) return;
+                savedSquare = fs.camCharacterSquare;
+                fs.camCharacterSquare = ffs.realSquare;
+                opened = true;
+            } catch (Throwable t) {
+                PeekAViewMod.trace("stair: IsoCell.update enter failed", t);
+            }
+        }
+
+        @Patch.OnExit(onThrowable = Throwable.class)
+        public static void exit(
+                @Patch.Local("opened") boolean opened,
+                @Patch.Local("savedSquare") IsoGridSquare savedSquare) {
+            if (!opened) return;
+            try {
+                IsoCamera.frameState.camCharacterSquare = savedSquare;
+            } catch (Throwable t) {
+                PeekAViewMod.trace("stair: IsoCell.update exit failed", t);
+            }
+        }
+    }
+
+    // == Stair feature ==
     // Non-FBO render-pass swap: same idea as Patch_FBORenderCell.Patch_renderInternal
     // but on the legacy IsoCell path. Active only when fboRenderChunk is off.
     @Patch(className = "zombie.iso.IsoCell", methodName = "renderInternal")
