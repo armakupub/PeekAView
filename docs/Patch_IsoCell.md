@@ -1,6 +1,6 @@
 # Patch_IsoCell
 
-Three patches on `zombie.iso.IsoCell`:
+Four patches on `zombie.iso.IsoCell`:
 
 1. **`Patch_GetSquaresAroundPlayerSquare`** — expands the POI fan that
    seeds building cutaway (cutaway-section toggle, governs the `range`
@@ -10,6 +10,10 @@ Three patches on `zombie.iso.IsoCell`:
 3. **`Patch_renderInternal`** — non-FBO render-pass swap for the stair
    view feature. Mirrors the FBO swap in `Patch_FBORenderCell`. See
    [`Stair_feature.md`](Stair_feature.md).
+4. **`Patch_update`** — reverts `camCharacterSquare` to the real
+   square for the duration of `IsoCell.update`, so the weather FX
+   update inside doesn't ramp outdoor rain alpha to zero mid-climb
+   (stair view feature). See [`Stair_feature.md`](Stair_feature.md).
 
 **File:** `src/pzmod/peekaview/Patch_IsoCell.java`
 
@@ -454,3 +458,55 @@ The detailed coordination model — `FakeWindow` ThreadLocal, reflective
 field write of `x/y/z`, read-path shadow on the getters — lives in
 [`Stair_feature.md`](Stair_feature.md). This section only documents
 the IsoCell-specific entry point.
+
+---
+
+# Patch 4 — `Patch_update`
+
+**Patched method:** `zombie.iso.IsoCell.update`
+
+Revert `IsoCamera.frameState.camCharacterSquare` to `realSquare` for
+the duration of `IsoCell.update`. `IsoCell.update` calls
+`updateWeatherFx`, which inside `IsoWeatherFX.update` reads
+`camCharacterSquare.has(exterior)` to gate the indoor `alphaMod` ramp.
+
+## Why the revert
+
+The stair-view render pass leaves `frameState.camCharacterSquare`
+pointing at the upper-floor `fakeSquare` until the next render pass
+overwrites it. On outdoor stair → upper-floor landings whose top tile
+isn't marked `exterior` (common on B42.18 player-built decks attached
+to a building wall), `IsoWeatherFX.update` reads the leftover
+`fakeSquare`, sees a non-exterior tile, and ramps the indoor
+`alphaMod` toward zero. Rain fades to nothing mid-climb even though
+the player is still on an outdoor stair.
+
+Reverting `camCharacterSquare` to `realSquare` for the duration of
+`update` makes the weather FX use the player's actual exterior state.
+The render pass later in the frame still sees the fake square via the
+normal `Patch_FBORenderCell` / `Patch_IsoCell.Patch_renderInternal`
+swap path.
+
+## Recent-frame gate
+
+```java
+private static final int RECENT_FRAMES = 2;
+
+if ((fs.frameCount - ffs.frameCounter) > RECENT_FRAMES) return;
+```
+
+`FakeWindow.isReady` does a strict equality check
+(`ffs.frameCounter == fs.frameCount`), but by the time `IsoCell.update`
+runs, `GameWindow.frameStep` has already bumped `frameCount`. A
+2-frame tolerance keeps the revert active for the update cycle that
+follows the render pass.
+
+## Identity guard
+
+```java
+if (fs.camCharacterSquare == ffs.realSquare) return;
+```
+
+Skip if no swap actually happened this frame (camChar isn't on a
+stair, or the strict checks failed). Avoids a redundant write and
+unnecessary `opened = true` capture.

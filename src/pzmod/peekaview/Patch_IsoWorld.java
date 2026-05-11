@@ -60,12 +60,10 @@ public class Patch_IsoWorld {
         }
 
         public static void computeFake(IsoWorld self) {
-            // Hard gates first — must run before any FakeWindow mutation.
-            // A pos-mutation that escapes the render window onto the game
-            // thread without the read-path shadow can trigger the
-            // updateFalling infinite-loop and kill the character. All
-            // gates check here so downstream patches inherit the gate
-            // naturally via FakeWindow.isReady going false.
+            // Hard gates first, must run before any FakeWindow mutation.
+            // Gating here means downstream patches inherit the gate
+            // naturally via FakeWindow.isReady going false, without each
+            // patch having to repeat the checks.
             if (!PeekAViewMod.enabled) return;
             if (!PeekAViewMod.stairEnabled) return;
             if (!PeekAViewMod.isPeekAViewActive()) return;

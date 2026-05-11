@@ -272,14 +272,14 @@ Z so their sprites don't visually jump up to the upper-floor plane.
 - **Otherwise**: return `false` (skip), vanilla getter returns
   `this.x` field as usual.
 
-The non-render-thread shadow is the load-bearing piece. PZ's
-`IsoGameCharacter.updateFalling` and helpers (`getHeightAboveFloor`)
-run on the game thread and read both `this.current` and `getZ()`.
-During the brief render window where the private `x/y/z` fields are
-reflectively mutated, an unshadowed game-thread read would see
-fake-Z. `updateFalling` would compare against fake-Z, conclude the
-player is falling from the upper floor, and trigger an infinite
-stair-fall loop documented in the upstream Staircast issue tracker.
+The non-render-thread shadow provides per-thread isolation: if any
+background thread (`LightingThread`, async sound, AI workers) reads
+`getX/Y/Z` or `getCurrentSquare` on the cam-char during the render
+window where the private `x/y/z` fields are reflectively mutated, it
+sees the saved real value rather than the fake. PZ's frame step on
+the game thread runs logic, render, and lighting sequentially, so
+game-thread reads aren't at risk; the shadow protects readers that
+can run independently of the render pass.
 
 ## Lighting and weather uplift
 
@@ -299,6 +299,25 @@ upper-floor's lighting state.
 pass so rain/snow renders at the upper-floor reference plane and
 doesn't clip through the rendered upper floor.
 
+`Patch_initMask` additionally reverts the camChar's `current` square
+to `realSquare` for the duration of the mask init. `PlayerFxMask.initMask`
+calls `player.getMasterRegion()`, which reads `IsoMovingObject.current`
+as a field and bypasses the ThreadLocal-gated getter shadow. Without
+the revert, the region lookup resolves against the upper-floor
+`fakeSquare`; on landings that sit in a fogMask region, this can flip
+`hasMaskToDraw` true and wipe outdoor rain mid-climb. Reverting
+`current` to `realSquare` for the init pass keeps the region lookup
+on the real stair tile.
+
+`Patch_IsoCell.Patch_update` handles the parallel issue on the update
+path: `IsoCell.update` calls `updateWeatherFx`, which reads
+`camCharacterSquare.has(exterior)` to gate the indoor `alphaMod` ramp.
+The leftover `fakeSquare` from the prior render fires that gate on
+non-exterior landings and ramps rain alpha toward zero mid-climb. The
+patch reverts `camCharacterSquare` to `realSquare` for the duration
+of `update`. See [`Patch_IsoCell.md`](Patch_IsoCell.md) Patch 4 for
+the recent-frame gate detail.
+
 ## Why the field write at all
 
 A ThreadLocal-only read-path would already shadow `getX/Y/Z` calls
@@ -316,9 +335,8 @@ The read-path shadow then re-isolates the game thread by returning
 the saved real value when `fieldMutated.get(idx) == 1` and the
 calling thread is not the render thread (no ThreadLocal set).
 
-`writeFakePos` only touches `x`, `y`, `z` — not `nx`, `scriptnx`,
-`lx`, `ly`, `lz` — so stair-climb prediction and interpolation logic
-on the game thread stay consistent with the real position.
+`writeFakePos` only touches `x`, `y`, `z`, skipping `setX/Y/Z`'s
+side effects on `nx`, `scriptnx`, `lx`, `ly`, `lz`.
 
 ## Cross-thread ordering
 
@@ -338,14 +356,13 @@ The flag is set BEFORE `writeFakePos` on every mutate path
 (renderInternal enter, renderPlayers exit, FBORenderTrees init exit,
 IsoPlayer render exit). With the original write-then-flag order, a
 non-render thread reading `getX()` between `writeFakePos` and the
-flag set saw fake-Z via the vanilla getter (shadow not active yet) —
-exactly the read that `updateFalling` does, and the trigger for the
-infinite stair-fall loop. Pre-setting the flag means that during the
-gap the shadow returns `realPos.x` (which still matches the real
-field, since `writeFakePos` hasn't landed yet); after the field
-write lands, the shadow keeps returning `realPos.x` while
-render-path reads via TL get `fakePos.x`. On Reflection failure the
-flag is rolled back to 0.
+flag set saw fake-Z via the vanilla getter (shadow not active yet),
+defeating the per-thread isolation the shadow provides. Pre-setting
+the flag means that during the gap the shadow returns `realPos.x`
+(which still matches the real field, since `writeFakePos` hasn't
+landed yet); after the field write lands, the shadow keeps returning
+`realPos.x` while render-path reads via TL get `fakePos.x`. On
+Reflection failure the flag is rolled back to 0.
 
 Symmetrically on the de-mutate path (renderInternal exit and the
 inverted enters), `writeRealPos` runs BEFORE `fieldMutated.set(idx, 0)`.
@@ -472,5 +489,5 @@ upstream Staircast (which is not under our control), while
   - getModIDs-based external-stair detection (`isExternalStairFeatureActive()`) — replaces `Class.forName`, robust against ZombieBuddy advice persistence.
   - `isPeekAViewActive()` self-check — self-deactivates on save reload after mod-list removal ([ZombieBuddy#13](https://github.com/zed-0xff/ZombieBuddy/issues/13) mitigation).
   - Pause-resistant fake-window freeze — keeps state across the in-game pause boundary using `GameTime.isGamePaused()`.
-  - Multi-patch ordering fixes — flag-set BEFORE reflective `writeFakePos` (closes a sub-µs window where `updateFalling` could see fake-Z and trigger the infinite stair-fall loop).
+  - Multi-patch ordering fixes: flag-set BEFORE reflective `writeFakePos` (closes a sub-µs window where a non-render reader could see fake-Z via the vanilla getter before the shadow activates).
   - Strict-pass `onStair`-gate upfront — prevents `lastStrictActivationFrame` refresh on non-stair indoor floor tiles.

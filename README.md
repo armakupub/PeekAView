@@ -55,7 +55,7 @@ Trees in your character's forward view become translucent so you can see what's 
 | Setting | Range / Default | What it does |
 |---|---|---|
 | Enable | on | Toggles the tree fade feature. |
-| Range | 15–25, default 20 | How far trees fade around the player. Lower values improve performance. |
+| Range | 15–25, default 15 | How far trees fade around the player. Lower values improve performance. |
 
 ## Stair view
 

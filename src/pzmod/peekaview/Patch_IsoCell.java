@@ -521,11 +521,10 @@ public class Patch_IsoCell {
                     currentSwapped = true;
                 }
 
-                // Direct-field write of x/y/z bypasses setX/Y/Z (which would
-                // also touch nx, scriptnx and break stair-climb prediction).
-                // fieldMutated.set(1) BEFORE writeFakePos so non-render
-                // readers see the shadow during the gap. Rollback on
-                // Reflection failure.
+                // Direct-field write of x/y/z skips setX/Y/Z's side
+                // effects on nx, scriptnx, lx, ly, lz. fieldMutated.set(1)
+                // BEFORE writeFakePos so non-render readers see the
+                // shadow during the gap. Rollback on Reflection failure.
                 if (ffs.camChar != null) {
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (FakeWindow.writeFakePos(ffs.camChar, ffs.fakePos.x, ffs.fakePos.y, ffs.fakePos.z)) {

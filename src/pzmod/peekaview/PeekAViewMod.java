@@ -121,8 +121,8 @@ public class PeekAViewMod {
     // longer active the gate releases.
     //
     // Probed before any FakeWindow mutation in Patch_IsoWorld.computeFake;
-    // mutating x/y/z on a non-render thread without the read-path shadow
-    // risks the updateFalling infinite-loop.
+    // running the stair feature in parallel with another stair-render
+    // stack on the same camChar would corrupt the field-mutation handshake.
     //
     // Reads the live session's mod list from ZomboidFileSystem.
     // Class.forName looked tempting (one classloader hashmap lookup) but

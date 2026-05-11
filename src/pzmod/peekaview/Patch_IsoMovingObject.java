@@ -11,11 +11,12 @@ import zombie.iso.IsoMovingObject;
 //     value (upper-floor Z / fakeSquare) so render code sees the
 //     upstairs perspective.
 //   - Non-render thread with field currently mutated by render-pass:
-//     return the saved REAL value so update logic (updateFalling on
-//     game thread, AI/sound/lighting on background threads) doesn't
-//     see the brief fake-window mutation. Without this,
-//     updateFalling reads fake Z while x/y/z fields are mutated and
-//     triggers an infinite stair-fall loop.
+//     return the saved REAL value so concurrent reads from
+//     background threads (LightingThread, async sound, AI workers)
+//     don't see the brief fake-window mutation. PZ's frame step is
+//     sequential on the game thread (logic, render, lighting), so
+//     game-thread reads aren't at risk; background threads can read
+//     independently of the render pass.
 //   - Otherwise: skip, vanilla getter returns the field value.
 public class Patch_IsoMovingObject {
 

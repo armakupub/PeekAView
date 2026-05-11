@@ -176,13 +176,12 @@ public class Patch_FBORenderCell {
                 // Set the visibility flag BEFORE writing fake fields. With
                 // the original (write-then-flag) order, a non-render thread
                 // reading getX between the two ops sees fake-Z via the
-                // vanilla getter (no shadow yet) — exactly the read that
-                // updateFalling does, triggering the infinite stair-fall
-                // loop. Pre-setting the flag means that during the gap the
-                // shadow returns realPos.x, which matches the still-real
-                // field; once writeFakePos lands, the shadow keeps
-                // returning realPos.x while render-path reads via TL get
-                // fakePos.x. Rollback on Reflection failure.
+                // vanilla getter (no shadow yet). Pre-setting the flag
+                // means that during the gap the shadow returns realPos.x,
+                // which matches the still-real field; once writeFakePos
+                // lands, the shadow keeps returning realPos.x while
+                // render-path reads via TL get fakePos.x. Rollback on
+                // Reflection failure.
                 if (ffs.camChar != null) {
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (FakeWindow.writeFakePos(ffs.camChar, ffs.fakePos.x, ffs.fakePos.y, ffs.fakePos.z)) {

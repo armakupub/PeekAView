@@ -21,22 +21,22 @@ import zombie.iso.IsoMovingObject;
 //       · render thread, ThreadLocal set       -> return fake (the
 //         upper-floor Z).
 //       · non-render thread, fieldMutated=1    -> return saved real
-//         value, so updateFalling on the game thread doesn't see the
-//         fake field and trigger the infinite stair-fall loop.
+//         value, so concurrent reads from background threads
+//         (LightingThread, async sound, AI workers) don't observe
+//         fake values during the render window.
 //       · otherwise                            -> skip, vanilla
 //         getter returns this.x as usual.
 //
-// Why the field write at all: PZ's IsoGameCharacter.updateFalling
-// helpers (getHeightAboveFloor) read this.current as a field, and
-// PZ's render code reads player position via getX/getY/getZ getters.
-// With ThreadLocal-only read-path, every PZ read on a non-render
-// thread that doesn't go through the patched getter sees real
-// values, but render-thread reads via getter see fake. That mismatch
-// creates a per-frame visual instability ("ghost jumping" cutaway
-// flicker on stairs) that hysteresis on the activation gate doesn't
-// fix. Writing the field directly makes all reads see fake DURING
-// the render window; the read-path patch then re-isolates non-render
-// threads so the stair-climb / fall logic stays consistent.
+// Why the field write at all: PZ's render code mixes getter calls
+// with direct-field reads on x/y/z (e.g. IsoCell.IsCutawaySquare).
+// Direct-field reads bypass the getter patch and would see real
+// values for an entire frame while render code via getter sees
+// fake, producing visible cutaway flicker on stairs. Writing the
+// field directly makes all reads see fake DURING the render window;
+// the read-path patch then re-isolates background threads
+// (LightingThread, async sound, AI workers) by returning the saved
+// real value when fieldMutated.get(idx) == 1 and the caller is not
+// the render thread.
 public final class FakeWindow {
     public static final int MAX_PLAYERS = 4;
 
@@ -48,8 +48,8 @@ public final class FakeWindow {
     // Array elements are never volatile even if the reference is. Without
     // a release/acquire edge a non-render thread could read the flag still
     // == 0 after the render thread set it to 1, miss the read-path shadow,
-    // and observe the fake field via the vanilla getter — which is what
-    // triggers the updateFalling infinite-loop on stairs.
+    // and observe the fake field via the vanilla getter, defeating the
+    // per-thread isolation that the shadow provides.
     //
     // set(idx, 1)/set(idx, 0) provide volatile-write semantics; get(idx)
     // is volatile-read. The release on set(idx, 1) also publishes the
