@@ -35,8 +35,11 @@ Não. Se ambos estiverem inscritos, PeekAView detecta o Staircast em tempo de ex
 [b]Funciona em multijogador?[/b]
 Sim, apenas do lado do cliente. Cada cliente também precisa ter o ZombieBuddy instalado.
 
-[b]Desativei o PeekAView da lista de mods no meio da sessão, mas os efeitos ainda aparecem. E agora?[/b]
-Project Zomboid mantém o código dos mods em memória entre recargas de save, então desativar o PeekAView da lista de mods no meio da sessão não o para sozinho. Três jeitos de removê-lo: (1) desligá-lo nas opções próprias do mod (efeito imediato), (2) recarregar o save (o PeekAView checa a lista de mods ativa em cada carregamento e se autodesativa se não estiver mais lá), ou (3) reiniciar o PZ. É uma limitação do framework já reportada.
+[b]O que a opção "Fix B42 Wall-Hiding Bug" faz exatamente?[/b]
+O corte mais amplo do mod amplifica uma peculiaridade vanilla do B42 onde paredes de andares superiores somem ao lado de estruturas construídas pelo jogador, deixando buracos em certos ângulos. A opção (ativa por padrão, só em ambientes externos) suprime isso. Compromisso: um resíduo de tile do chão costuma ficar visível em uma célula da parede externa, e decks construídos pelo jogador grudados em paredes vanilla aparecem mais na fachada do que de costume. Escolhi como o mal menor para a imersão geral. Se o seu save não tem geometria construída pelo jogador pesada grudada em casas vanilla nos lados voltados para a câmera, ou se você não usa a função corte de paredes, dá para desativar a opção para um render mais próximo do vanilla.
+
+[b]Recusei o PeekAView sem querer no prompt de aprovação do ZombieBuddy. Dá para desfazer?[/b]
+O ZombieBuddy guarda cada decisão em [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Abra o arquivo, encontre o(s) bloco(s) [noparse]"id": "PeekAView"[/noparse] com [noparse]"decision": false[/noparse], troque [noparse]false[/noparse] por [noparse]true[/noparse], salve, reinicie o PZ. Se editar JSON soar arriscado, apague esses blocos do PeekAView e o ZombieBuddy vai pedir aprovação de novo no próximo carregamento de save.
 
 [b]Afeta o desempenho?[/b]
 Vários caches mantêm o custo de execução próximo do vanilla. Ficar parado e andar a pé são os caminhos mais baratos. Reduza os deslizadores de alcance se seu hardware estiver sofrendo.

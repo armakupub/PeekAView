@@ -35,8 +35,11 @@ No. Si ambos están suscritos, PeekAView detecta Staircast en tiempo de ejecuci�
 [b]¿Funciona en multijugador?[/b]
 Sí, solo del lado del cliente. Cada cliente necesita también tener ZombieBuddy instalado.
 
-[b]Desactivé PeekAView de la lista de mods durante la sesión, pero los efectos siguen visibles. ¿Qué hago?[/b]
-Project Zomboid mantiene el código de los mods en memoria entre recargas de guardado, así que desactivar PeekAView de la lista de mods durante la sesión no lo detiene por sí solo. Tres formas de eliminarlo: (1) desactivarlo en las opciones propias del mod (efecto inmediato), (2) recargar tu guardado (PeekAView comprueba la lista de mods activa en cada carga y se autodesactiva si ya no está), o (3) reiniciar PZ. Es una limitación del framework ya reportada.
+[b]¿Qué hace exactamente la opción "Fix B42 Wall-Hiding Bug"?[/b]
+El corte más amplio del mod amplifica una peculiaridad vanilla de B42 donde las paredes de pisos superiores desaparecen junto a estructuras construidas por el jugador, dejando agujeros desde ciertos ángulos. La opción (activa por defecto, solo en exteriores) suprime ese efecto. Compromiso: una franja de baldosa de suelo suele quedar visible en una celda de la pared exterior, y las cubiertas construidas por el jugador pegadas a paredes vanilla se ven más en la fachada de lo normal. Lo escogí como el mal menor para la inmersión general. Si tu partida no tiene construcciones masivas adosadas a casas vanilla por el lado de la cámara, o si no usas la función corte de paredes, puedes desactivar la opción para un renderizado más cercano al vanilla.
+
+[b]Rechacé PeekAView por accidente en el diálogo de aprobación de ZombieBuddy. ¿Puedo deshacerlo?[/b]
+ZombieBuddy guarda cada decisión en [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Abre el archivo, busca el/los bloque(s) [noparse]"id": "PeekAView"[/noparse] con [noparse]"decision": false[/noparse], cambia [noparse]false[/noparse] a [noparse]true[/noparse], guarda, reinicia PZ. Si editar JSON te resulta arriesgado, borra esos bloques de PeekAView y ZombieBuddy volverá a preguntar en la siguiente carga de guardado.
 
 [b]¿Afecta al rendimiento?[/b]
 Varias cachés mantienen el coste de ejecución cerca del vanilla. Estar quieto y caminar a pie son los caminos menos costosos. Baja los deslizadores de alcance si tu hardware sufre.

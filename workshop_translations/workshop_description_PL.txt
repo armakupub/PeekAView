@@ -35,8 +35,11 @@ Nie. Jeśli oba są subskrybowane, PeekAView wykrywa Staircast w czasie rzeczywi
 [b]Czy działa w multiplayer?[/b]
 Tak, tylko po stronie klienta. Każdy klient potrzebuje również zainstalowanego ZombieBuddy.
 
-[b]Wyłączyłem PeekAView z listy modów podczas trwającej sesji, ale efekty wciąż są widoczne. Co teraz?[/b]
-Project Zomboid trzyma kod modów w pamięci pomiędzy ponownymi wczytaniami zapisu, więc wyłączenie PeekAView z listy modów podczas trwającej sesji nie zatrzyma go automatycznie. Trzy sposoby, aby się go pozbyć: (1) wyłączyć go w opcjach moda (działa natychmiast), (2) ponownie wczytać zapis (PeekAView sprawdza aktywną listę modów przy każdym wczytaniu zapisu i samoczynnie się dezaktywuje, jeśli go już tam nie ma), albo (3) zrestartować PZ. To już zgłoszone ograniczenie frameworku.
+[b]Co dokładnie robi opcja "Fix B42 Wall-Hiding Bug"?[/b]
+Szersze cutaway moda wzmacnia błąd vanilli B42, w którym ściany górnych pięter znikają obok struktur zbudowanych przez gracza, zostawiając w nich dziury pod pewnymi kątami. Opcja (domyślnie włączona, tylko na zewnątrz) tłumi to zachowanie. Kompromis: fragment kafelka podłogi często pozostaje widoczny na jednej komórce zewnętrznej ściany, a tarasy zbudowane przez gracza przylegające do ścian vanilla renderują się na elewacji bardziej widocznie niż zwykle. Wybrałem to jako mniejsze zło dla ogólnej immersji. Jeśli twój zapis nie ma rozległych konstrukcji gracza przylegających do domów vanilla po stronie kamery, lub jeśli nie używasz funkcji wygaszania ścian, możesz wyłączyć opcję dla renderowania bliższego vanilli.
+
+[b]Niechcący odrzuciłem PeekAView w oknie akceptacji ZombieBuddy. Czy mogę to cofnąć?[/b]
+ZombieBuddy zapisuje każdą decyzję w [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Otwórz plik, znajdź blok(i) z [noparse]"id": "PeekAView"[/noparse] gdzie [noparse]"decision": false[/noparse], zmień [noparse]false[/noparse] na [noparse]true[/noparse], zapisz i zrestartuj PZ. Jeśli edycja JSON-a wydaje ci się ryzykowna, usuń te bloki PeekAView, a ZombieBuddy zapyta ponownie przy następnym wczytaniu zapisu.
 
 [b]Czy wpływa na wydajność?[/b]
 Kilka mechanizmów cache'owania trzyma koszty wykonania blisko vanilla. Stanie w miejscu i chodzenie pieszo to najtańsze ścieżki. Zmniejsz suwaki zasięgu, jeśli twój sprzęt ma problemy.

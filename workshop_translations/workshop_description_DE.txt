@@ -23,7 +23,7 @@ Optionen → Mods → Peek a View, vier Abschnitte: Allgemein, Wand-Cutaway, Bä
 
 [h1]Kompatibilität[/h1]
 [list]
-[*]Sicher während laufender Session hinzu- und abwählbar: keine Speicherstand-Daten werden verändert. Visuelle Effekte verschwinden beim nächsten Speicherstand-Laden, nachdem der Mod aus der Mod-Liste entfernt wurde.
+[*]Während laufender Session sicher aktivier- und deaktivierbar: keine Speicherstand-Daten werden verändert. Visuelle Effekte verschwinden beim nächsten Speicherstand-Laden, nachdem der Mod aus der Mod-Liste entfernt wurde.
 [*]Nur clientseitig: jeder Spieler, der den Effekt möchte, braucht den Mod (und ZombieBuddy) installiert.
 [/list]
 
@@ -35,8 +35,11 @@ Nein. Wenn beide abonniert sind, erkennt PeekAView Staircast zur Laufzeit und gi
 [b]Funktioniert es im Multiplayer?[/b]
 Ja, nur clientseitig. Jeder Client braucht ebenfalls ZombieBuddy installiert.
 
-[b]Ich habe PeekAView während laufender Session aus der Mod-Liste deaktiviert, aber die Effekte sind noch sichtbar. Was nun?[/b]
-Project Zomboid hält Mod-Code im Speicher über Speicherstand-Reloads hinweg, sodass das Deaktivieren von PeekAView aus der Mod-Liste während einer laufenden Session den Mod nicht von selbst beendet. Drei Wege, ihn loszuwerden: (1) in den eigenen Mod-Optionen abschalten (sofort wirksam), (2) den Speicherstand neu laden (PeekAView prüft die aktive Mod-Liste bei jedem Speicherstand-Laden und deaktiviert sich selbst, wenn er nicht mehr enthalten ist), oder (3) PZ neu starten. Dies ist eine bereits gemeldete Framework-Limitierung.
+[b]Was bewirkt der Schalter "Fix B42 Wall-Hiding Bug"?[/b]
+Das größere Cutaway des Mods verstärkt einen Vanilla-B42-Fehler, bei dem Wände im oberen Stockwerk neben spielergebauten Strukturen aus bestimmten Blickwinkeln verschwinden und Löcher hinterlassen. Der Schalter (standardmäßig an, nur außen) unterdrückt das. Trade-off: ein Boden-Tile-Rest bleibt oft an einer äußeren Wandzelle sichtbar, und spielergebaute Plattformen an Vanilla-Wänden erscheinen an der Fassade sichtbarer als sonst. Ich habe es als das kleinere Übel für die Gesamtimmersion gewählt. Wenn dein Speicherstand keine ausgedehnten spielergebauten Konstruktionen an Vanilla-Häusern auf den zur Kamera gerichteten Seiten hat, oder wenn du die Wand-Cutaway-Funktion nicht nutzt, kannst du den Schalter ausschalten für ein Vanilla-näheres Rendering.
+
+[b]Ich habe PeekAView im ZombieBuddy-Bestätigungsdialog versehentlich abgelehnt. Kann ich das rückgängig machen?[/b]
+ZombieBuddy speichert jede Entscheidung in [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Öffne die Datei, suche die [noparse]"id": "PeekAView"[/noparse]-Blöcke mit [noparse]"decision": false[/noparse], ändere [noparse]false[/noparse] zu [noparse]true[/noparse], speichern, PZ neu starten. Wenn JSON-Editieren riskant klingt, lösche die PeekAView-Blöcke stattdessen und ZombieBuddy fragt beim nächsten Speicherstand-Laden erneut nach.
 
 [b]Beeinflusst es die Performance?[/b]
 Mehrere Caches halten die Laufzeit-Kosten nahe an Vanilla. Stillstehen und zu Fuß laufen sind die kostengünstigsten Pfade. Senke die Reichweiten-Schieber, falls deine Hardware Probleme hat.

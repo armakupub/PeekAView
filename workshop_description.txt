@@ -35,8 +35,11 @@ No. If both are subscribed, PeekAView detects Staircast at runtime and yields it
 [b]Does it work in multiplayer?[/b]
 Yes, client-side only. Every client also needs ZombieBuddy installed.
 
-[b]I disabled PeekAView in the mod list mid-session but the effects are still showing. What now?[/b]
-Project Zomboid keeps mod code in memory across save reloads, so disabling PeekAView in the mod list mid-session doesn't shut it down on its own. Three ways to clear it: (1) toggle it off via the mod's own in-game settings (instant), (2) reload your save (PeekAView checks the active mod list on each save load and self-deactivates if it's no longer there), or (3) restart PZ. This is an already-reported framework-level limitation.
+[b]What does "Fix B42 Wall-Hiding Bug" actually do?[/b]
+The mod's wider cutaway amplifies a vanilla B42 quirk where upper-floor walls vanish next to player-built structures, leaving wall holes from certain angles. The toggle (on by default, outdoor-only) suppresses that. Trade-off: a floor-tile sliver often stays visible on one outer-wall cell, and player-built decks attached to vanilla walls render more visibly at the facade. I picked it as the lesser evil for overall immersion. If your save doesn't have heavy player-built geometry attached to vanilla houses on the camera-facing sides, or if you don't use the wall cutaway feature, you can toggle it off for closer-to-vanilla rendering.
+
+[b]I accidentally declined PeekAView in the ZombieBuddy approval prompt. Can I undo it?[/b]
+ZombieBuddy keeps each decision in [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Open the file, find the [noparse]"id": "PeekAView"[/noparse] block(s) where [noparse]"decision": false[/noparse], flip [noparse]false[/noparse] to [noparse]true[/noparse], save, restart PZ. If editing JSON sounds risky, just delete those PeekAView blocks instead and ZombieBuddy will re-ask on next save load.
 
 [b]Does it affect performance?[/b]
 Several caches keep the runtime cost close to vanilla. Standing still and walking on foot are the cheapest paths. Lower the range sliders if your hardware struggles.

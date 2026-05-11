@@ -35,8 +35,11 @@ No. Se entrambe sono iscritte, PeekAView rileva Staircast a runtime e cede la pr
 [b]Funziona in multiplayer?[/b]
 Sì, solo lato client. Ogni client deve avere anche ZombieBuddy installato.
 
-[b]Ho disattivato PeekAView dalla lista delle mod durante la sessione, ma gli effetti sono ancora visibili. Che faccio?[/b]
-Project Zomboid tiene il codice delle mod in memoria tra i ricaricamenti dei salvataggi, quindi disattivare PeekAView dalla lista delle mod durante la sessione non lo ferma da solo. Tre modi per rimuoverlo: (1) disattivarlo nelle opzioni proprie della mod (effetto immediato), (2) ricaricare il salvataggio (PeekAView controlla la lista delle mod attiva ad ogni caricamento e si autodisattiva se non è più presente), oppure (3) riavviare PZ. È una limitazione del framework già segnalata.
+[b]Cosa fa esattamente l'opzione "Fix B42 Wall-Hiding Bug"?[/b]
+Il taglio più ampio della mod amplifica una stranezza vanilla di B42 in cui i muri dei piani superiori spariscono accanto a strutture costruite dai giocatori, lasciando buchi da certe angolazioni. L'opzione (attiva di default, solo all'esterno) attenua il problema. Compromesso: un residuo di tile del pavimento rimane spesso visibile su una cella del muro esterno, e i ponti costruiti dai giocatori attaccati ai muri vanilla si vedono di più sulla facciata rispetto al normale. L'ho scelto come male minore per l'immersione complessiva. Se il tuo salvataggio non ha geometria costruita dai giocatori massiccia attaccata a case vanilla sui lati rivolti verso la camera, oppure se non usi la funzione taglio dei muri, puoi disattivare l'opzione per un rendering più vicino al vanilla.
+
+[b]Ho rifiutato per sbaglio PeekAView nella richiesta di approvazione di ZombieBuddy. Posso annullarlo?[/b]
+ZombieBuddy salva ogni decisione in [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Apri il file, trova il/i blocco/i [noparse]"id": "PeekAView"[/noparse] con [noparse]"decision": false[/noparse], cambia [noparse]false[/noparse] in [noparse]true[/noparse], salva, riavvia PZ. Se modificare JSON ti sembra rischioso, elimina invece quei blocchi PeekAView e ZombieBuddy chiederà di nuovo al prossimo caricamento del salvataggio.
 
 [b]Influenza le prestazioni?[/b]
 Diverse cache mantengono il costo di esecuzione vicino al vanilla. Stare fermi e camminare a piedi sono i percorsi più economici. Abbassa gli slider di portata se il tuo hardware fatica.

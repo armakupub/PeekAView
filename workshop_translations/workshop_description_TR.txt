@@ -35,8 +35,11 @@ Hayır. Her ikisi de aboneyse, PeekAView Staircast'i çalışma zamanında algı
 [b]Çok oyunculu modda çalışıyor mu?[/b]
 Evet, yalnızca istemci tarafı. Her istemcinin de ZombieBuddy yüklü olması gerekir.
 
-[b]Oturum sırasında PeekAView'i mod listesinden devre dışı bıraktım ama etkiler hâlâ görünüyor. Şimdi ne yapayım?[/b]
-Project Zomboid mod kodunu kayıt yüklemeleri arasında bellekte tutar, bu yüzden PeekAView'i oturum sırasında mod listesinden devre dışı bırakmak modu kendiliğinden durdurmaz. Modu temizlemenin üç yolu: (1) modun kendi seçeneklerinde kapatın (anında etkili), (2) kayıtınızı yeniden yükleyin (PeekAView her kayıt yüklemesinde aktif mod listesini kontrol eder ve artık listede değilse kendini devre dışı bırakır), veya (3) PZ'yi yeniden başlatın. Bu, bildirilmiş bir framework sınırlamasıdır.
+[b]"Fix B42 Wall-Hiding Bug" seçeneği tam olarak ne yapıyor?[/b]
+Modun daha geniş duvar kesimi, oyuncunun inşa ettiği yapılarla bitişik üst kat duvarlarının belirli açılardan kaybolduğu ve duvarda delikler bıraktığı vanilla B42 hatasını şiddetlendirir. Bu seçenek (varsayılan açık, yalnızca dışarıda) bu davranışı bastırır. Ödün: dış duvarın bir hücresinde sıklıkla bir döşeme kalıntısı görünür kalır ve vanilla duvarlara bitişik oyuncu inşa platformları cephede normalden daha fazla görünür şekilde render edilir. Bunu genel atmosfer için daha küçük bir kötülük olarak seçtim. Eğer kayıtınızda kameraya bakan tarafta vanilla evlere yapışan yoğun oyuncu yapımı geometri yoksa veya duvar kesimi özelliğini kullanmıyorsanız, vanilla'ya daha yakın render için seçeneği kapatabilirsiniz.
+
+[b]ZombieBuddy onay penceresinde PeekAView'i yanlışlıkla reddettim. Geri alabilir miyim?[/b]
+ZombieBuddy her kararı [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse] dosyasında saklar. Dosyayı açın, [noparse]"id": "PeekAView"[/noparse] ve [noparse]"decision": false[/noparse] içeren blok(ları) bulun, [noparse]false[/noparse] değerini [noparse]true[/noparse] olarak değiştirin, kaydedin, PZ'yi yeniden başlatın. JSON düzenlemek riskli görünüyorsa, bu PeekAView bloklarını silin ve ZombieBuddy bir sonraki kayıt yüklemesinde tekrar sorar.
 
 [b]Performansı etkiler mi?[/b]
 Birkaç önbellek mekanizması çalışma maliyetini vanilla'ya yakın tutar. Yerinde durmak ve yürümek en ucuz yollardır. Donanımınız zorlanıyorsa menzil kaydırıcılarını düşürün.
