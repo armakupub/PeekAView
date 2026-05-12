@@ -44,11 +44,15 @@ ZombieBuddy her kararı [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[
 [b]Performansı etkiler mi?[/b]
 Birkaç önbellek mekanizması çalışma maliyetini vanilla'ya yakın tutar. Yerinde durmak ve yürümek en ucuz yollardır. Donanımınız zorlanıyorsa menzil kaydırıcılarını düşürün.
 
-[h1]Kaynak kodu[/h1]
-PeekAView MIT lisanslı ve tamamen açık kaynaktır. Yamalar yalnızca belirli PZ render sınıflarına dokunur.
+[h1]Bakım ve Kaynak kodu[/h1]
+Bu mod kendi kullanımım için tamamlanmış durumda ve artık aktif olarak geliştirilmiyor. Son test PZ Build 42.18 üzerinde.
+
+PeekAView MIT lisanslı ve tamamen açık kaynaktır. Yamalar yalnızca belirli PZ render sınıflarına dokunur. Forklar ve iyileştirmeler memnuniyetle karşılanır ve teşvik edilir. Aktif olarak bakımı yapılan bir halefi ortaya çıkarsa, buradan ona bağlantı veririm.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [/list]
+
+Issues ve PR'ları okuyacağım ancak yanıt sürelerini garanti edemem. Mod gelecekteki bir PZ sürümünde bozulursa ve düzeltmeyeceksem, bozuk bir sürümü öylece bırakmaktansa Workshop'tan kaldırırım.
 
 [h1]Atıf[/h1]
 [list]

@@ -44,11 +44,15 @@ ZombieBuddy は各判断を [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.j
 [b]パフォーマンスに影響しますか？[/b]
 複数のキャッシュにより、実行時のコストはバニラに近く保たれます。じっとしていることと徒歩で歩くことが最も低コストの経路です。ハードウェアが苦しい場合は範囲スライダーを下げてください。
 
-[h1]ソースコード[/h1]
-PeekAView は MIT ライセンスで完全にオープンソースです。パッチは PZ の特定のレンダリングクラスにのみ触れます。
+[h1]メンテナンスとソースコード[/h1]
+この Mod は自分の用途では完成しており、現在は積極的に開発されていません。最終テスト：PZ Build 42.18。
+
+PeekAView は MIT ライセンスで完全にオープンソースです。パッチは PZ の特定のレンダリングクラスにのみ触れます。フォークや改良は歓迎します。積極的にメンテナンスされる後継版が登場した場合は、ここからリンクします。
 [list]
 [*][b]PeekAView[/b]：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [/list]
+
+Issue や PR は確認しますが、返答時間は保証できません。将来の PZ バージョンで Mod が壊れて修正する予定がない場合は、壊れたままにせず Workshop から取り下げます。
 
 [h1]クレジット[/h1]
 [list]

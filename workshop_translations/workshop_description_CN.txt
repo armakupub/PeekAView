@@ -44,11 +44,15 @@ ZombieBuddy 把每条决定保存在 [noparse]%USERPROFILE%\.zombie_buddy\mod_ap
 [b]会影响性能吗？[/b]
 多个缓存机制让运行时开销接近原版。站立和步行是开销最小的路径。如果你的硬件吃力，请降低范围滑块。
 
-[h1]源代码[/h1]
-PeekAView 采用 MIT 许可证并完全开源。补丁仅触及特定的 PZ 渲染类。
+[h1]维护与源代码[/h1]
+本 Mod 对我自己的使用而言已经完成，不再进行主动开发。最后一次测试针对 PZ Build 42.18。
+
+PeekAView 采用 MIT 许可证并完全开源。补丁仅触及特定的 PZ 渲染类。欢迎并鼓励 fork 与改进。如果出现持续维护的后续版本，我会从此处链接过去。
 [list]
 [*][b]PeekAView[/b]：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [/list]
+
+Issue 与 PR 我会查看，但无法保证响应时间。若该 Mod 在未来的 PZ 版本中无法运行而我也不打算修复，我会将其从 Workshop 下架，而不会留下损坏的版本。
 
 [h1]鸣谢[/h1]
 [list]

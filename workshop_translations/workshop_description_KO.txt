@@ -44,11 +44,15 @@ ZombieBuddy는 각 결정을 [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.
 [b]성능에 영향을 미치나요?[/b]
 여러 캐시가 실행 비용을 바닐라에 가깝게 유지합니다. 가만히 서 있는 것과 도보로 걷는 것이 가장 저렴한 경로입니다. 하드웨어가 어려움을 겪는 경우 범위 슬라이더를 낮추세요.
 
-[h1]소스 코드[/h1]
-PeekAView는 MIT 라이선스이며 완전히 오픈 소스입니다. 패치는 특정 PZ 렌더링 클래스에만 영향을 미칩니다.
+[h1]유지보수 및 소스 코드[/h1]
+이 모드는 제 사용 목적에는 완성된 상태이며 더 이상 활발히 개발되지 않습니다. 마지막으로 PZ Build 42.18에서 테스트했습니다.
+
+PeekAView는 MIT 라이선스이며 완전히 오픈 소스입니다. 패치는 특정 PZ 렌더링 클래스에만 영향을 미칩니다. 포크와 개선은 환영하며 권장합니다. 활발히 유지보수되는 후속 모드가 나오면 여기서 링크하겠습니다.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [/list]
+
+이슈와 PR은 읽어보겠지만 응답 시간은 약속드릴 수 없습니다. 향후 PZ 버전에서 모드가 작동하지 않게 되고 제가 고치지 않을 경우, 깨진 버전을 그대로 두기보다는 Workshop에서 내리겠습니다.
 
 [h1]저작자 표시[/h1]
 [list]

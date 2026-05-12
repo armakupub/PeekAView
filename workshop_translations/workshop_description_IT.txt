@@ -44,11 +44,15 @@ ZombieBuddy salva ogni decisione in [noparse]%USERPROFILE%\.zombie_buddy\mod_app
 [b]Influenza le prestazioni?[/b]
 Diverse cache mantengono il costo di esecuzione vicino al vanilla. Stare fermi e camminare a piedi sono i percorsi più economici. Abbassa gli slider di portata se il tuo hardware fatica.
 
-[h1]Codice sorgente[/h1]
-PeekAView è sotto licenza MIT ed è completamente open source. I patch toccano solo classi di rendering PZ specifiche.
+[h1]Manutenzione e Codice sorgente[/h1]
+Questa mod è completa per il mio uso e non è più sviluppata attivamente. Ultimo test su PZ Build 42.18.
+
+PeekAView è sotto licenza MIT ed è completamente open source. I patch toccano solo classi di rendering PZ specifiche. I fork e i miglioramenti sono benvenuti e incoraggiati. Se appare un successore attivamente mantenuto, lo collegherò qui.
 [list]
 [*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
 [/list]
+
+Leggerò gli issue e le PR, ma non posso promettere tempi di risposta. Se la mod si rompe in una futura versione di PZ e non la sistemerò, la rimuoverò dal Workshop invece di lasciare una versione rotta.
 
 [h1]Attribuzione[/h1]
 [list]
