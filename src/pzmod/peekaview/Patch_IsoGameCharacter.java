@@ -61,7 +61,7 @@ public class Patch_IsoGameCharacter {
                 fs.camCharacterSquare = ffs.realSquare;
 
                 if (ffs.camChar != null) {
-                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.realSquare);
                     // De-mutate order: writeRealPos BEFORE fieldMutated.set(0).
                     // During the gap a non-render reader sees flag=1 and gets

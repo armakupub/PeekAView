@@ -168,7 +168,7 @@ public class Patch_FBORenderCell {
                 fs.camCharacterSquare = ffs.fakeSquare;
 
                 if (ffs.camChar != null && ffs.fakeSquare != null) {
-                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.fakeSquare);
                     currentSwapped = true;
                 }
@@ -320,7 +320,7 @@ public class Patch_FBORenderCell {
                 // Already correct — during the gap a non-render reader sees
                 // flag=1 and gets realPos.x, matching the now-real field.
                 if (ffs.camChar != null) {
-                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.realSquare);
                     FakeWindow.writeRealPos(ffs.camChar, ffs.realPos.x, ffs.realPos.y, ffs.realPos.z);
                     FakeWindow.fieldMutated.set(idx, 0);

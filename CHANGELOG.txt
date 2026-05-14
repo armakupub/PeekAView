@@ -1,6 +1,9 @@
 Peek a View - Changelog
 =======================
 
+1.4.4 - 2026-05-14
+  - Fixed WalkTo glitch for my friend 爱看歌剧的长颈鹿.
+
 1.4.3 - 2026-05-11
   - Bugfix for B42.18: rain no longer disappears mid-climb on outdoor stairs.
 

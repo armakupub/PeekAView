@@ -60,19 +60,36 @@ public final class FakeWindow {
     private static Field FIELD_X;
     private static Field FIELD_Y;
     private static Field FIELD_Z;
+    private static Field FIELD_CURRENT;
 
     static {
         try {
             FIELD_X = IsoMovingObject.class.getDeclaredField("x");
             FIELD_Y = IsoMovingObject.class.getDeclaredField("y");
             FIELD_Z = IsoMovingObject.class.getDeclaredField("z");
+            FIELD_CURRENT = IsoMovingObject.class.getDeclaredField("current");
             FIELD_X.trySetAccessible();
             FIELD_Y.trySetAccessible();
             FIELD_Z.trySetAccessible();
+            FIELD_CURRENT.trySetAccessible();
         } catch (NoSuchFieldException e) {
             FIELD_X = null;
             FIELD_Y = null;
             FIELD_Z = null;
+            FIELD_CURRENT = null;
+        }
+    }
+
+    // Bypasses the patched getter. Save-ops in our renderInternal
+    // pairs run after renderingFake is set, so getCurrentSquare()
+    // would return fakeSquare — restoring that at exit leaks
+    // fakeSquare into the next update tick's current.
+    public static zombie.iso.IsoGridSquare readCurrentField(IsoMovingObject self) {
+        if (FIELD_CURRENT == null) return self.getCurrentSquare();
+        try {
+            return (zombie.iso.IsoGridSquare) FIELD_CURRENT.get(self);
+        } catch (IllegalAccessException e) {
+            return self.getCurrentSquare();
         }
     }
 

@@ -41,7 +41,7 @@ public class Patch_FBORenderTrees {
                 fs.camCharacterSquare = ffs.realSquare;
 
                 if (ffs.camChar != null) {
-                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.realSquare);
                     FakeWindow.writeRealPos(ffs.camChar, ffs.realPos.x, ffs.realPos.y, ffs.realPos.z);
                     FakeWindow.fieldMutated.set(idx, 0);

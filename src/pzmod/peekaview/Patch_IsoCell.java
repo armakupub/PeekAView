@@ -516,7 +516,7 @@ public class Patch_IsoCell {
                 fs.camCharacterSquare = ffs.fakeSquare;
 
                 if (ffs.camChar != null && ffs.fakeSquare != null) {
-                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.fakeSquare);
                     currentSwapped = true;
                 }
@@ -596,6 +596,32 @@ public class Patch_IsoCell {
             } finally {
                 FakeWindow.renderingFake.remove();
             }
+        }
+    }
+
+    // doBuildingInternal reads IsoCamera.getCameraCharacterZ(), which
+    // calls isoCameraGameCharacter.getZ() — a dynamic getter, not the
+    // frameState field. Arm renderingFake for the method's duration so
+    // Patch_getZ returns fake, keeping buildZ consistent with the
+    // pickedTile projection from Patch_UIManager. Without this, the
+    // bRender=false click-trigger from UIManager.update reads real-Z
+    // and the WalkTo target lands on a mid-air square.
+    @Patch(className = "zombie.iso.IsoCell", methodName = "doBuildingInternal")
+    public static class Patch_doBuildingInternal {
+        @Patch.OnEnter
+        public static void enter(@Patch.Local("opened") boolean opened) {
+            FakeFrameState ffs = FakeWindow.get(0);
+            if (ffs == null || !ffs.stairLatchArmed) return;
+            if (IsoCamera.frameState.frameCount - ffs.lastStrictActivationFrame > 3) return;
+            if (FakeWindow.renderingFake.get() != null) return;
+            FakeWindow.renderingFake.set(ffs);
+            opened = true;
+        }
+
+        @Patch.OnExit(onThrowable = Throwable.class)
+        public static void exit(@Patch.Local("opened") boolean opened) {
+            if (!opened) return;
+            FakeWindow.renderingFake.remove();
         }
     }
 }

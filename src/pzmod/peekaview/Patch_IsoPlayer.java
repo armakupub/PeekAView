@@ -48,7 +48,7 @@ public class Patch_IsoPlayer {
                 fs.camCharacterZ = ffs.realPos.z;
                 fs.camCharacterSquare = ffs.realSquare;
 
-                savedCurrent = self.getCurrentSquare();
+                savedCurrent = FakeWindow.readCurrentField(self);
                 self.setCurrent(ffs.realSquare);
                 FakeWindow.writeRealPos(self, ffs.realPos.x, ffs.realPos.y, ffs.realPos.z);
                 FakeWindow.fieldMutated.set(idx, 0);

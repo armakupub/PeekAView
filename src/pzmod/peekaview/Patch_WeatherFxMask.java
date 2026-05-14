@@ -51,7 +51,7 @@ public class Patch_WeatherFxMask {
                 opened = true;
 
                 if (ffs.camChar != null && ffs.realSquare != null) {
-                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.realSquare);
                     currentReverted = true;
                 }
@@ -126,7 +126,7 @@ public class Patch_WeatherFxMask {
                 opened = true;
 
                 if (ffs.camChar != null && ffs.realSquare != null) {
-                    savedCurrent = ffs.camChar.getCurrentSquare();
+                    savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.realSquare);
                     currentReverted = true;
                 }
