@@ -1,6 +1,12 @@
 Peek a View - Changelog
 =======================
 
+1.5.1 - 2026-08-01
+  - Performance release, no new features.
+  - Wall cutaway: the extended range now scales down with driving speed. Above ~25 km/h it eases toward vanilla range, fully vanilla at ~40, and grows back about a second after you slow down. At speed, the extra range was paying frame time for walls you pass in under a second.
+  - Tree fade: cheaper while driving. The per-tree math exits early for trees that can't change this frame, and trees right at the fade border no longer ping-pong between fading and recovering on curvy roads (every flip forced a chunk re-render).
+  - Lower baseline overhead for everyone: the stair-view position hooks now stand down entirely while you're not climbing. They sit on some of the busiest engine calls, so this applies whether you use stairs or not.
+
 1.5.0 - 2026-08-01
   - Requires PZ Build 42.20 or later (B42 stable).
   - Tree fade: now a driving-only feature. Build 42.20 ships its own on-foot tree fade, so PeekAView only fades trees around a moving vehicle and the range slider is gone.

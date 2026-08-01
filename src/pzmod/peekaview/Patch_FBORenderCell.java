@@ -37,6 +37,7 @@ public class Patch_FBORenderCell {
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (!(object instanceof IsoTree)) return;
                 if (object.square == null) return;
+                IsoTree tree = (IsoTree) object;
 
                 // clearlyBehind is checked before the radius test: the
                 // fade zone is omnidirectional in a vehicle, so tiles
@@ -52,14 +53,20 @@ public class Patch_FBORenderCell {
 
                     if (dx == 0 && dy == 0) return;
 
+                    int range = PeekAViewMod.TREE_FADE_RANGE;
+                    int exit = PeekAViewMod.TREE_FADE_EXIT_RANGE;
+                    int distSq = dx * dx + dy * dy;
+                    // Common case: outside the circle and fully opaque.
+                    // Neither the DOWN nor the refade path can write —
+                    // skip the cone math (sqrt) entirely.
+                    if (distSq > range * range && tree.fadeAlpha >= 1.0f) return;
+
                     if (PeekAViewMod.isTileClearlyBehindCameraPlayer(object.square)) {
                         clearlyBehind = true;
-                    } else {
-                        int range = PeekAViewMod.TREE_FADE_RANGE;
-                        if (dx * dx + dy * dy <= range * range) {
-                            inZone = true;
-                            result = true;
-                        }
+                    } else if (distSq <= range * range
+                            || (distSq <= exit * exit && tree.fadeAlpha < 1.0f)) {
+                        inZone = true;
+                        result = true;
                     }
                 }
 
@@ -71,7 +78,6 @@ public class Patch_FBORenderCell {
                 float speed = PeekAViewMod.currentVehicleSpeedKmh;
                 float minBoost = PeekAViewMod.TREE_FADE_SNAP_MIN_KMH;
                 if (speed > minBoost) {
-                    IsoTree tree = (IsoTree) object;
                     // Matches vanilla 42.20's outdoor fade floor so the
                     // snap converges where the alphaStep path would.
                     float minAlpha = 0.15f;

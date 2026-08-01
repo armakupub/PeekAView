@@ -81,6 +81,7 @@ public class Patch_IsoWorld {
                 FakeFrameState ffsP = FakeWindow.get(idxP);
                 if (ffsP != null && (fs.frameCount - ffsP.frameCounter) <= 1) {
                     ffsP.frameCounter = fs.frameCount;
+                    FakeWindow.lastActiveFrame = fs.frameCount;
                     return;
                 }
             }
@@ -219,6 +220,7 @@ public class Patch_IsoWorld {
             ffs.lastViewpointZ = headPos.z;
             ffs.renderLighting = renderLighting;
             ffs.frameCounter = fs.frameCount;
+            FakeWindow.lastActiveFrame = fs.frameCount;
             if (strictPass) {
                 ffs.lastStrictActivationFrame = fs.frameCount;
                 if (onStair) {

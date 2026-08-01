@@ -51,6 +51,21 @@ public final class FakeWindow {
     // frame.
     public static final AtomicIntegerArray fieldMutated = new AtomicIntegerArray(MAX_PLAYERS);
 
+    // First-tier gate for the getter shadows: every shadow window
+    // opens only after a computeFake commit (render pairs require
+    // isReady; doBuildingInternal allows <= 3 frames after
+    // lastStrictActivationFrame, stamped by the same commit), so 4
+    // covers the widest window. Staleness is safe via the ordering
+    // invariant above: the commit precedes fieldMutated.set(1), so a
+    // stale read means the fields still hold real values. Sentinel
+    // -(1 << 30), not MIN_VALUE: the subtraction must not overflow.
+    public static final int SHADOW_ACTIVE_FRAMES = 4;
+    public static volatile int lastActiveFrame = -(1 << 30);
+
+    public static boolean shadowIdle() {
+        return IsoCamera.frameState.frameCount - lastActiveFrame > SHADOW_ACTIVE_FRAMES;
+    }
+
     private static Field FIELD_X;
     private static Field FIELD_Y;
     private static Field FIELD_Z;

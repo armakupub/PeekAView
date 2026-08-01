@@ -25,6 +25,7 @@ public class Patch_IsoMovingObject {
 
         @Patch.OnEnter(skipOn = true)
         public static boolean enter(@Patch.This IsoMovingObject self, @Patch.Local("v") float v) {
+            if (FakeWindow.shadowIdle()) return false;
             FakeFrameState renderFfs = FakeWindow.renderingFake.get();
             if (renderFfs != null && self == renderFfs.camChar) {
                 v = renderFfs.fakePos.x;
@@ -51,6 +52,7 @@ public class Patch_IsoMovingObject {
 
         @Patch.OnEnter(skipOn = true)
         public static boolean enter(@Patch.This IsoMovingObject self, @Patch.Local("v") float v) {
+            if (FakeWindow.shadowIdle()) return false;
             FakeFrameState renderFfs = FakeWindow.renderingFake.get();
             if (renderFfs != null && self == renderFfs.camChar) {
                 v = renderFfs.fakePos.y;
@@ -77,6 +79,7 @@ public class Patch_IsoMovingObject {
 
         @Patch.OnEnter(skipOn = true)
         public static boolean enter(@Patch.This IsoMovingObject self, @Patch.Local("v") float v) {
+            if (FakeWindow.shadowIdle()) return false;
             FakeFrameState renderFfs = FakeWindow.renderingFake.get();
             if (renderFfs != null && self == renderFfs.camChar) {
                 v = renderFfs.fakePos.z;
@@ -103,6 +106,7 @@ public class Patch_IsoMovingObject {
 
         @Patch.OnEnter(skipOn = true)
         public static boolean enter(@Patch.This IsoMovingObject self, @Patch.Local("v") IsoGridSquare v) {
+            if (FakeWindow.shadowIdle()) return false;
             FakeFrameState renderFfs = FakeWindow.renderingFake.get();
             if (renderFfs != null && self == renderFfs.camChar) {
                 v = renderFfs.fakeSquare;

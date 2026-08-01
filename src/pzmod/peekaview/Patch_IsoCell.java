@@ -52,6 +52,7 @@ public class Patch_IsoCell {
         public static final int[] cachedPxFloor = new int[MAX_PLAYERS];
         public static final int[] cachedPyFloor = new int[MAX_PLAYERS];
         public static final int[] cachedZ = new int[MAX_PLAYERS];
+        public static final int[] cachedRadius = new int[MAX_PLAYERS];
         public static final int[][] cachedLeftX  = new int[MAX_PLAYERS][MAX_COORDS];
         public static final int[][] cachedLeftY  = new int[MAX_PLAYERS][MAX_COORDS];
         public static final int[] cachedLeftCount = new int[MAX_PLAYERS];
@@ -68,6 +69,7 @@ public class Patch_IsoCell {
             Arrays.fill(cachedPxFloor, Integer.MIN_VALUE);
             Arrays.fill(cachedPyFloor, Integer.MIN_VALUE);
             Arrays.fill(cachedZ, Integer.MIN_VALUE);
+            Arrays.fill(cachedRadius, Integer.MIN_VALUE);
         }
 
         @Patch.OnEnter(skipOn = true)
@@ -83,10 +85,14 @@ public class Patch_IsoCell {
                 int playerIndex = IsoCamera.frameState.playerIndex;
                 if (playerIndex < 0 || playerIndex >= MAX_PLAYERS) return false;
 
-                // Indoor and slider-at-MIN both fall through to
-                // vanilla's own raster, unmodified.
+                // Indoor, slider-at-MIN and the speed ramp's floor all
+                // fall through to vanilla's own raster, unmodified.
+                // Snapshot the radius once per call so bounds stay
+                // consistent if Lua flips the slider mid-frame.
                 if (PeekAViewMod.isCameraPlayerIndoor()) return false;
-                if (PeekAViewMod.range <= PeekAViewMod.MIN_RANGE) return false;
+                int radius = PeekAViewMod.cutawayEffectiveRange[playerIndex];
+                if (radius <= PeekAViewMod.MIN_RANGE) return false;
+                if (radius > MAX_RADIUS) radius = MAX_RADIUS;
 
                 float px = player.getX();
                 float py = player.getY();
@@ -104,7 +110,8 @@ public class Patch_IsoCell {
                 if (cell == cachedCell[playerIndex]
                         && pxFloor == cachedPxFloor[playerIndex]
                         && pyFloor == cachedPyFloor[playerIndex]
-                        && z == cachedZ[playerIndex]) {
+                        && z == cachedZ[playerIndex]
+                        && radius == cachedRadius[playerIndex]) {
                     for (int i = 0; i < leftCount; ++i) {
                         IsoGridSquare sq = cell.getGridSquare(leftX[i], leftY[i], z);
                         if (sq != null) outLeft.add(sq);
@@ -119,11 +126,6 @@ public class Patch_IsoCell {
                 leftCount = 0;
                 rightCount = 0;
 
-                // Snapshot once per miss so bounds stay consistent if
-                // Lua flips the slider mid-frame.
-                int radius = PeekAViewMod.range;
-                if (radius < PeekAViewMod.MIN_RANGE) radius = PeekAViewMod.MIN_RANGE;
-                if (radius > MAX_RADIUS) radius = MAX_RADIUS;
                 int rasterSize = radius * 2 + 2;
                 float diamondHalfWidth = (float) radius * DIAMOND_HALF_WIDTH_PER_RADIUS;
 
@@ -171,6 +173,7 @@ public class Patch_IsoCell {
                 cachedPxFloor[playerIndex] = pxFloor;
                 cachedPyFloor[playerIndex] = pyFloor;
                 cachedZ[playerIndex] = z;
+                cachedRadius[playerIndex] = radius;
                 cachedLeftCount[playerIndex] = leftCount;
                 cachedRightCount[playerIndex] = rightCount;
                 return true;

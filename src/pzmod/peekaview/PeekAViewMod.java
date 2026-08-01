@@ -24,6 +24,10 @@ public class PeekAViewMod {
     // minimum). The fade is a complement to normal driving — holding
     // an aim key opens up more view via vanilla's cursor fade.
     public static final int TREE_FADE_RANGE = 15;
+    // Exit radius: already-faded trees keep zone membership up to
+    // here, so boundary jitter doesn't flip renderFlag — every flip
+    // invalidates the chunk texture (checkTreeTranslucency).
+    public static final int TREE_FADE_EXIT_RANGE = 17;
 
     // Speed range for Patch_isTranslucentTree's fade boost. Below
     // MIN: pure vanilla alphaStep (no boost). Between MIN and CAP:
@@ -32,6 +36,19 @@ public class PeekAViewMod {
     // clearly behind (refade behind moving vehicle).
     public static final float TREE_FADE_SNAP_MIN_KMH = 10f;
     public static final float TREE_FADE_SNAP_SPEED_CAP_KMH = 50f;
+
+    // Cutaway-extension speed ramp: full slider range up to MIN,
+    // shrinking linearly to the vanilla radius at MAX — the POI
+    // raster's per-frame vanilla consumers scale with the square
+    // count, and the extension loses visual value with speed. A ramp
+    // instead of a threshold: no visible cliff, and the endpoint
+    // values stay uncritical.
+    public static final float CUTAWAY_RANGE_RAMP_MIN_KMH = 25f;
+    public static final float CUTAWAY_RANGE_RAMP_MAX_KMH = 40f;
+    public static final long CUTAWAY_RANGE_GROW_HOLD_MS = 1000L;
+    public static final int[] cutawayEffectiveRange = new int[IsoPlayer.MAX];
+    // 0 = not pending.
+    public static final long[] cutawayRangeGrowSince = new long[IsoPlayer.MAX];
 
     // volatile: render thread reads; Lua UI thread writes via setters.
     public static volatile boolean enabled = true;
@@ -211,6 +228,34 @@ public class PeekAViewMod {
         // 1 km/h dead-zone so braking through 0 doesn't oscillate the
         // forward-direction flip; only sustained reverse triggers it.
         isVehicleReversing = signedSpeed < -1.0f;
+
+        int target = range;
+        if (currentVehicleSpeedKmh >= CUTAWAY_RANGE_RAMP_MAX_KMH) {
+            target = MIN_RANGE;
+        } else if (currentVehicleSpeedKmh > CUTAWAY_RANGE_RAMP_MIN_KMH && range > MIN_RANGE) {
+            float t = (currentVehicleSpeedKmh - CUTAWAY_RANGE_RAMP_MIN_KMH)
+                    / (CUTAWAY_RANGE_RAMP_MAX_KMH - CUTAWAY_RANGE_RAMP_MIN_KMH);
+            target = Math.round(range - t * (range - MIN_RANGE));
+        }
+        // Shrink immediately, grow only after the lower speed held —
+        // in-band speed oscillation in traffic must not pulse the rim
+        // buildings' cutaway.
+        int cur = cutawayEffectiveRange[pIdx];
+        if (!inVehicle || target < cur) {
+            cutawayEffectiveRange[pIdx] = target;
+            cutawayRangeGrowSince[pIdx] = 0L;
+        } else if (target > cur) {
+            long now = System.currentTimeMillis();
+            long since = cutawayRangeGrowSince[pIdx];
+            if (since == 0L) {
+                cutawayRangeGrowSince[pIdx] = now;
+            } else if (now - since >= CUTAWAY_RANGE_GROW_HOLD_MS) {
+                cutawayEffectiveRange[pIdx] = target;
+                cutawayRangeGrowSince[pIdx] = 0L;
+            }
+        } else {
+            cutawayRangeGrowSince[pIdx] = 0L;
+        }
 
         // Cap at 0.0: trait/state modifiers ≤ 0 pass through, the
         // vehicle's 1.0 (360°) must not widen the forward-cone gate.
