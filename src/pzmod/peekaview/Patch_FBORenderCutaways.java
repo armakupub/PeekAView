@@ -107,11 +107,9 @@ public class Patch_FBORenderCutaways {
                 if (!PeekAViewMod.enabled) return;
                 if (!PeekAViewMod.cutawayEnabled) return;
                 // Climb-stab runs independently of fixB42Adjacency:
-                // vanilla cluster cutaway oscillates per frame during
-                // stair climbs because checkOrphanStructures reads a
-                // camCharacterZ the stair feature swaps in and out
-                // mid-frame, producing mid-deck flicker even when the
-                // B42 fix is off.
+                // vanilla reads a camCharacterZ the stair feature swaps
+                // mid-frame, so cluster cutaway oscillates per frame
+                // during climbs even with the B42 fix off.
                 int pIdx = IsoCamera.frameState.playerIndex;
                 if (Patch_IsoObject.isClimbing(pIdx)) {
                     if (!initialized) tryInit();
@@ -120,30 +118,22 @@ public class Patch_FBORenderCutaways {
                         return;
                     }
                 }
-                // Master switch + cutaway-section enable + own checkbox.
-                // No aimStanceOnly gate: the vanilla B42 adjacency bug
-                // exists at vanilla cutaway range too, so the fix must
-                // run regardless of stance — otherwise the bug pops
-                // in/out with aiming.
+                // No aimStanceOnly gate: the vanilla bug exists at
+                // vanilla cutaway range too — gating on stance would
+                // pop it in/out with aiming.
                 if (!PeekAViewMod.fixB42Adjacency) return;
-                // Outdoor-only: indoor we let vanilla cutaway flow
-                // through to avoid B42-fix bleed-throughs of
-                // player-built tiles, which only manifest when the
-                // player can see them from inside a room.
+                // Outdoor-only: indoor, B42-fix bleed-throughs of
+                // player-built tiles are the dominant artifact and the
+                // bug itself is rare at vanilla range.
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (!initialized) tryInit();
                 if (!initialized) return;
-                // Skip the override when the cluster contains
-                // hoppable orphan tiles (player-built railings,
-                // low fences). Plain HoppableN/W has no per-object
-                // sprite cut, so the only mechanism that hides them
-                // when the player walks under them is the cluster
-                // playerInRange path. Forcing shouldCutaway=false
-                // for those clusters leaves railings drawn on top
-                // of the character. Adjacent vanilla walls remain
-                // protected by Patch_isAdjacentToOrphanStructure,
-                // so letting the cluster go in-range here only
-                // affects the orphan tiles themselves.
+                // Hoppable orphan tiles (player-built railings) have
+                // no per-object sprite cut — the cluster playerInRange
+                // path is the only mechanism hiding them under the
+                // character, so those clusters keep vanilla behavior.
+                // Adjacent vanilla walls stay protected by
+                // Patch_isAdjacentToOrphanStructure.
                 if (clusterContainsHoppable(self)) return;
                 if (isTooFarFromPlayer(self)) result = false;
             } catch (Throwable t) {
@@ -191,11 +181,9 @@ public class Patch_FBORenderCutaways {
             return false;
         }
 
-        // True if the cluster contains at least one orphan tile within
-        // NEAR_PLAYER_RADIUS_TILES of the rendering player AND that
-        // tile is not a roof-empty-outside classification. Roof tiles
-        // belong to vanilla buildings and need to keep cutting during
-        // climb so the room above is visible.
+        // Roof orphan tiles (roofHideBuilding != null) are excluded —
+        // they belong to vanilla buildings and must keep cutting
+        // during a climb so the room above stays visible.
         public static boolean clusterHasNonRoofOrphanNearPlayer(Object orphanStructures) {
             long mask = Accessor.tryGet(orphanStructures, FIELD_IS_ORPHAN_SQUARE, 0L);
             if (mask == 0L) return false;

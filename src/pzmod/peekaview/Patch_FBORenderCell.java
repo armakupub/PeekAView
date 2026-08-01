@@ -13,24 +13,14 @@ import zombie.iso.objects.IsoTree;
 
 public class Patch_FBORenderCell {
 
-    // Vanilla fades trees only in the SE quadrant of the player and
-    // only inside its ~5-tile stencil-bbox (FBORenderCell:1772-1782).
-    // We extend the fade to a Euclidean circle of radius
-    // PeekAViewMod.treeFadeRange, gated on the player's forward
-    // cone: out of cone we leave vanilla's result alone, in cone we
-    // flip it for any tile inside the circle. Euclidean (not
-    // Manhattan) so diagonal travel doesn't shrink the effective
-    // reach asymmetrically. Drives renderFlag (required gate;
-    // IsoTree.fadeAlpha only steps DOWN when renderFlag=true) and
-    // adds a bidirectional speed-proportional fade snap for vehicle
-    // speeds: DOWN when in zone, UP when clearly behind.
-    //
-    // LOS-blocking lives in Patch_IsoCell.Patch_DrawStencilMask;
-    // this patch is purely a render-layer flip.
-    //
-    // @Patch advice inlines into the target's bytecode, so non-
-    // constant fields it reads or writes must be accessible from
-    // there. Compile-time constants stay private (javac folds them).
+    // Vehicle-only tree-fade extension: a Euclidean circle of radius
+    // TREE_FADE_RANGE minus the clearly-behind back-cone. Euclidean,
+    // not Manhattan — diamonds shrink the reach on diagonal travel.
+    // The result flip is additive-only (false→true) and drives
+    // renderFlag; IsoTree.fadeAlpha only steps DOWN while it's true,
+    // and vanilla's own aim-time fade keeps working on top. Display is
+    // handled by Patch_FBORenderTrees.Patch_addTree; this patch is
+    // purely the render-layer flip plus the speed snap.
 
     @Patch(className = "zombie.iso.fboRenderChunk.FBORenderCell",
            methodName = "isTranslucentTree")
@@ -42,29 +32,16 @@ public class Patch_FBORenderCell {
             try {
                 if (!PeekAViewMod.fadeNWTrees) return;
                 if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
-                // Outdoor-only — mirrors the gate in Patch_DrawStencilMask.
+                // Outdoor-only — mirrors the gate in
+                // Patch_FBORenderTrees.Patch_addTree.
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
                 if (!(object instanceof IsoTree)) return;
                 if (object.square == null) return;
 
-                // Classify the tile for the bidirectional speed-snap:
-                //   clearlyBehind — back ~140° cone (geometric, vision-
-                //                   independent). Snap-UP for refade.
-                //                   Checked first so trees behind the
-                //                   player route to refade, not fade,
-                //                   even if they're inside the tree-
-                //                   fade cone (vehicle cone is 360° so
-                //                   anything behind would otherwise
-                //                   overlap inZone).
-                //   inZone        — Euclidean radius (slider) AND tree-
-                //                   fade cone. Drives renderFlag, snap
-                //                   accelerates vanilla's DOWN step.
-                // Tree-fade cone uses the uncapped vanilla cone (360° in
-                // vehicles) so there's no gap between in-cone and
-                // clearly-behind where vanilla's SE-quadrant logic could
-                // toggle result and flicker the tile in the user's view.
-                // For walking the tree-fade cone collapses back to the
-                // dynamic forward cone (vanilla returns ≤0 on foot).
+                // clearlyBehind is checked before the radius test: the
+                // fade zone is omnidirectional in a vehicle, so tiles
+                // behind the car must route to refade (snap UP), not
+                // get claimed by the in-zone DOWN path.
                 boolean inZone = result;
                 boolean clearlyBehind = false;
                 if (!result) {
@@ -78,28 +55,26 @@ public class Patch_FBORenderCell {
                     if (PeekAViewMod.isTileClearlyBehindCameraPlayer(object.square)) {
                         clearlyBehind = true;
                     } else {
-                        int range = PeekAViewMod.treeFadeRange;
-                        if (dx * dx + dy * dy <= range * range
-                            && PeekAViewMod.isTileInTreeFadeCone(object.square)) {
+                        int range = PeekAViewMod.TREE_FADE_RANGE;
+                        if (dx * dx + dy * dy <= range * range) {
                             inZone = true;
                             result = true;
                         }
                     }
                 }
 
-                // Speed-proportional fade boost on top of vanilla's
-                // alphaStep. Below MIN_KMH (~walking pace) we don't
-                // touch fadeAlpha at all so vanilla's 0.55 s rate owns
-                // the animation; even tiny t³ values would otherwise
-                // compound across the 6-10 isTranslucentTree calls per
-                // tree per frame. Between MIN_KMH and SPEED_CAP_KMH
-                // the cubic ramp builds toward snap; at/above
-                // SPEED_CAP_KMH a single call covers the full range.
+                // Speed-proportional boost on top of vanilla's
+                // alphaStep. Below MIN_KMH vanilla owns the animation:
+                // isTranslucentTree fires 6-10× per tree per frame, so
+                // even tiny t³ steps would compound. At/above the cap
+                // a single call covers the full range.
                 float speed = PeekAViewMod.currentVehicleSpeedKmh;
                 float minBoost = PeekAViewMod.TREE_FADE_SNAP_MIN_KMH;
                 if (speed > minBoost) {
                     IsoTree tree = (IsoTree) object;
-                    float minAlpha = 0.25f;
+                    // Matches vanilla 42.20's outdoor fade floor so the
+                    // snap converges where the alphaStep path would.
+                    float minAlpha = 0.15f;
                     float cap = PeekAViewMod.TREE_FADE_SNAP_SPEED_CAP_KMH;
                     float t = speed >= cap ? 1.0f : (speed - minBoost) / (cap - minBoost);
                     float step = (1.0f - minAlpha) * t * t * t;
@@ -150,11 +125,9 @@ public class Patch_FBORenderCell {
                 FakeFrameState ffs = FakeWindow.get(idx);
                 if (ffs == null) return;
 
-                // Captures only — no mutation, no throws. Commit opened=true
-                // immediately after so any throw further down still hits the
-                // exit cleanup path. Each cleanup branch is gated on its own
-                // step-flag (currentSwapped, posMutated, sqSwapped) to know
-                // which mutations actually landed.
+                // Commit opened=true right after the captures so any
+                // throw further down still hits exit cleanup; each
+                // cleanup branch is gated on its own step-flag.
                 savedX = fs.camCharacterX;
                 savedY = fs.camCharacterY;
                 savedZ = fs.camCharacterZ;
@@ -173,15 +146,8 @@ public class Patch_FBORenderCell {
                     currentSwapped = true;
                 }
 
-                // Set the visibility flag BEFORE writing fake fields. With
-                // the original (write-then-flag) order, a non-render thread
-                // reading getX between the two ops sees fake-Z via the
-                // vanilla getter (no shadow yet). Pre-setting the flag
-                // means that during the gap the shadow returns realPos.x,
-                // which matches the still-real field; once writeFakePos
-                // lands, the shadow keeps returning realPos.x while
-                // render-path reads via TL get fakePos.x. Rollback on
-                // Reflection failure.
+                // Flag BEFORE writeFakePos (ordering invariant, see
+                // FakeWindow). Rollback on Reflection failure.
                 if (ffs.camChar != null) {
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (FakeWindow.writeFakePos(ffs.camChar, ffs.fakePos.x, ffs.fakePos.y, ffs.fakePos.z)) {
@@ -316,9 +282,8 @@ public class Patch_FBORenderCell {
                 fs.camCharacterZ = ffs.realPos.z;
                 fs.camCharacterSquare = ffs.realSquare;
 
-                // De-mutate order: writeRealPos BEFORE fieldMutated.set(0).
-                // Already correct — during the gap a non-render reader sees
-                // flag=1 and gets realPos.x, matching the now-real field.
+                // De-mutate order: writeRealPos BEFORE flag-clear
+                // (ordering invariant, see FakeWindow).
                 if (ffs.camChar != null) {
                     savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.realSquare);
@@ -351,8 +316,7 @@ public class Patch_FBORenderCell {
                 fs.camCharacterSquare = savedSquare;
                 if (saved != null && saved.camChar != null && savedCurrent != null) {
                     saved.camChar.setCurrent(savedCurrent);
-                    // Re-mutate order: flag BEFORE writeFakePos. See the
-                    // ordering rationale on the renderInternal enter site.
+                    // Re-mutate: flag BEFORE writeFakePos (see FakeWindow).
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (!FakeWindow.writeFakePos(saved.camChar, saved.fakePos.x, saved.fakePos.y, saved.fakePos.z)) {
                         FakeWindow.fieldMutated.set(idx, 0);

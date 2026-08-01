@@ -1,6 +1,12 @@
 Peek a View - Changelog
 =======================
 
+1.5.0 - 2026-08-01
+  - Requires PZ Build 42.20 or later (B42 stable).
+  - Tree fade: now a driving-only feature. Build 42.20 ships its own on-foot tree fade, so PeekAView only fades trees around a moving vehicle and the range slider is gone.
+  - Stair view: zombies now reveal only in the room you're climbing into (plus the stairs themselves). Zombies in neighboring rooms stay hidden until your character can actually see them.
+  - "Fix B42 Wall-Hiding Bug" is now opt-in (off by default), so player-built structures render vanilla-accurate unless you need the workaround. Existing installs reset to off; re-enable it if upper-floor walls vanish next to your builds.
+
 1.4.4 - 2026-05-14
   - Fixed WalkTo glitch for my friend 爱看歌剧的长颈鹿.
 

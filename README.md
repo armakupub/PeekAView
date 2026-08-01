@@ -7,10 +7,10 @@
 Project Zomboid hides a lot of what's actually visible to your character behind walls, trees, and floors above. PeekAView extends three rendering passes so your screen catches up with your character's eyes. Three independent features:
 
 - **Wall cutaway**: walls and fences fade earlier as you approach them.
-- **Tree fade**: trees in your character's view become translucent.
+- **Tree fade**: while driving, trees around your vehicle become translucent.
 - **Stair view**: while climbing stairs, the upper floor already renders.
 
-Each feature is independent. Run all three together, just the one you need, or somewhere in between. Every feature has its own Enable toggle, and the wall and tree fade ranges are tunable in the Options menu.
+Each feature is independent. Run all three together, just the one you need, or somewhere in between. Every feature has its own Enable toggle, and the wall cutaway range is tunable in the Options menu.
 
 **F8** toggles the master Enable in-game (rebindable under `[PeekAView]` in PZ's keybind menu).
 
@@ -18,7 +18,7 @@ Same rules as vanilla. No X-ray, no see-through walls, no enemy outlines. Your c
 
 ## Maintenance status
 
-This mod is feature-complete for my use and no longer actively developed. Last tested against PZ build 42.18.
+This mod is feature-complete for my use and no longer actively developed. Last tested against PZ build 42.20.
 
 Source is MIT-licensed. Forks and improvements are welcome and encouraged. If a maintained successor appears, I'll link to it here.
 
@@ -26,7 +26,7 @@ Issues and PRs will be read but I can't promise response times. If the mod break
 
 ## Requirements
 
-- **Project Zomboid** Build 42.13 or newer
+- **Project Zomboid** Build 42.20 or newer
 - **[ZombieBuddy](https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853)**: Java bytecode patching framework (required, one-time setup)
 
 ## Installation
@@ -46,7 +46,7 @@ Because Peek a View ships a Java JAR, the **first** time you launch the game aft
 
 Walls and fences fade as you walk toward them, not after you've already reached them. You can take wider arcs around obstacles, peek through doorways and windows from further out, and watch a building's far walls fade in your approach: you commit to entering with a clearer picture of what's on the other side.
 
-Also includes a workaround for a B42 engine bug where player-built structures next to vanilla buildings can hide the upper-floor walls of those buildings entirely.
+Also includes an opt-in workaround for a B42 engine bug where player-built structures next to vanilla buildings can hide the upper-floor walls of those buildings entirely.
 
 | Setting | Range / Default | What it does |
 |---|---|---|
@@ -54,20 +54,19 @@ Also includes a workaround for a B42 engine bug where player-built structures ne
 | Range | 5–20, default 10 | How far walls fade around the player. `5` = pure vanilla; lower values improve performance. |
 | Active only when aiming | off | Active only while aiming a weapon (right-click held). |
 | Active in vehicles | on | When on, cutaway runs while driving. When off, on foot only. |
-| Fix B42 wall-hiding bug | on | Workaround for the vanilla B42 bug. |
+| Fix B42 wall-hiding bug | off | Opt-in workaround for the vanilla B42 bug — enable it if upper-floor walls vanish next to your player-built structures. Trade-off: player-built tiles attached to a vanilla facade can stay visible where vanilla would hide them. |
 
 ## Tree fade
 
-Trees in your character's forward view become translucent so you can see what's behind them. Useful on foot to spot zombies hiding in tree lines, and especially useful while driving: road hazards behind a tree show up earlier instead of only once the tree has cleared the bumper.
+While you drive, trees around the vehicle become translucent so road hazards and zombies show up before the tree has cleared the bumper. Trees passing behind the vehicle solidify quickly instead of trailing half-faded ghosts. On foot, vanilla's build-42 tree fade (including the aim-key fade) applies unchanged.
 
-| Setting | Range / Default | What it does |
+| Setting | Default | What it does |
 |---|---|---|
 | Enable | on | Toggles the tree fade feature. |
-| Range | 15–25, default 15 | How far trees fade around the player. Lower values improve performance. |
 
 ## Stair view
 
-While your character is on stairs, the upper floor renders during the climb instead of only after you've topped out. You see what's waiting upstairs before you reach it.
+While your character is on stairs, the upper floor renders during the climb instead of only after you've topped out. You see what's waiting upstairs before you reach it. Zombies on the upper floor become visible during the climb, limited to your character's forward view and the room you're climbing into.
 
 | Setting | Default | What it does |
 |---|---|---|
@@ -85,7 +84,7 @@ Based on the [Staircast Workshop mod](https://steamcommunity.com/sharedfiles/fil
 
 **I disabled PeekAView in the mod list mid-session but the effects are still showing. What now?** Project Zomboid keeps mod code in memory across save reloads, so disabling PeekAView in the mod list mid-session doesn't shut it down on its own. Three ways to clear it: (1) toggle it off via the mod's own in-game settings (instant), (2) reload your save (PeekAView checks the active mod list on each save load and self-deactivates if it's no longer there), or (3) restart PZ. This is an already-reported framework-level limitation.
 
-**Does it affect performance?** Several caches keep the runtime cost close to vanilla. Standing still and walking on foot are the cheapest paths. Lower the range sliders if your hardware struggles.
+**Does it affect performance?** Several caches keep the runtime cost close to vanilla. Standing still and walking on foot are the cheapest paths. Lower the cutaway range slider if your hardware struggles.
 
 ## Building from Source
 
@@ -109,7 +108,7 @@ Technical documentation for contributors is under [`docs/`](docs/).
 
 - **Cutaway-on-stairs idea + FakeFrameState pattern + choice of patched render classes**: [copiumsawsed/pz-Staircast](https://github.com/copiumsawsed/pz-Staircast) (MIT, original Workshop mod).
 - **Read-path implementation** (reflective `x/y/z` field-write + ThreadLocal-gated shadow on `IsoMovingObject` getters): first published as our standalone fork [armakupub/staircast-rp](https://github.com/armakupub/staircast-rp) (MIT).
-- **PeekAView extensions on the staircast-rp foundation**: stair-tile latch, cone-vision zombie alpha override with smooth fade-out, getModIDs-based external-stair detection, self-check, pause-resistant freeze, multi-patch ordering fixes.
+- **PeekAView extensions on the staircast-rp foundation**: stair-tile latch, cone-vision zombie alpha override gated to the landing room with smooth fade-out, getModIDs-based external-stair detection, self-check, pause-resistant freeze, multi-patch ordering fixes.
 
 ## License
 

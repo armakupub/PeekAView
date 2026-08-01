@@ -1,64 +1,47 @@
 [h1]Poszerz swoje pole widzenia[/h1]
 
-Project Zomboid ukrywa wiele z tego, co twoja postać faktycznie widziałaby, za ścianami, drzewami i wyższymi piętrami. PeekAView rozszerza trzy ścieżki renderowania, dzięki czemu twój ekran zbliża się do tego, co widzi twoja postać. Trzy niezależne funkcje:
+Project Zomboid ukrywa wiele z tego, co twoja postać faktycznie widzi, za ścianami, drzewami i wyższymi piętrami. PeekAView rozszerza trzy ścieżki renderowania, dzięki czemu twój ekran nadąża za oczami twojej postaci:
 
 [list]
-[*][b]Wygaszanie ścian[/b]: ściany są wygaszane na większym dystansie, dzięki czemu rogi i drzwi wcześniej pokazują, co znajduje się za nimi, gdy się zbliżasz.
-[*][b]Wygaszanie drzew[/b]: drzewa w twoim polu widzenia stają się przezroczyste. Wypatrz zombie za rzędami drzew tam, gdzie sięga linia wzroku; bezpieczniejsza jazda z wcześniejszą widocznością przeszkód.
-[*][b]Widok schodów[/b]: górne piętro jest renderowane podczas wchodzenia po schodach, więc widzisz, co czeka na górze, zanim tam dotrzesz.
+[*][b]Wygaszanie ścian[/b]: ściany są wygaszane na większym dystansie, dzięki czemu rogi i drzwi wcześniej pokazują, co znajduje się za nimi, gdy się do nich zbliżasz.
+[*][b]Wygaszanie drzew[/b]: podczas jazdy drzewa wokół twojego pojazdu stają się przezroczyste, co daje wcześniejszą widoczność przeszkód.
+[*][b]Widok schodów[/b]: górne piętro jest renderowane podczas wchodzenia po schodach, więc widzisz, co czeka na górze, zanim tam dotrzesz. Zombie ujawniają się tylko w pomieszczeniu, do którego wchodzisz.
 [/list]
 
-Te same zasady co w vanilla. Bez widzenia rentgenowskiego, bez przezroczystych ścian, bez konturów wrogów. Linia wzroku twojej postaci nadal decyduje, co jest faktycznie widoczne.
+Te same zasady co w vanilla: bez widzenia rentgenowskiego, bez przezroczystych ścian, bez konturów wrogów. Linia wzroku twojej postaci nadal decyduje, co jest widoczne.
 
-[h1]Ustawienia[/h1]
-Każda funkcja jest niezależna. Włącz wszystkie trzy razem, tylko tę jedną, której potrzebujesz, albo coś pomiędzy. Każda funkcja ma własny przełącznik aktywacji, a zasięgi wygaszania ścian i drzew są regulowane w menu opcji.
+Każda funkcja ma własny przełącznik Włącz w Opcje → Mody → Peek a View. [b]F8[/b] przełącza całego moda w grze (do przemapowania).
 
-Opcje → Mody → Peek a View, cztery sekcje: Ogólne, Wygaszanie ścian, Wygaszanie drzew, Widok schodów. [b]F8[/b] przełącza główny włącznik w grze (zielona/czerwona aureola potwierdza; do przemapowania w Opcje → Sterowanie pod [noparse][PeekAView][/noparse]).
+Od buildu 42.20 PZ ma własne wygaszanie drzew podczas chodzenia pieszo. Moim zdaniem spełnia swoje zadanie, więc wygaszanie drzew w PeekAView obejmuje teraz tylko jazdę pojazdem. Jeśli TIS przerobi swoje rozwiązanie albo sam zauważę pole do poprawy, grając na wersji stabilnej, wrócę do tematu.
 
 [h1]Wymagania[/h1]
 [list]
-[*]PZ Build 42.13 lub nowszy
+[*]PZ Build 42.20 lub nowszy
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], jednorazowa instalacja dla każdego moda Java
 [/list]
 
 [h1]Kompatybilność[/h1]
 [list]
-[*]Bezpieczne dodawanie i usuwanie podczas trwającej sesji: żadne dane zapisu nie są zmieniane. Efekty wizualne znikają po następnym ponownym wczytaniu zapisu po usunięciu moda z listy modów.
-[*]Tylko po stronie klienta: każdy gracz chcący efektu musi mieć zainstalowanego moda (i ZombieBuddy).
+[*]Tylko po stronie klienta, bezpieczne dodawanie i usuwanie podczas trwającej sesji. W multiplayerze każdy klient, który chce mieć ten efekt, potrzebuje moda (i ZombieBuddy).
+[*]Działa razem z modem Staircast z Workshopu: PeekAView wykrywa go i ustępuje mu swoim widokiem schodów.
 [/list]
 
 [h1]FAQ[/h1]
 
-[b]Czy istnieje konflikt z modem Staircast z Workshopu?[/b]
-Nie. Jeśli oba są subskrybowane, PeekAView wykrywa Staircast w czasie rzeczywistym i ustępuje mu swoim widokiem schodów, dzięki czemu oba mogą działać razem.
+[b]Co robi opcja "Napraw błąd znikania ścian B42"?[/b]
+Vanilla B42 potrafi ukrywać ściany górnych pięter obok struktur zbudowanych przez gracza, zostawiając w nich dziury pod pewnymi kątami. Ta opcja (domyślnie wyłączona) tłumi to zachowanie. Kompromis: tarasy zbudowane przez gracza, przylegające do ścian vanilla, renderują się na elewacji bardziej widocznie, więc włącz ją tylko wtedy, gdy faktycznie widzisz te dziury.
 
-[b]Czy działa w multiplayer?[/b]
-Tak, tylko po stronie klienta. Każdy klient potrzebuje również zainstalowanego ZombieBuddy.
-
-[b]Co dokładnie robi opcja "Fix B42 Wall-Hiding Bug"?[/b]
-Szersze cutaway moda wzmacnia błąd vanilli B42, w którym ściany górnych pięter znikają obok struktur zbudowanych przez gracza, zostawiając w nich dziury pod pewnymi kątami. Opcja (domyślnie włączona, tylko na zewnątrz) tłumi to zachowanie. Kompromis: fragment kafelka podłogi często pozostaje widoczny na jednej komórce zewnętrznej ściany, a tarasy zbudowane przez gracza przylegające do ścian vanilla renderują się na elewacji bardziej widocznie niż zwykle. Wybrałem to jako mniejsze zło dla ogólnej immersji. Jeśli twój zapis nie ma rozległych konstrukcji gracza przylegających do domów vanilla po stronie kamery, lub jeśli nie używasz funkcji wygaszania ścian, możesz wyłączyć opcję dla renderowania bliższego vanilli.
-
-[b]Niechcący odrzuciłem PeekAView w oknie akceptacji ZombieBuddy. Czy mogę to cofnąć?[/b]
-ZombieBuddy zapisuje każdą decyzję w [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Otwórz plik, znajdź blok(i) z [noparse]"id": "PeekAView"[/noparse] gdzie [noparse]"decision": false[/noparse], zmień [noparse]false[/noparse] na [noparse]true[/noparse], zapisz i zrestartuj PZ. Jeśli edycja JSON-a wydaje ci się ryzykowna, usuń te bloki PeekAView, a ZombieBuddy zapyta ponownie przy następnym wczytaniu zapisu.
-
-[b]Czy wpływa na wydajność?[/b]
-Kilka mechanizmów cache'owania trzyma koszty wykonania blisko vanilla. Stanie w miejscu i chodzenie pieszo to najtańsze ścieżki. Zmniejsz suwaki zasięgu, jeśli twój sprzęt ma problemy.
+[b]Odrzuciłem PeekAView w oknie akceptacji ZombieBuddy. Czy mogę to cofnąć?[/b]
+Edytuj [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]: w bloku [noparse]"id": "PeekAView"[/noparse] zmień [noparse]"decision": false[/noparse] na [noparse]true[/noparse] (albo usuń ten blok, aby zostać zapytanym ponownie). Zrestartuj PZ.
 
 [h1]Utrzymanie i Kod źródłowy[/h1]
-Ten mod jest dla mojego użytku skończony i nie jest już aktywnie rozwijany. Ostatnio testowany na PZ Build 42.18.
-
-PeekAView jest na licencji MIT i jest w pełni open source. Patche dotykają tylko określonych klas renderowania PZ. Forki i ulepszenia są mile widziane i zachęcane. Jeśli pojawi się aktywnie utrzymywany następca, podlinkuję go tutaj.
-[list]
-[*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[/list]
-
-Issues i PR-y będę czytał, ale nie mogę obiecać czasu odpowiedzi. Jeśli mod przestanie działać w przyszłej wersji PZ i nie zamierzam go naprawiać, usunę go z Workshopu zamiast zostawiać zepsutą wersję.
+Dla mojego użytku mod jest skończony i nie jest aktywnie rozwijany. Ostatnio testowany na PZ Build 42.20. Licencja MIT, w pełni open source: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forki mile widziane. Jeśli mod przestanie działać w przyszłej wersji PZ i nie zamierzam go naprawiać, usunę go z Workshopu zamiast zostawiać zepsutą wersję.
 
 [h1]Atrybucja[/h1]
 [list]
 [*][b]Koncept cutaway-on-stairs + wzorzec FakeFrameState + wybór modyfikowanych klas renderowania[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, oryginalny mod z Workshopu).
 [*][b]Fork implementacji read-path[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
-[*][b]Rozszerzenia PeekAView na bazie staircast-rp[/b]: zombie na górnym piętrze pozostają widoczne przez całą wspinaczkę, dopóki znajdują się w polu widzenia twojej postaci.
+[*][b]Rozszerzenia PeekAView na tej podstawie[/b]: zombie na górnym piętrze ujawniają się podczas wspinaczki, ograniczone do pola widzenia twojej postaci i pomieszczenia, do którego wchodzisz.
 [/list]
 
 [hr][/hr]

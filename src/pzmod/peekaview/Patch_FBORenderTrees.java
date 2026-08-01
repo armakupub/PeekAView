@@ -4,11 +4,45 @@ import me.zed_0xff.zombie_buddy.Patch;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
 
-// Stair feature — restores real position during the tree pass so trees
-// render at their true world Z while the rest of the chunk renders the
-// upper floor.
 public class Patch_FBORenderTrees {
 
+    // Vehicle tree-fade display path. 42.20 renders a fading tree
+    // (useStencil) in two stencil-gated passes: opaque outside the
+    // mask areas, faded plus outlined inside. Extending the mask to
+    // the fade radius stamps a visibly oversized circle around the
+    // car, so instead fading trees are rerouted onto vanilla's
+    // `transparent` path (the XL-crown mechanism): drawn once,
+    // uniformly at fadeAlpha, no stencil, no outline. cutawayAlpha
+    // is set to fadeAlpha so renderTree's min() resolves to
+    // fadeAlpha. bUseStencil is only true during the render thread's
+    // translucent pass, so this never fires on chunk-texture bakes.
+    @Patch(className = "zombie.iso.fboRenderChunk.FBORenderTrees", methodName = "addTree")
+    public static class Patch_addTree {
+
+        @Patch.OnEnter
+        public static void enter(
+                @Patch.Argument(value = 10, readOnly = false) boolean bUseStencil,
+                @Patch.Argument(11) float fadeAlpha,
+                @Patch.Argument(value = 12, readOnly = false) boolean transparent,
+                @Patch.Argument(value = 13, readOnly = false) float cutawayAlpha) {
+            try {
+                if (!bUseStencil) return;
+                if (transparent) return; // vanilla XL-crown call owns it
+                if (!PeekAViewMod.fadeNWTrees) return;
+                if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
+                if (PeekAViewMod.isCameraPlayerIndoor()) return;
+                bUseStencil = false;
+                transparent = true;
+                cutawayAlpha = fadeAlpha;
+            } catch (Throwable t) {
+                PeekAViewMod.trace("Patch_addTree enter failed", t);
+            }
+        }
+    }
+
+    // Stair feature — restores real position during the tree pass so
+    // trees render at their true world Z while the rest of the chunk
+    // renders the upper floor.
     @Patch(className = "zombie.iso.fboRenderChunk.FBORenderTrees", methodName = "init", warmUp = true)
     public static class Patch_init {
 
@@ -72,8 +106,7 @@ public class Patch_FBORenderTrees {
                 fs.camCharacterSquare = savedSquare;
                 if (saved != null && saved.camChar != null && savedCurrent != null) {
                     saved.camChar.setCurrent(savedCurrent);
-                    // Re-mutate: flag BEFORE writeFakePos. See
-                    // FBORenderCell.Patch_renderInternal enter for rationale.
+                    // Re-mutate: flag BEFORE writeFakePos (see FakeWindow).
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (!FakeWindow.writeFakePos(saved.camChar, saved.fakePos.x, saved.fakePos.y, saved.fakePos.z)) {
                         FakeWindow.fieldMutated.set(idx, 0);

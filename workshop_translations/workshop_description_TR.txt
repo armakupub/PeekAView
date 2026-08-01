@@ -1,64 +1,47 @@
 [h1]Görüşünüzü genişletin[/h1]
 
-Project Zomboid, karakterinizin aslında görebileceği pek çok şeyi duvarların, ağaçların ve üst katların ardına saklar. PeekAView üç render geçişini genişletir, böylece ekranınız karakterinizin gözlerine yaklaşır. Üç bağımsız özellik:
+Project Zomboid, karakterinizin aslında görebileceği pek çok şeyi duvarların, ağaçların ve üst katların ardına saklar. PeekAView üç render geçişini genişletir, böylece ekranınız karakterinizin gözlerine yetişir:
 
 [list]
-[*][b]Duvar kesimi[/b]: duvarlar daha uzak mesafede soluklaşır, böylece köşeler ve kapı çerçeveleri yaklaşırken arkalarındaki şeyleri daha erken gösterir.
-[*][b]Ağaç solukluğu[/b]: görüş alanınızdaki ağaçlar yarı saydam olur. Görüş hattının ulaştığı yerlerde ağaç sıralarının arkasındaki zombileri tespit edin; engellerin daha erken görünmesiyle daha güvenli sürüş.
-[*][b]Merdiven görüşü[/b]: merdiven çıkarken üst kat render edilir, böylece yukarıda sizi neyin beklediğini varmadan önce görürsünüz.
+[*][b]Duvar kesimi[/b]: duvarlar daha uzak mesafede kesilir, böylece köşeler ve kapı çerçeveleri yaklaşırken arkalarındaki şeyleri daha erken gösterir.
+[*][b]Ağaç solukluğu[/b]: araç kullanırken aracınızın çevresindeki ağaçlar yarı saydam olur, böylece engelleri daha erken görürsünüz.
+[*][b]Merdiven görüşü[/b]: merdiven çıkarken üst kat render edilir, böylece yukarıda ne olduğunu varmadan önce görürsünüz. Zombiler yalnızca çıktığınız odada görünür olur.
 [/list]
 
-Vanilla ile aynı kurallar. Röntgen görüşü yok, şeffaf duvar yok, düşman silüeti yok. Karakterinizin görüş hattı yine neyin gerçekten görünür olduğuna karar verir.
+Vanilla ile aynı kurallar. Röntgen görüşü yok, şeffaf duvar yok, düşman silüeti yok. Neyin görünür olduğuna yine karakterinizin görüş hattı karar verir.
 
-[h1]Ayarlar[/h1]
-Her özellik bağımsızdır. Üçünü birden, sadece ihtiyacınız olanı veya bir karışımını çalıştırabilirsiniz. Her özelliğin kendi etkinleştirme anahtarı vardır, duvar ve ağaç solukluğu menzilleri Seçenekler menüsünden ayarlanabilir.
+Her özelliğin Seçenekler → Modlar → Peek a View altında kendi Etkinleştir anahtarı vardır. [b]F8[/b] oyun içinde modun tamamını açıp kapatır (yeniden atanabilir).
 
-Seçenekler → Modlar → Peek a View, dört bölüm: Genel, Duvar kesimi, Ağaç solukluğu, Merdiven görüşü. [b]F8[/b] oyun içinde ana anahtarı açıp kapatır (yeşil/kırmızı hale onaylar; Seçenekler → Tuş Atamaları altında [noparse][PeekAView][/noparse] ile yeniden atanabilir).
+Build 42.20'den beri PZ kendi yaya ağaç solukluğuyla geliyor. Bence işi görüyor, bu yüzden PeekAView'in ağaç solukluğu artık yalnızca araç kullanırken devrede. TIS kendi sürümünü elden geçirirse ya da stabil sürümde kendim oynarken iyileştirilecek bir yer görürsem, konuya tekrar dönerim.
 
 [h1]Gereksinimler[/h1]
 [list]
-[*]PZ Build 42.13 veya daha yenisi
+[*]PZ Build 42.20 veya daha yenisi
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], herhangi bir Java modu için tek seferlik kurulum
 [/list]
 
 [h1]Uyumluluk[/h1]
 [list]
-[*]Oturum sırasında güvenli şekilde eklenebilir veya kaldırılabilir: kayıt verilerine dokunulmaz. Modu mod listesinden kaldırdıktan sonra görsel etkiler bir sonraki kayıt yüklemesinde temizlenir.
-[*]Yalnızca istemci tarafı: etkiyi isteyen her oyuncunun modu (ve ZombieBuddy'yi) yüklü olması gerekir.
+[*]Yalnızca istemci tarafı, oturum sırasında güvenle eklenebilir veya kaldırılabilir. Çok oyunculuda, etkiyi isteyen her istemcide modun (ve ZombieBuddy'nin) yüklü olması gerekir.
+[*]Staircast Workshop moduyla birlikte çalışır: PeekAView modu algılar ve kendi merdiven görüşünü devreden çıkarır.
 [/list]
 
 [h1]SSS[/h1]
 
-[b]Staircast Workshop modu ile çakışıyor mu?[/b]
-Hayır. Her ikisi de aboneyse, PeekAView Staircast'i çalışma zamanında algılar ve kendi merdiven görüşünü devreden çıkarır, böylece ikisi birlikte çalışabilir.
+[b]"B42 Duvar Kaybolma Hatasını Düzelt" ne yapar?[/b]
+Vanilla B42, oyuncunun inşa ettiği yapıların yanındaki üst kat duvarlarını gizleyebilir ve belirli açılardan duvarda delikler bırakır. Bu seçenek (varsayılan kapalı) bu davranışı bastırır. Ödün: vanilla duvarlara bitişik oyuncu yapımı platformlar cephede daha görünür şekilde render edilir, bu yüzden yalnızca delikleri gerçekten görüyorsanız açın.
 
-[b]Çok oyunculu modda çalışıyor mu?[/b]
-Evet, yalnızca istemci tarafı. Her istemcinin de ZombieBuddy yüklü olması gerekir.
-
-[b]"Fix B42 Wall-Hiding Bug" seçeneği tam olarak ne yapıyor?[/b]
-Modun daha geniş duvar kesimi, oyuncunun inşa ettiği yapılarla bitişik üst kat duvarlarının belirli açılardan kaybolduğu ve duvarda delikler bıraktığı vanilla B42 hatasını şiddetlendirir. Bu seçenek (varsayılan açık, yalnızca dışarıda) bu davranışı bastırır. Ödün: dış duvarın bir hücresinde sıklıkla bir döşeme kalıntısı görünür kalır ve vanilla duvarlara bitişik oyuncu inşa platformları cephede normalden daha fazla görünür şekilde render edilir. Bunu genel atmosfer için daha küçük bir kötülük olarak seçtim. Eğer kayıtınızda kameraya bakan tarafta vanilla evlere yapışan yoğun oyuncu yapımı geometri yoksa veya duvar kesimi özelliğini kullanmıyorsanız, vanilla'ya daha yakın render için seçeneği kapatabilirsiniz.
-
-[b]ZombieBuddy onay penceresinde PeekAView'i yanlışlıkla reddettim. Geri alabilir miyim?[/b]
-ZombieBuddy her kararı [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse] dosyasında saklar. Dosyayı açın, [noparse]"id": "PeekAView"[/noparse] ve [noparse]"decision": false[/noparse] içeren blok(ları) bulun, [noparse]false[/noparse] değerini [noparse]true[/noparse] olarak değiştirin, kaydedin, PZ'yi yeniden başlatın. JSON düzenlemek riskli görünüyorsa, bu PeekAView bloklarını silin ve ZombieBuddy bir sonraki kayıt yüklemesinde tekrar sorar.
-
-[b]Performansı etkiler mi?[/b]
-Birkaç önbellek mekanizması çalışma maliyetini vanilla'ya yakın tutar. Yerinde durmak ve yürümek en ucuz yollardır. Donanımınız zorlanıyorsa menzil kaydırıcılarını düşürün.
+[b]ZombieBuddy onay penceresinde PeekAView'i reddettim. Geri alabilir miyim?[/b]
+[noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse] dosyasını düzenleyin: [noparse]"id": "PeekAView"[/noparse] bloğunda [noparse]"decision": false[/noparse] değerini [noparse]true[/noparse] olarak değiştirin (ya da tekrar sorulması için bloğu silin). PZ'yi yeniden başlatın.
 
 [h1]Bakım ve Kaynak kodu[/h1]
-Bu mod kendi kullanımım için tamamlanmış durumda ve artık aktif olarak geliştirilmiyor. Son test PZ Build 42.18 üzerinde.
-
-PeekAView MIT lisanslı ve tamamen açık kaynaktır. Yamalar yalnızca belirli PZ render sınıflarına dokunur. Forklar ve iyileştirmeler memnuniyetle karşılanır ve teşvik edilir. Aktif olarak bakımı yapılan bir halefi ortaya çıkarsa, buradan ona bağlantı veririm.
-[list]
-[*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[/list]
-
-Issues ve PR'ları okuyacağım ancak yanıt sürelerini garanti edemem. Mod gelecekteki bir PZ sürümünde bozulursa ve düzeltmeyeceksem, bozuk bir sürümü öylece bırakmaktansa Workshop'tan kaldırırım.
+Kendi kullanımım için tamamlanmış durumda, aktif olarak geliştirilmiyor. Son test PZ Build 42.20 üzerinde. MIT lisanslı, tamamen açık kaynak: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forklar memnuniyetle karşılanır. Mod gelecekteki bir PZ sürümünde bozulursa ve düzeltmeyeceksem, bozuk bir sürümü öylece bırakmaktansa Workshop'tan kaldırırım.
 
 [h1]Atıf[/h1]
 [list]
 [*][b]Cutaway-on-stairs konsepti + FakeFrameState deseni + yamalı render sınıflarının seçimi[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, orijinal Workshop modu).
 [*][b]Read-path uygulamasının fork'u[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
-[*][b]staircast-rp temeli üzerine PeekAView eklentileri[/b]: üst kat zombileri, karakterinizin görüş hattında oldukları sürece tırmanış boyunca görünür kalır.
+[*][b]Bu temel üzerine PeekAView eklentileri[/b]: tırmanış sırasında üst kat zombilerinin ortaya çıkması, karakterinizin ileri görüş alanı ve çıktığınız odayla sınırlı.
 [/list]
 
 [hr][/hr]

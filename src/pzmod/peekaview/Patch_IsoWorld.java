@@ -19,13 +19,9 @@ import zombie.iso.Vector3;
 // Patch_IsoCell.Patch_renderInternal, Patch_LightingJNI etc.) to consume.
 public class Patch_IsoWorld {
 
-    // Hysteresis: once a frame strictly passes all activation
-    // checks, subsequent frames within this window are allowed to
-    // stay activated even if a soft check (cone, head-Z) briefly
-    // fails. 30 frames @ 60 FPS = 0.5 s of grace, enough to ride
-    // out animation key-pose oscillations on stairs (head bob, idle
-    // sway) without re-triggering the cutaway state-machine per
-    // frame.
+    // 0.5 s @ 60 FPS of grace after a strict pass — rides out
+    // animation key-pose oscillations (head bob, idle sway) without
+    // re-triggering the cutaway state machine per frame.
     private static final int HYSTERESIS_FRAMES = 30;
 
     private static Field FIELD_DRAW_WORLD;
@@ -60,35 +56,26 @@ public class Patch_IsoWorld {
         }
 
         public static void computeFake(IsoWorld self) {
-            // Hard gates first, must run before any FakeWindow mutation.
-            // Gating here means downstream patches inherit the gate
-            // naturally via FakeWindow.isReady going false, without each
-            // patch having to repeat the checks.
+            // Hard gates before any FakeWindow mutation — downstream
+            // patches inherit them via FakeWindow.isReady going false.
             if (!PeekAViewMod.enabled) return;
             if (!PeekAViewMod.stairEnabled) return;
             if (!PeekAViewMod.isPeekAViewActive()) return;
             if (PeekAViewMod.isExternalStairFeatureActive()) return;
 
-            // Strict checks — fail without hysteresis (mod off, char gone,
-            // pause menu, etc.). These define whether fake-render is even
-            // applicable, not just whether activation conditions are met.
+            // Applicability checks — fail without hysteresis.
             IsoGameCharacter camChar = IsoCamera.getCameraCharacter();
             if (camChar == null) return;
             if (!readDrawWorld(self)) return;
 
             IsoCamera.FrameState fs = IsoCamera.frameState;
 
-            // Pause-resistant freeze: when the game is paused
-            // (GameTime.isGamePaused(): speed==0 or client-side paused
-            // or empty server) and a fakeWindow was active on the
-            // immediately previous frame, keep the last fake state
-            // visible by bumping frameCounter only. Other state is
-            // already correct from the last active frame and the game
-            // thread is not advancing during pause anyway. The
-            // (frameCount - ffs.frameCounter) <= 1 gate ensures only a
-            // just-active fakeWindow gets thawed; an old fakeWindow
-            // from a previous unrelated activation falls through to
-            // the normal (now-stale) flow.
+            // Pause freeze: render frames keep advancing during pause
+            // while the game thread stops, so the frame-based
+            // hysteresis windows would expire and blank the upper
+            // floor + char sprite mid-climb. Bump frameCounter only;
+            // the <= 1 gate thaws just-active windows, stale ones fall
+            // through to the normal flow.
             if (GameTime.isGamePaused()) {
                 int idxP = fs.playerIndex;
                 FakeFrameState ffsP = FakeWindow.get(idxP);
@@ -109,21 +96,12 @@ public class Patch_IsoWorld {
                     && ffs.lastStrictActivationFrame >= 0
                     && (fs.frameCount - ffs.lastStrictActivationFrame) <= HYSTERESIS_FRAMES;
 
-            // Stair-tile latch: clear as soon as the player steps off
-            // all stair tiles, hold while on any stair tile if armed.
-            // Arming happens later in the same frame when strictPass
-            // succeeds on a stair tile. The clear-on-leave runs even
-            // before strictPass evaluation so a player who walks off
-            // the stairs releases the latch immediately, falling back
-            // to the 30-frame off-stair hysteresis.
             boolean onStair = square.HasStairs();
             if (!onStair && ffs != null) {
                 ffs.stairLatchArmed = false;
-                // Clip recentlyActive when the player has stepped
-                // onto a landing at the fake-target Z — climb is
-                // done, the hysteresis would otherwise keep the
-                // fake pass rendering the upper floor visible for
-                // ~30 frames after arrival.
+                // Landing arrival: clip the hysteresis, otherwise the
+                // fake pass keeps the upper floor visible ~30 frames
+                // after stepping off the top of the stairs.
                 if (square.hasFloorAtTopOfStairs()
                         && ffs.fakeSquare != null
                         && square.z >= ffs.fakeSquare.z) {
@@ -137,16 +115,8 @@ public class Patch_IsoWorld {
             float charY = fs.camCharacterY;
             float charZ = fs.camCharacterZ;
 
-            // Descent release + recent-ascent tracking. Track peakCharZ
-            // as the climb progresses; record the frame on every
-            // increase. The latch then holds while peakCharZ has been
-            // advancing within the last HYSTERESIS_FRAMES window —
-            // that bridges animation key-pose stationary frames inside
-            // an active climb (which would otherwise toggle the fake
-            // window on/off and cause the cutaway flicker the user
-            // reported) while still releasing on sustained stop or
-            // turn-around. A 0.05 Z-drop below peak triggers immediate
-            // release for clean descent.
+            // Descent release + recent-ascent tracking; the why lives
+            // on the FakeFrameState fields.
             boolean ascendingRecently = false;
             if (onStair && ffs != null && ffs.stairLatchArmed) {
                 if (charZ > ffs.peakCharZ) {
@@ -160,17 +130,11 @@ public class Patch_IsoWorld {
             }
             boolean stairLatch = onStair && ascendingRecently && ffs != null && ffs.stairLatchArmed;
 
-            // Soft checks — boundary conditions that can wobble at sub-frame.
-            // Track failure but don't return yet; let hysteresis decide.
-            //
-            // Gate on onStair upfront: the feature is "render upper floor
-            // while climbing". A tile being merely under an upper floor
-            // (HasElevatedFloor=true on most indoor tiles) is not enough.
-            // Without this gate the heading-cone could pass on a regular
-            // floor tile after descent and keep refreshing
-            // lastStrictActivationFrame, which then pulls the activation
-            // window open via recentlyActive even though the player has
-            // already left the stair.
+            // Soft checks — wobble-prone boundaries; hysteresis decides.
+            // Gate on onStair upfront: HasElevatedFloor is true on most
+            // indoor tiles, and without the gate the heading-cone keeps
+            // refreshing lastStrictActivationFrame on regular floor
+            // tiles after descent, holding the window open off-stair.
             boolean strictPass = onStair;
             if (strictPass && (float) PZMath.fastfloor(charZ + 0.55f) < charZ) strictPass = false;
             if (strictPass && !square.HasElevatedFloor()) strictPass = false;
@@ -186,10 +150,8 @@ public class Patch_IsoWorld {
 
             if (!strictPass && !recentlyActive && !stairLatch) return;
 
-            // Try to compute fresh floor/target squares from the current
-            // (possibly non-stair) tile. If the geometry isn't there, fall
-            // back to last frame's squares — only acceptable inside the
-            // hysteresis window.
+            // Fresh floor/target squares if the geometry is there;
+            // last frame's otherwise (only inside the hysteresis window).
             IsoGridSquare floorSquare = null;
             IsoGridSquare targetSquare = null;
             boolean stairTop = false;
@@ -216,10 +178,9 @@ public class Patch_IsoWorld {
                 strictPass = false;
             }
 
-            // Viewpoint Z snap — head bone gives the actual vertical eye
-            // position through the stair animation. Snap onto last-frame value
-            // if the delta is sub-threshold to avoid jitter at the threshold
-            // crossing.
+            // Head bone = actual eye height through the stair animation.
+            // Snap onto last-frame value at sub-threshold deltas to
+            // avoid jitter at the fastfloor crossing.
             Vector3 headPos = new Vector3();
             zombie.CombatManager.getBoneWorldPos((IsoMovingObject) camChar, "Bip01_Head", headPos);
             headPos.z += 0.05f;
@@ -253,6 +214,7 @@ public class Patch_IsoWorld {
             ffs.realSquare = square;
             ffs.floorSquare = floorSquare;
             ffs.fakeSquare = targetSquare;
+            ffs.landingRoomId = floorSquare.getRoomID();
             ffs.fakePos.set(charX, charY, (float) targetSquare.getZ());
             ffs.lastViewpointZ = headPos.z;
             ffs.renderLighting = renderLighting;
@@ -261,10 +223,8 @@ public class Patch_IsoWorld {
                 ffs.lastStrictActivationFrame = fs.frameCount;
                 if (onStair) {
                     if (!ffs.stairLatchArmed) {
-                        // First arm of this climb — reset peak + last
-                        // increase frame so descent-release and the
-                        // ascending-window track the current climb,
-                        // not stale state from a prior arm.
+                        // First arm of this climb — don't track a
+                        // prior climb's stale peak.
                         ffs.peakCharZ = charZ;
                         ffs.lastZIncreaseFrame = fs.frameCount;
                     }

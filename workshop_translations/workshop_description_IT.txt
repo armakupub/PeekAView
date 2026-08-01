@@ -1,64 +1,47 @@
 [h1]Espandi la tua visuale[/h1]
 
-Project Zomboid nasconde molte cose che il tuo personaggio vedrebbe davvero, dietro muri, alberi e piani superiori. PeekAView estende tre passaggi di rendering, in modo che il tuo schermo si avvicini a ciò che vede il tuo personaggio. Tre funzioni indipendenti:
+Project Zomboid nasconde molte cose che il tuo personaggio vedrebbe davvero, dietro muri, alberi e piani superiori. PeekAView estende tre passaggi di rendering, così il tuo schermo si allinea a ciò che vedono gli occhi del tuo personaggio:
 
 [list]
-[*][b]Taglio dei muri[/b]: i muri si dissolvono a maggiore distanza, in modo che angoli e porte rivelino prima ciò che c'è dietro mentre ti avvicini.
-[*][b]Sfumatura degli alberi[/b]: gli alberi nel tuo campo visivo diventano traslucidi. Avvista zombie dietro le file d'alberi dove arriva la linea di vista; guida più sicura con visibilità anticipata degli ostacoli.
-[*][b]Vista delle scale[/b]: il piano superiore viene renderizzato mentre sali le scale, in modo che tu veda cosa ti aspetta in cima prima di arrivare.
+[*][b]Taglio dei muri[/b]: i muri vengono tagliati a maggiore distanza, così angoli e porte rivelano prima ciò che c'è dietro mentre ti avvicini.
+[*][b]Sfumatura degli alberi[/b]: alla guida, gli alberi attorno al veicolo diventano traslucidi per avvistare prima gli ostacoli.
+[*][b]Vista delle scale[/b]: il piano superiore viene renderizzato mentre sali, così vedi cosa c'è di sopra prima di arrivarci. Gli zombie si rivelano solo nella stanza in cui stai salendo.
 [/list]
 
-Le stesse regole di vanilla. Niente raggi X, niente muri trasparenti, niente contorni dei nemici. La linea di vista del tuo personaggio decide ancora cosa è realmente visibile.
+Le stesse regole di vanilla: niente raggi X, niente muri trasparenti, niente contorni dei nemici. È sempre la linea di vista del tuo personaggio a decidere cosa è visibile.
 
-[h1]Impostazioni[/h1]
-Ogni funzione è indipendente. Attivale tutte e tre, solo quella che ti serve, o una via di mezzo. Ogni funzione ha il suo interruttore di attivazione, e le portate del taglio dei muri e della sfumatura degli alberi sono regolabili nel menu Opzioni.
+Ogni funzione ha il suo interruttore di attivazione in Opzioni → Mod → Peek a View. [b]F8[/b] attiva e disattiva l'intera mod nel gioco (riassegnabile).
 
-Opzioni → Mod → Peek a View, quattro sezioni: Generale, Taglio dei muri, Sfumatura degli alberi, Vista delle scale. [b]F8[/b] attiva/disattiva l'interruttore principale nel gioco (alone verde/rosso conferma; riassegnabile in Opzioni → Comandi sotto [noparse][PeekAView][/noparse]).
+Dalla build 42.20, PZ include una sua sfumatura degli alberi a piedi. Per me fa il suo lavoro, quindi la sfumatura degli alberi di PeekAView ora copre solo la guida. Se TIS rivedrà la sua, o se giocando io stesso sulla stable noterò margini di miglioramento, ci tornerò sopra.
 
 [h1]Requisiti[/h1]
 [list]
-[*]PZ Build 42.13 o più recente
+[*]PZ Build 42.20 o più recente
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], installazione una tantum per qualsiasi mod Java
 [/list]
 
 [h1]Compatibilità[/h1]
 [list]
-[*]Sicuro da aggiungere o rimuovere durante una partita: nessun dato di salvataggio viene toccato. Gli effetti visivi spariscono al successivo ricaricamento del salvataggio dopo aver rimosso la mod dalla lista delle mod.
-[*]Solo lato client: ogni giocatore che vuole l'effetto deve avere la mod (e ZombieBuddy) installati.
+[*]Solo lato client, sicuro da aggiungere o rimuovere durante una partita. In multiplayer, ogni client che vuole l'effetto deve avere la mod (e ZombieBuddy).
+[*]Funziona insieme alla mod Staircast del Workshop: PeekAView la rileva e cede la propria vista delle scale.
 [/list]
 
 [h1]FAQ[/h1]
 
-[b]C'è un conflitto con la mod Staircast del Workshop?[/b]
-No. Se entrambe sono iscritte, PeekAView rileva Staircast a runtime e cede la propria vista delle scale, così le due possono funzionare insieme.
+[b]Cosa fa l'opzione "Correggi bug B42 muri invisibili"?[/b]
+Il B42 vanilla può nascondere i muri dei piani superiori accanto a strutture costruite dai giocatori, lasciando buchi nei muri da certe angolazioni. L'opzione (disattivata di default) elimina il problema. Compromesso: i ponti costruiti dai giocatori attaccati a muri vanilla si vedono di più sulla facciata, quindi attivala solo se noti davvero i buchi.
 
-[b]Funziona in multiplayer?[/b]
-Sì, solo lato client. Ogni client deve avere anche ZombieBuddy installato.
-
-[b]Cosa fa esattamente l'opzione "Fix B42 Wall-Hiding Bug"?[/b]
-Il taglio più ampio della mod amplifica una stranezza vanilla di B42 in cui i muri dei piani superiori spariscono accanto a strutture costruite dai giocatori, lasciando buchi da certe angolazioni. L'opzione (attiva di default, solo all'esterno) attenua il problema. Compromesso: un residuo di tile del pavimento rimane spesso visibile su una cella del muro esterno, e i ponti costruiti dai giocatori attaccati ai muri vanilla si vedono di più sulla facciata rispetto al normale. L'ho scelto come male minore per l'immersione complessiva. Se il tuo salvataggio non ha geometria costruita dai giocatori massiccia attaccata a case vanilla sui lati rivolti verso la camera, oppure se non usi la funzione taglio dei muri, puoi disattivare l'opzione per un rendering più vicino al vanilla.
-
-[b]Ho rifiutato per sbaglio PeekAView nella richiesta di approvazione di ZombieBuddy. Posso annullarlo?[/b]
-ZombieBuddy salva ogni decisione in [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Apri il file, trova il/i blocco/i [noparse]"id": "PeekAView"[/noparse] con [noparse]"decision": false[/noparse], cambia [noparse]false[/noparse] in [noparse]true[/noparse], salva, riavvia PZ. Se modificare JSON ti sembra rischioso, elimina invece quei blocchi PeekAView e ZombieBuddy chiederà di nuovo al prossimo caricamento del salvataggio.
-
-[b]Influenza le prestazioni?[/b]
-Diverse cache mantengono il costo di esecuzione vicino al vanilla. Stare fermi e camminare a piedi sono i percorsi più economici. Abbassa gli slider di portata se il tuo hardware fatica.
+[b]Ho rifiutato PeekAView nella richiesta di ZombieBuddy. Posso annullare?[/b]
+Modifica [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]: nel blocco [noparse]"id": "PeekAView"[/noparse], cambia [noparse]"decision": false[/noparse] in [noparse]true[/noparse] (oppure elimina il blocco per farti chiedere di nuovo). Riavvia PZ.
 
 [h1]Manutenzione e Codice sorgente[/h1]
-Questa mod è completa per il mio uso e non è più sviluppata attivamente. Ultimo test su PZ Build 42.18.
-
-PeekAView è sotto licenza MIT ed è completamente open source. I patch toccano solo classi di rendering PZ specifiche. I fork e i miglioramenti sono benvenuti e incoraggiati. Se appare un successore attivamente mantenuto, lo collegherò qui.
-[list]
-[*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[/list]
-
-Leggerò gli issue e le PR, ma non posso promettere tempi di risposta. Se la mod si rompe in una futura versione di PZ e non la sistemerò, la rimuoverò dal Workshop invece di lasciare una versione rotta.
+Completa per il mio uso, non più sviluppata attivamente. Ultimo test su PZ build 42.20. Licenza MIT, completamente open source: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. I fork sono benvenuti. Se la mod si rompe in una futura versione di PZ e non ho intenzione di sistemarla, la rimuoverò dal Workshop invece di lasciare online una versione rotta.
 
 [h1]Attribuzione[/h1]
 [list]
 [*][b]Concetto cutaway-on-stairs + pattern FakeFrameState + scelta delle classi di rendering patchate[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, mod originale del Workshop).
 [*][b]Fork dell'implementazione read-path[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
-[*][b]Estensioni PeekAView sulla base di staircast-rp[/b]: gli zombie del piano superiore rimangono visibili per tutta la salita, finché sono nella linea di vista del tuo personaggio.
+[*][b]Estensioni PeekAView su quella base[/b]: gli zombie del piano superiore si rivelano durante la salita, limitatamente al campo visivo frontale del tuo personaggio e alla stanza in cui stai salendo.
 [/list]
 
 [hr][/hr]

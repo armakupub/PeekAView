@@ -1,64 +1,47 @@
 [h1]扩展你的视野[/h1]
 
-Project Zomboid 把许多本来你的角色能看到的东西藏在墙壁、树木和上层楼之后。PeekAView 扩展了三个渲染通道，让你的屏幕更接近角色的视野。三个独立功能：
+Project Zomboid 把许多你的角色其实看得到的东西藏在墙壁、树木和上层楼之后。PeekAView 扩展了三个渲染通道，让你的屏幕跟上角色的眼睛：
 
 [list]
-[*][b]墙壁切除[/b]：墙壁在更远的距离被切除，使转角和门框在你接近时更早显示出后方的内容。
-[*][b]树木淡化[/b]：你视野中的树木变为半透明。在视线可达之处发现树列后的僵尸；提早看见障碍物，让驾驶更安全。
-[*][b]楼梯视图[/b]：当你正在攀爬楼梯时上层楼会被渲染，让你在到达之前就能看到上面等待的东西。
+[*][b]墙壁切除[/b]：墙壁在更远的距离被切除，让转角和门口在你接近时更早显露出后方的内容。
+[*][b]树木淡化[/b]：驾驶时，车辆周围的树木会变为半透明，让你更早看见危险。
+[*][b]楼梯视图[/b]：攀爬楼梯时上层楼面会被渲染，让你在到达之前就看到楼上的情况。僵尸只在你正要进入的那个房间中显露。
 [/list]
 
-与原版相同的规则。无 X 光透视，无透明墙壁，无敌人轮廓。你角色的视线仍然决定什么是真正可见的。
+与原版相同的规则：无 X 光透视，无透明墙壁，无敌人轮廓。你角色的视线仍然决定什么是可见的。
 
-[h1]设置[/h1]
-每项功能都是独立的。你可以三项一起开启、只开启需要的一项，或介于其间。每项功能都有自己的启用开关，墙壁和树木淡化的范围可在选项菜单中调整。
+每项功能在 选项 → Mod → Peek a View 下都有自己的「启用」开关。[b]F8[/b] 在游戏内切换整个 Mod（可重新绑定）。
 
-选项 → Mod → Peek a View，四个区段：通用、墙壁切除、树木淡化、楼梯视图。[b]F8[/b] 在游戏内切换主开关（绿色/红色光晕确认；可在 选项 → 按键设置 中的 [noparse][PeekAView][/noparse] 重新绑定）。
+从 Build 42.20 起，PZ 自带了步行时的树木淡化。在我看来它已经够用了，所以 PeekAView 的树木淡化现在只负责驾驶场景。如果 TIS 重做了他们的版本，或者我自己玩正式版时发现还有改进的余地，我会再回来处理。
 
 [h1]要求[/h1]
 [list]
-[*]PZ Build 42.13 或更高版本
+[*]PZ Build 42.20 或更高版本
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url]，所有 Java Mod 的一次性安装
 [/list]
 
 [h1]兼容性[/h1]
 [list]
-[*]在游戏会话中可安全添加或移除：不会改动存档数据。从 Mod 列表移除该 Mod 后，视觉效果会在下次存档加载时清除。
-[*]仅客户端：每位想要此效果的玩家都需要安装该 Mod（以及 ZombieBuddy）。
+[*]仅客户端；可在游戏会话中途安全添加或移除。在多人游戏中，每位想要此效果的玩家都需要安装该 Mod（以及 ZombieBuddy）。
+[*]可与 Staircast Workshop Mod 共同运行：PeekAView 会检测到它，并让出自己的楼梯视图。
 [/list]
 
 [h1]常见问题[/h1]
 
-[b]与 Staircast Workshop Mod 是否冲突？[/b]
-不冲突。如果两个都已订阅，PeekAView 会在运行时检测到 Staircast，并让出自己的楼梯视图，两者可以共同运行。
+[b]「修复 B42 墙体消失错误」这个选项具体做什么？[/b]
+原版 B42 会让玩家自建结构旁的上层楼墙壁消失，从某些视角看会留下墙体空洞。该选项（默认关闭）会抑制这种情况。代价：贴在原版墙边的玩家自建平台在外立面上会显得更明显，所以只在你确实看到空洞时才开启它。
 
-[b]在多人游戏中能用吗？[/b]
-可以，仅客户端。每个客户端也需要安装 ZombieBuddy。
-
-[b]"Fix B42 Wall-Hiding Bug" 这个选项具体做什么？[/b]
-本 Mod 更广的墙壁切除会放大一个原版 B42 的怪癖：上层楼的墙壁在玩家自建结构旁会从某些视角消失，留下墙体空洞。该选项（默认开启，仅在户外）抑制这种效果。代价：常常会在外墙的某一格上残留一片地板贴图，并且贴在原版墙边的玩家自建平台在外立面上比平常更显眼。我将其作为整体沉浸感的较小之恶。如果你的存档在朝向相机一侧的原版房屋上没有大量玩家自建结构，或者你根本不使用墙壁切除功能，可以关闭该选项以获得更接近原版的渲染效果。
-
-[b]我在 ZombieBuddy 的批准对话框中不小心拒绝了 PeekAView。能撤销吗？[/b]
-ZombieBuddy 把每条决定保存在 [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]。打开该文件，找到含 [noparse]"id": "PeekAView"[/noparse] 且 [noparse]"decision": false[/noparse] 的代码块，把 [noparse]false[/noparse] 改为 [noparse]true[/noparse]，保存，重启 PZ。如果觉得编辑 JSON 有风险，直接删除这些 PeekAView 代码块即可，ZombieBuddy 会在下次加载存档时重新询问。
-
-[b]会影响性能吗？[/b]
-多个缓存机制让运行时开销接近原版。站立和步行是开销最小的路径。如果你的硬件吃力，请降低范围滑块。
+[b]我在 ZombieBuddy 的提示中拒绝了 PeekAView。能撤销吗？[/b]
+编辑 [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]：在 [noparse]"id": "PeekAView"[/noparse] 代码块中，把 [noparse]"decision": false[/noparse] 改为 [noparse]true[/noparse]（或者删除该代码块以便重新被询问）。然后重启 PZ。
 
 [h1]维护与源代码[/h1]
-本 Mod 对我自己的使用而言已经完成，不再进行主动开发。最后一次测试针对 PZ Build 42.18。
-
-PeekAView 采用 MIT 许可证并完全开源。补丁仅触及特定的 PZ 渲染类。欢迎并鼓励 fork 与改进。如果出现持续维护的后续版本，我会从此处链接过去。
-[list]
-[*][b]PeekAView[/b]：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[/list]
-
-Issue 与 PR 我会查看，但无法保证响应时间。若该 Mod 在未来的 PZ 版本中无法运行而我也不打算修复，我会将其从 Workshop 下架，而不会留下损坏的版本。
+本 Mod 对我自己的使用而言已经完成，不再进行主动开发。最后一次测试针对 PZ Build 42.20。采用 MIT 许可证，完全开源：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]。欢迎 fork。如果该 Mod 在未来的 PZ 版本中无法运行而我也不打算修复，我会将其从 Workshop 下架，而不会留下损坏的版本。
 
 [h1]鸣谢[/h1]
 [list]
 [*][b]Cutaway-on-stairs 概念 + FakeFrameState 模式 + 被修补的渲染类选择[/b]：[url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url]（MIT，原始 Workshop Mod）。
 [*][b]Read-path 实现的 fork[/b]：[url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url]（MIT）。
-[*][b]在 staircast-rp 基础上的 PeekAView 扩展[/b]：上层僵尸在整个攀爬过程中保持可见，只要它们处于你角色的视线之内。
+[*][b]在此基础上的 PeekAView 扩展[/b]：上层僵尸在攀爬过程中显露，仅限于你角色的前方视野以及你正要进入的房间。
 [/list]
 
 [hr][/hr]

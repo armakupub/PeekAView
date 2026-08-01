@@ -5,18 +5,13 @@ import java.util.Arrays;
 
 import me.zed_0xff.zombie_buddy.Patch;
 
-import zombie.IndieGL;
-import zombie.core.Core;
 import zombie.core.math.PZMath;
-import zombie.core.textures.Texture;
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoCell;
-import zombie.iso.IsoUtils;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.areas.IsoRoom;
-import zombie.iso.objects.IsoTree;
 
 public class Patch_IsoCell {
 
@@ -28,15 +23,10 @@ public class Patch_IsoCell {
 
         private static final int MAX_RADIUS = PeekAViewMod.MAX_RANGE;
 
-        // Diamond half-width scales with radius to match vanilla's
-        // shape proportionally. Vanilla uses 4.5 at its effective
-        // radius of 5 (raster 10 wide, deltaX/Y in [-4, +5]); we
-        // mirror that ratio so radius R clips at half-width 0.9·R.
-        // Earlier we used a constant 22.5 (sized for MAX_RADIUS)
-        // which made the diamond never clip at small radii — at
-        // radius 6 the 14-wide raster emitted ~196 tiles where
-        // vanilla's R=5 path emits ~50, so each +1 step on the
-        // slider above MIN added far more tiles than expected.
+        // Vanilla clips its 10-wide raster at half-width 4.5 (radius
+        // 5); mirroring the ratio keeps each +1 slider step growing by
+        // a vanilla-shaped ring. A constant sized for MAX_RADIUS never
+        // clipped at small radii and emitted ~4× vanilla's tile count.
         private static final float DIAMOND_HALF_WIDTH_PER_RADIUS = 4.5f / 5.0f;
 
         // Inside this box around the player we mirror vanilla exactly
@@ -93,14 +83,9 @@ public class Patch_IsoCell {
                 int playerIndex = IsoCamera.frameState.playerIndex;
                 if (playerIndex < 0 || playerIndex >= MAX_PLAYERS) return false;
 
-                // Indoor: vanilla's 5-tile cutaway is enough, the
-                // extension barely changes anything visible there.
-                // Fall through so vanilla runs unmodified.
+                // Indoor and slider-at-MIN both fall through to
+                // vanilla's own raster, unmodified.
                 if (PeekAViewMod.isCameraPlayerIndoor()) return false;
-
-                // Slider at MIN_RANGE = vanilla cutaway. Fall through
-                // so vanilla's 10×10 raster + diamond-half-width-4.5
-                // shape runs unmodified.
                 if (PeekAViewMod.range <= PeekAViewMod.MIN_RANGE) return false;
 
                 float px = player.getX();
@@ -156,13 +141,10 @@ public class Patch_IsoCell {
                         IsoGridSquare iterSquare = cell.getGridSquare(x, y, z);
                         if (iterSquare == null) continue;
 
-                        // Outside vanilla envelope: drop non-wall-adjacent
-                        // squares (each emitted POI seeds a full
-                        // cutawayVisit pass downstream, so raster is only
-                        // useful adjacent to a wall) and POIs behind the
-                        // first wall/window/door from the player (keep
-                        // feature scope: extended cutaway, not see-through-
-                        // rooms).
+                        // Outside the vanilla envelope: drop squares
+                        // that can't seed cutaway (not wall-adjacent)
+                        // and POIs behind the first wall/window/door —
+                        // extended cutaway, not see-through-rooms.
                         int dx = x - pxFloor; if (dx < 0) dx = -dx;
                         int dy = y - pyFloor; if (dy < 0) dy = -dy;
                         if (dx > VANILLA_KEEP_RADIUS || dy > VANILLA_KEEP_RADIUS) {
@@ -270,158 +252,6 @@ public class Patch_IsoCell {
         }
     }
 
-    // Vanilla DrawStencilMask renders a circular alpha texture
-    // (media/mask_circledithernew.png) once per frame centered on the
-    // player. The stencil it writes caps where translucent passes
-    // (tree fade, wall cutaway) can render — outside the mask,
-    // nothing. Vanilla's size matches the ~5-tile cutaway raster.
-    //
-    // We keep vanilla's circle and after it runs, add per-tile
-    // stencil writes in a Euclidean circle of radius treeFadeRange
-    // gated by sq.isCanSee (no fade through walls, no ghost fade in
-    // unseen forest). Persistence exception: a tile keeps coverage
-    // while its tree is mid-fade-up (fadeAlpha < 1) so the alphaStep
-    // climb stays visible instead of snapping to opaque on cone
-    // exit. Stencil is additive via GL_REPLACE with ref 128.
-    @Patch(className = "zombie.iso.IsoCell",
-           methodName = "DrawStencilMask")
-    public static class Patch_DrawStencilMask {
-
-        @Patch.OnExit
-        public static void exit(@Patch.This IsoCell cell) {
-            try {
-                if (!PeekAViewMod.fadeNWTrees) return;
-                if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
-                // Outdoor-only: indoor we don't extend the stencil
-                // mask. Mirrors the gate in Patch_isTranslucentTree
-                // so the renderFlag and stencil-coverage halves of
-                // the tree-fade feature stay in sync.
-                if (PeekAViewMod.isCameraPlayerIndoor()) return;
-
-                // Use IsoCamera.frameState.playerIndex (currently
-                // rendering player) to stay consistent with every other
-                // patch in the mod. IsoPlayer.getPlayerIndex() returns
-                // the local active player and would write the stencil
-                // mask for the wrong player in split-screen.
-                int pidx = IsoCamera.frameState.playerIndex;
-                if (pidx < 0 || pidx >= IsoPlayer.MAX) return;
-                IsoPlayer player = IsoPlayer.players[pidx];
-                if (player == null) return;
-
-                Texture tex2 = Texture.getSharedTexture("media/mask_circledithernew.png");
-                if (tex2 == null) return;
-
-                // player.getX/Y/Z, not getCurrentSquare(): the latter is
-                // null while the player is in a vehicle, which would
-                // skip the stencil extension and leave faded trees
-                // outside vanilla's 5-tile circle invisible.
-                int px = PZMath.fastfloor(player.getX());
-                int py = PZMath.fastfloor(player.getY());
-                int pz = PZMath.fastfloor(player.getZ());
-                int range = PeekAViewMod.treeFadeRange;
-                int ts = Core.tileScale;
-
-                // Per-tile mask geometry. 192×320 overshoots the iso-
-                // tile footprint (64×32) on purpose: tree sprites
-                // extend upward on screen from the base tile, so the
-                // stencil needs coverage ABOVE the tile for the
-                // sprite's GL_EQUAL pass to pass. The tallest sprites
-                // reach ~7 tile-heights up (crown at sy - 224 px);
-                // tileFootprintYOffset = 256 covers them with margin.
-                // renderW = 192 (halfW = 96) over-covers the typical
-                // sprite ±32-64 px horizontal extent so the outermost
-                // leaves don't end up uncovered when the neighbouring
-                // tile sits just outside the circle range and writes
-                // no stencil there.
-                int renderW = 192 * ts;
-                int renderH = 320 * ts;
-                int halfW = renderW / 2;
-                int tileFootprintYOffset = 256 * ts;
-
-                IndieGL.glStencilMask(255);
-                IndieGL.enableStencilTest();
-                IndieGL.enableAlphaTest();
-                IndieGL.glAlphaFunc(516, 0.1f);
-                IndieGL.glStencilFunc(519, 128, 255);
-                IndieGL.glStencilOp(7680, 7680, 7681);
-                IndieGL.glColorMask(false, false, false, false);
-
-                float offX = IsoCamera.getOffX();
-                float offY = IsoCamera.getOffY();
-
-                // Vanilla's circular stencil already covers roughly the
-                // inner 4 tiles around the player. Skipping that area
-                // avoids overlapping our per-tile dither with vanilla's
-                // gradient — the two independent patterns produce a
-                // flickery moiré at sub-pixel camera shifts.
-                int vanillaSkip = PeekAViewMod.MIN_RANGE - 1;
-
-                // Asymmetric coverage: SE-quadrant always covers
-                // MAX_TREE_FADE_RANGE because that's vanilla's natural
-                // fade domain (FBORenderCell.isTranslucentTree returns
-                // true for any on-screen SE-quadrant tile regardless of
-                // slider) and the user expects vanilla's fade to keep
-                // working independent of our slider. Other quadrants
-                // follow the slider-controlled cone reach. Persistence
-                // buffer ring around both keeps fading-up trees stencil-
-                // covered until fadeAlpha == 1.
-                int seQuadrantRange = PeekAViewMod.MAX_TREE_FADE_RANGE;
-                int otherQuadrantRange = range;
-                int loopRange = Math.max(otherQuadrantRange, seQuadrantRange);
-                final int persistenceBuffer = 5;
-                int extendedRange = loopRange + persistenceBuffer;
-                int extendedRangeSq = extendedRange * extendedRange;
-                int seQuadrantRangeSq = seQuadrantRange * seQuadrantRange;
-                int otherQuadrantRangeSq = otherQuadrantRange * otherQuadrantRange;
-                int vanillaSkipSq = vanillaSkip * vanillaSkip;
-
-                for (int dy = -extendedRange; dy <= extendedRange; ++dy) {
-                    for (int dx = -extendedRange; dx <= extendedRange; ++dx) {
-                        int distSq = dx * dx + dy * dy;
-                        if (distSq > extendedRangeSq) continue;
-                        if (distSq <= vanillaSkipSq) continue;
-
-                        boolean inSEQuadrant = (dx >= 0 && dy >= 0);
-                        int effRangeSqForTile = inSEQuadrant ? seQuadrantRangeSq : otherQuadrantRangeSq;
-                        boolean inCircle = (distSq <= effRangeSqForTile);
-
-                        int tx = px + dx;
-                        int ty = py + dy;
-                        IsoGridSquare sq = cell.getGridSquare(tx, ty, pz);
-                        if (sq == null) continue;
-
-                        if (inCircle) {
-                            // LOS gate. Persistence exception: a tile
-                            // that just left LOS keeps coverage while
-                            // its tree fades back up.
-                            if (!sq.isCanSee(pidx)) {
-                                IsoTree fadingTree = sq.getTree();
-                                if (fadingTree == null || fadingTree.fadeAlpha >= 1.0f) continue;
-                            }
-                        } else {
-                            // Buffer ring: persistence only.
-                            IsoTree fadingTree = sq.getTree();
-                            if (fadingTree == null || fadingTree.fadeAlpha >= 1.0f) continue;
-                        }
-
-                        float sx = IsoUtils.XToScreen(tx, ty, pz, 0) - offX;
-                        float sy = IsoUtils.YToScreen(tx, ty, pz, 0) - offY;
-                        tex2.renderstrip((int) sx - halfW, (int) sy - tileFootprintYOffset,
-                                renderW, renderH, 1.0f, 1.0f, 1.0f, 1.0f, null);
-                    }
-                }
-
-                IndieGL.glColorMask(true, true, true, true);
-                IndieGL.glStencilFunc(519, 0, 255);
-                IndieGL.glStencilOp(7680, 7680, 7680);
-                IndieGL.glStencilMask(127);
-                IndieGL.glAlphaFunc(519, 0.0f);
-            } catch (Throwable t) {
-                PeekAViewMod.trace("Patch_DrawStencilMask exit error", t);
-            }
-        }
-    }
-
     // == Stair feature ==
     // Restore frameState.camCharacterSquare to realSquare for the
     // duration of IsoCell.update. updateWeatherFx runs inside, and
@@ -499,10 +329,8 @@ public class Patch_IsoCell {
                 FakeFrameState ffs = FakeWindow.get(idx);
                 if (ffs == null) return;
 
-                // Captures only — commit opened=true immediately after so
-                // any throw further down still hits exit cleanup. See
-                // FBORenderCell.Patch_renderInternal for the full ordering
-                // rationale (mirror of this patch).
+                // Mirror of FBORenderCell.Patch_renderInternal; commit
+                // opened=true right after the captures.
                 savedX = fs.camCharacterX;
                 savedY = fs.camCharacterY;
                 savedZ = fs.camCharacterZ;
@@ -521,10 +349,8 @@ public class Patch_IsoCell {
                     currentSwapped = true;
                 }
 
-                // Direct-field write of x/y/z skips setX/Y/Z's side
-                // effects on nx, scriptnx, lx, ly, lz. fieldMutated.set(1)
-                // BEFORE writeFakePos so non-render readers see the
-                // shadow during the gap. Rollback on Reflection failure.
+                // Flag BEFORE writeFakePos (ordering invariant, see
+                // FakeWindow). Rollback on Reflection failure.
                 if (ffs.camChar != null) {
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (FakeWindow.writeFakePos(ffs.camChar, ffs.fakePos.x, ffs.fakePos.y, ffs.fakePos.z)) {

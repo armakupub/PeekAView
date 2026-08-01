@@ -8,31 +8,14 @@ import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
 
-// Stair feature — render-time alpha override for zombies on the
-// upper floor while a fake-window render pass is active.
-//
-// Background: the stair-feature fake-window (Patch_IsoWorld.computeFake
-// + outer FBORenderCell/IsoCell render-pass swap) lifts the camera to
-// the upper floor so its geometry renders. Zombies on that floor are
-// drawn by the same render pass, but their per-frame visibility alpha
-// is updated on the game thread from the LOS pass — which uses the
-// real player position (mid-stair, no LOS to upper-floor squares more
-// than ~1 tile from the stair top). targetAlpha never rises for those
-// squares, so the zombie sprite stays invisible even though it would
-// be in the rendered region.
-//
-// This patch overrides getAlpha(int) for IsoZombies on the upper
-// floor while the fake window is active. We gate on FakeWindow.isReady
-// rather than the renderingFake ThreadLocal because PZ may pull alpha
-// from a setup thread (ModelSlotRenderData.init) where the ThreadLocal
-// isn't set. isReady is frame-based — true on every thread for the
-// duration of a frame where computeFake committed.
-//
-// Cone gate: using PeekAViewMod.isTileInCameraPlayerCone, only zombies
-// in the player's forward view become visible. Zombies behind the
-// camChar fade per vanilla LOS — restores the "see what your character
-// sees" theme on the upper floor and gives the user the
-// turn-around-and-things-fade behavior they asked for.
+// Stair feature — the fake render pass draws upper-floor zombies, but
+// their per-player alpha comes from the game-thread LOS pass, which
+// uses the real mid-stair position: upstairs squares never gain LOS,
+// alpha stays 0, sprites stay invisible. Override getAlpha for
+// IsoZombies on the fake floor inside the forward cone (zombies behind
+// the camChar keep vanilla LOS fade). Gated on FakeWindow.isReady
+// (frame-based) rather than the ThreadLocal — ModelSlotRenderData.init
+// pulls alpha from a setup thread where the TL isn't set.
 public class Patch_IsoObject {
 
     public static final int CLIMB_GRACE_FRAMES = 30;
@@ -80,19 +63,25 @@ public class Patch_IsoObject {
             if (ffs == null || ffs.fakeSquare == null) return false;
             IsoGridSquare sq = self.square;
             if (sq == null || sq.z != ffs.fakeSquare.z) return false;
+            // Landing-room gate: without it any upper-floor zombie in
+            // the cone lights up, including neighbor rooms vanilla LOS
+            // would never show (the climb cutaway opens the sightline).
+            // Carve-outs: staircase-top tiles can report roomId -1, and
+            // a zombie on the stairs / at the landing edge is the
+            // warning case this feature exists for.
+            if (sq.getRoomID() != ffs.landingRoomId
+                    && !sq.HasStairsBelow()
+                    && (Math.abs(sq.x - ffs.fakeSquare.x) > 1
+                        || Math.abs(sq.y - ffs.fakeSquare.y) > 1)) {
+                return false;
+            }
             if (!PeekAViewMod.isTileInCameraPlayerCone(sq)) return false;
-            // Also write the per-player alpha field. Reason: when the
-            // zombie's tile leaves the forward cone (player turns,
-            // animation head-bob, stair completion), the next call to
-            // getAlpha returns whatever vanilla had cached. With
-            // LOS-blocked upstairs squares that's 0, producing a hard
-            // snap from visible to invisible. By bumping the field to
-            // 1.0 each frame we're in cone, vanilla's game-thread
-            // updateAlpha keeps animating it (decaying toward whatever
-            // its targetAlpha is) — once we stop writing, the field
-            // drifts down smoothly instead of being read at 0. Float
-            // writes are atomic on all reasonable JVMs and the field
-            // is purely render-presentation, no gameplay state.
+            // Also write the field: once the tile leaves the cone the
+            // next getAlpha returns vanilla's cached value — 0 for
+            // LOS-blocked upstairs squares, a hard visible→invisible
+            // snap. Bumping the field each override frame lets the
+            // game-thread updateAlpha decay it smoothly once we stop.
+            // Float writes are atomic; render-presentation state only.
             self.setAlpha(pIdx, 1.0f);
             v = 1.0f;
             return true;

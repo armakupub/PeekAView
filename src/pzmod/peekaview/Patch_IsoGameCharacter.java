@@ -5,24 +5,13 @@ import zombie.characters.IsoGameCharacter;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
 
-// Stair feature — inverted pair on IsoGameCharacter.renderlast.
-//
-// Why: renderlast() is called by FBORenderCell.renderInternal AFTER the
-// already inverted-pair'd renderPlayers() block. Our outer renderInternal
-// patch re-mutates the camChar position to fake (upper-floor Z) once
-// renderPlayers exits and restores the renderingFake ThreadLocal.
-// IsoGameCharacter.renderlast() then computes sx/sy for halo, chat
-// bubbles, userName tag, and progress-bar via this.getX/Y/Z() — which
-// returns fake-Z because the field is fake AND the patched getter
-// returns fake on the render thread with renderingFake set. Result:
-// halo and other text overlays drawn at upper-floor screen position,
-// not next to the player sprite on the stairs.
-//
-// Fix: temporarily restore real-pos for the duration of renderlast on
-// the camChar only (non-camera-chars don't have fake-window state to
-// restore from). Same inverted-pair pattern as
-// Patch_FBORenderCell.Patch_renderPlayers, nested inside the outer
-// renderInternal pair.
+// Stair feature — inverted pair on renderlast, nested inside the outer
+// renderInternal window (same pattern as Patch_renderPlayers). renderlast
+// runs AFTER renderPlayers has exited and re-mutated to fake, and
+// computes halo / chat-bubble / nametag screen positions via getX/Y/Z —
+// with fake values those overlays draw at the upper-floor position
+// instead of next to the sprite. Restore real-pos for the camChar for
+// the method's duration.
 public class Patch_IsoGameCharacter {
 
     @Patch(className = "zombie.characters.IsoGameCharacter", methodName = "renderlast")
@@ -63,10 +52,7 @@ public class Patch_IsoGameCharacter {
                 if (ffs.camChar != null) {
                     savedCurrent = FakeWindow.readCurrentField(ffs.camChar);
                     ffs.camChar.setCurrent(ffs.realSquare);
-                    // De-mutate order: writeRealPos BEFORE fieldMutated.set(0).
-                    // During the gap a non-render reader sees flag=1 and gets
-                    // realPos.x via the read-path shadow, matching the
-                    // now-real field.
+                    // De-mutate: writeRealPos BEFORE flag-clear (see FakeWindow).
                     FakeWindow.writeRealPos(ffs.camChar, ffs.realPos.x, ffs.realPos.y, ffs.realPos.z);
                     FakeWindow.fieldMutated.set(idx, 0);
                 }
@@ -96,8 +82,7 @@ public class Patch_IsoGameCharacter {
                 fs.camCharacterSquare = savedSquare;
                 if (saved != null && saved.camChar != null && savedCurrent != null) {
                     saved.camChar.setCurrent(savedCurrent);
-                    // Re-mutate order: flag BEFORE writeFakePos. See the
-                    // ordering rationale on the renderInternal enter site.
+                    // Re-mutate: flag BEFORE writeFakePos (see FakeWindow).
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (!FakeWindow.writeFakePos(saved.camChar, saved.fakePos.x, saved.fakePos.y, saved.fakePos.z)) {
                         FakeWindow.fieldMutated.set(idx, 0);

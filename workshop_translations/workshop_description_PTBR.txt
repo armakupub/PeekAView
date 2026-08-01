@@ -1,64 +1,47 @@
 [h1]Expanda sua visão[/h1]
 
-Project Zomboid esconde muito do que seu personagem realmente veria, atrás de paredes, árvores e andares superiores. PeekAView estende três passes de renderização para que sua tela se aproxime do que seu personagem vê. Três funções independentes:
+Project Zomboid esconde muito do que seu personagem realmente veria, atrás de paredes, árvores e andares superiores. PeekAView estende três passes de renderização para que sua tela alcance o que os olhos do seu personagem já veem:
 
 [list]
 [*][b]Corte de paredes[/b]: as paredes desaparecem a uma distância maior, para que cantos e portas revelem antes o que há atrás delas conforme você se aproxima.
-[*][b]Esmaecimento de árvores[/b]: árvores no seu campo de visão ficam translúcidas. Identifique zumbis atrás de fileiras de árvores onde a linha de visão alcança; direção mais segura com visibilidade antecipada de obstáculos.
-[*][b]Visão de escada[/b]: o andar superior é renderizado enquanto você sobe as escadas, para que você veja o que está esperando lá em cima antes de chegar.
+[*][b]Esmaecimento de árvores[/b]: ao dirigir, as árvores ao redor do seu veículo ficam translúcidas, para visibilidade antecipada de obstáculos.
+[*][b]Visão de escada[/b]: o andar superior é renderizado enquanto você sobe, para que você veja o que está lá em cima antes de chegar. Os zumbis só são revelados no cômodo em que você está entrando.
 [/list]
 
-Mesmas regras do vanilla. Sem visão de raio-X, sem paredes transparentes, sem contornos de inimigos. A linha de visão do seu personagem ainda decide o que é realmente visível.
+Mesmas regras do vanilla. Sem visão de raio-X, sem paredes transparentes, sem contornos de inimigos. A linha de visão do seu personagem ainda decide o que é visível.
 
-[h1]Configurações[/h1]
-Cada função é independente. Use as três juntas, só a que precisa, ou alguma combinação. Cada função tem seu próprio interruptor de ativação, e os alcances de corte de paredes e esmaecimento de árvores são ajustáveis no menu de Opções.
+Cada função tem seu próprio interruptor de ativação em Opções → Mods → Peek a View. [b]F8[/b] liga e desliga o mod inteiro no jogo (reatribuível).
 
-Opções → Mods → Peek a View, quatro seções: Geral, Corte de paredes, Esmaecimento de árvores, Visão de escada. [b]F8[/b] ativa/desativa o interruptor principal no jogo (halo verde/vermelho confirma; reatribuível em Opções → Atalhos sob [noparse][PeekAView][/noparse]).
+Desde a build 42.20, o PZ tem seu próprio esmaecimento de árvores a pé. Para mim ele resolve, então o esmaecimento de árvores do PeekAView agora cobre só a direção. Se a TIS mexer no deles, ou se eu vir espaço para melhorar enquanto jogo na versão estável, eu volto ao assunto.
 
 [h1]Requisitos[/h1]
 [list]
-[*]PZ Build 42.13 ou mais recente
+[*]PZ Build 42.20 ou mais recente
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3619862853]ZombieBuddy[/url], instalação única para qualquer mod Java
 [/list]
 
 [h1]Compatibilidade[/h1]
 [list]
-[*]Seguro adicionar ou remover durante uma partida: nenhum dado de save é alterado. Os efeitos visuais somem na próxima recarga do save após a remoção do mod da lista de mods.
-[*]Apenas do lado do cliente: cada jogador que quiser o efeito precisa ter o mod (e ZombieBuddy) instalados.
+[*]Apenas do lado do cliente. Seguro adicionar ou remover durante uma partida. No multijogador, cada cliente que quiser o efeito precisa do mod (e do ZombieBuddy).
+[*]Roda junto com o mod Staircast do Workshop: o PeekAView detecta o Staircast e cede a própria visão de escada.
 [/list]
 
 [h1]FAQ[/h1]
 
-[b]Há conflito com o mod Staircast do Workshop?[/b]
-Não. Se ambos estiverem inscritos, PeekAView detecta o Staircast em tempo de execução e cede a própria visão de escada, então os dois rodam juntos.
+[b]O que a opção "Corrigir bug B42 de paredes invisíveis" faz?[/b]
+O B42 vanilla pode esconder paredes de andares superiores ao lado de estruturas construídas pelo jogador, deixando buracos nas paredes em certos ângulos. A opção (desativada por padrão) suprime isso. Compromisso: decks construídos pelo jogador grudados em paredes vanilla aparecem mais na fachada, então ative só se você realmente estiver vendo os buracos.
 
-[b]Funciona em multijogador?[/b]
-Sim, apenas do lado do cliente. Cada cliente também precisa ter o ZombieBuddy instalado.
-
-[b]O que a opção "Fix B42 Wall-Hiding Bug" faz exatamente?[/b]
-O corte mais amplo do mod amplifica uma peculiaridade vanilla do B42 onde paredes de andares superiores somem ao lado de estruturas construídas pelo jogador, deixando buracos em certos ângulos. A opção (ativa por padrão, só em ambientes externos) suprime isso. Compromisso: um resíduo de tile do chão costuma ficar visível em uma célula da parede externa, e decks construídos pelo jogador grudados em paredes vanilla aparecem mais na fachada do que de costume. Escolhi como o mal menor para a imersão geral. Se o seu save não tem geometria construída pelo jogador pesada grudada em casas vanilla nos lados voltados para a câmera, ou se você não usa a função corte de paredes, dá para desativar a opção para um render mais próximo do vanilla.
-
-[b]Recusei o PeekAView sem querer no prompt de aprovação do ZombieBuddy. Dá para desfazer?[/b]
-O ZombieBuddy guarda cada decisão em [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]. Abra o arquivo, encontre o(s) bloco(s) [noparse]"id": "PeekAView"[/noparse] com [noparse]"decision": false[/noparse], troque [noparse]false[/noparse] por [noparse]true[/noparse], salve, reinicie o PZ. Se editar JSON soar arriscado, apague esses blocos do PeekAView e o ZombieBuddy vai pedir aprovação de novo no próximo carregamento de save.
-
-[b]Afeta o desempenho?[/b]
-Vários caches mantêm o custo de execução próximo do vanilla. Ficar parado e andar a pé são os caminhos mais baratos. Reduza os deslizadores de alcance se seu hardware estiver sofrendo.
+[b]Recusei o PeekAView no prompt do ZombieBuddy. Dá para desfazer?[/b]
+Edite o arquivo [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]: no bloco [noparse]"id": "PeekAView"[/noparse], troque [noparse]"decision": false[/noparse] por [noparse]true[/noparse] (ou apague o bloco para ser perguntado de novo). Reinicie o PZ.
 
 [h1]Manutenção e Código fonte[/h1]
-Este mod está completo para meu próprio uso e não está mais em desenvolvimento ativo. Último teste com PZ Build 42.18.
-
-PeekAView é licenciado sob MIT e completamente open source. Os patches só tocam classes específicas de renderização do PZ. Forks e melhorias são bem-vindos e encorajados. Se aparecer um sucessor ativamente mantido, vou linkar aqui.
-[list]
-[*][b]PeekAView[/b]: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]
-[/list]
-
-Vou ler issues e PRs, mas não posso prometer tempos de resposta. Se o mod parar de funcionar em uma versão futura do PZ e eu não for arrumar, vou tirar do Workshop em vez de deixar uma versão quebrada no ar.
+Completo para meu próprio uso, sem desenvolvimento ativo. Último teste com PZ Build 42.20. Licenciado sob MIT e completamente open source: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forks são bem-vindos. Se o mod parar de funcionar em uma versão futura do PZ e eu não for arrumar, vou tirar do Workshop em vez de deixar uma versão quebrada no ar.
 
 [h1]Atribuição[/h1]
 [list]
 [*][b]Conceito cutaway-on-stairs + padrão FakeFrameState + escolha das classes de renderização patcheadas[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, mod original do Workshop).
 [*][b]Fork da implementação read-path[/b]: [url=https://github.com/armakupub/staircast-rp]armakupub/staircast-rp[/url] (MIT).
-[*][b]Extensões PeekAView sobre a base do staircast-rp[/b]: os zumbis do andar superior permanecem visíveis durante toda a subida, contanto que estejam na linha de visão do seu personagem.
+[*][b]Extensões PeekAView sobre essa base[/b]: os zumbis do andar superior são revelados durante a subida, limitados ao campo de visão à frente do seu personagem e ao cômodo em que você está entrando.
 [/list]
 
 [hr][/hr]

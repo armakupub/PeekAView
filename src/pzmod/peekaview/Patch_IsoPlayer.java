@@ -82,8 +82,7 @@ public class Patch_IsoPlayer {
                 fs.camCharacterSquare = savedSquare;
                 if (saved != null && saved.camChar != null && savedCurrent != null) {
                     saved.camChar.setCurrent(savedCurrent);
-                    // Re-mutate: flag BEFORE writeFakePos. See
-                    // FBORenderCell.Patch_renderInternal enter for rationale.
+                    // Re-mutate: flag BEFORE writeFakePos (see FakeWindow).
                     FakeWindow.fieldMutated.set(idx, 1);
                     if (!FakeWindow.writeFakePos(saved.camChar, saved.fakePos.x, saved.fakePos.y, saved.fakePos.z)) {
                         FakeWindow.fieldMutated.set(idx, 0);

@@ -10,33 +10,32 @@ import zombie.iso.IsoMovingObject;
 // Stair feature — per-player fake-render window registry.
 //
 // Three-layer state:
-//   - data: per-player FakeFrameState filled by
-//     Patch_IsoWorld.computeFake.
-//   - renderingFake: ThreadLocal pointer set by render-pass patches
-//     on enter, cleared on exit. Read-path patches consult it to
-//     decide whether the calling thread is mid-render.
-//   - fieldMutated: per-player flag set when the outer render-pass
-//     has reflectively written fake x/y/z onto the camChar's private
-//     fields. Read-path patches combine this with thread context:
-//       · render thread, ThreadLocal set       -> return fake (the
-//         upper-floor Z).
-//       · non-render thread, fieldMutated=1    -> return saved real
-//         value, so concurrent reads from background threads
-//         (LightingThread, async sound, AI workers) don't observe
-//         fake values during the render window.
-//       · otherwise                            -> skip, vanilla
-//         getter returns this.x as usual.
+//   data          per-player FakeFrameState filled by computeFake
+//   renderingFake ThreadLocal set by render-pass patches for their
+//                 window; marks "mid-render on this thread"
+//   fieldMutated  per-player flag: fake x/y/z currently written onto
+//                 the camChar's private fields
 //
-// Why the field write at all: PZ's render code mixes getter calls
-// with direct-field reads on x/y/z (e.g. IsoCell.IsCutawaySquare).
-// Direct-field reads bypass the getter patch and would see real
-// values for an entire frame while render code via getter sees
-// fake, producing visible cutaway flicker on stairs. Writing the
-// field directly makes all reads see fake DURING the render window;
-// the read-path patch then re-isolates background threads
-// (LightingThread, async sound, AI workers) by returning the saved
-// real value when fieldMutated.get(idx) == 1 and the caller is not
-// the render thread.
+// Read-path resolution (Patch_IsoMovingObject):
+//   render thread, TL set  -> fake values
+//   other thread, flag=1   -> saved real values (background threads —
+//                             LightingThread, async sound, AI workers —
+//                             must not observe the render window)
+//   otherwise              -> vanilla getter
+//
+// Why the field write at all: PZ render code mixes getter calls with
+// direct-field reads of x/y/z (e.g. IsoCell.IsCutawaySquare). A
+// getter-only shadow leaves direct reads on real values for the whole
+// frame — visible cutaway flicker on stairs. Writing the fields makes
+// every read see fake during the window; the shadow then re-isolates
+// non-render threads.
+//
+// Ordering invariant for EVERY mutate/de-mutate site: set
+// fieldMutated=1 BEFORE writeFakePos, and writeRealPos BEFORE
+// fieldMutated=0 (rollback to 0 if the write fails). In both gaps the
+// shadow serves realPos, which matches the field's actual content at
+// that instant; either order reversed briefly exposes fake values to
+// a concurrently reading thread.
 public final class FakeWindow {
     public static final int MAX_PLAYERS = 4;
 
@@ -44,17 +43,12 @@ public final class FakeWindow {
 
     public static final ThreadLocal<FakeFrameState> renderingFake = new ThreadLocal<>();
 
-    // AtomicIntegerArray (not boolean[]) for cross-thread happens-before.
-    // Array elements are never volatile even if the reference is. Without
-    // a release/acquire edge a non-render thread could read the flag still
-    // == 0 after the render thread set it to 1, miss the read-path shadow,
-    // and observe the fake field via the vanilla getter, defeating the
-    // per-thread isolation that the shadow provides.
-    //
-    // set(idx, 1)/set(idx, 0) provide volatile-write semantics; get(idx)
-    // is volatile-read. The release on set(idx, 1) also publishes the
-    // FakeFrameState mutations done by computeFake earlier in the frame
-    // and any preceding non-volatile writes (room-swap saves etc.).
+    // AtomicIntegerArray, not boolean[]: array elements are never
+    // volatile even if the reference is. Without the release/acquire
+    // edge a non-render thread could still read 0 after the render
+    // thread set 1 and miss the shadow. The release on set(idx, 1)
+    // also publishes the FakeFrameState mutations from earlier in the
+    // frame.
     public static final AtomicIntegerArray fieldMutated = new AtomicIntegerArray(MAX_PLAYERS);
 
     private static Field FIELD_X;
@@ -112,10 +106,8 @@ public final class FakeWindow {
         return ffs != null && ffs.frameCounter == IsoCamera.frameState.frameCount;
     }
 
-    // Reflectively writes x/y/z fields on the camChar — does NOT
-    // touch nx, scriptnx, lx, ly, lz, so stair-climb / interpolation
-    // logic on the game thread is unaffected. Returns true on
-    // success.
+    // Writes the x/y/z fields directly — does NOT touch nx, scriptnx,
+    // lx/ly/lz, so game-thread interpolation logic is unaffected.
     public static boolean writeFakePos(IsoGameCharacter camChar, float x, float y, float z) {
         if (FIELD_X == null) return false;
         try {
@@ -128,7 +120,6 @@ public final class FakeWindow {
         }
     }
 
-    // Restore real x/y/z to the camChar fields.
     public static void writeRealPos(IsoGameCharacter camChar, float x, float y, float z) {
         if (FIELD_X == null) return;
         try {
@@ -139,11 +130,8 @@ public final class FakeWindow {
         }
     }
 
-    // Returns the FakeFrameState whose fields are currently mutated
-    // and whose camChar matches `self`. Used by read-path patches on
-    // the non-render thread to return the saved-real value so update
-    // logic doesn't see fake. Returns null if no field mutation is
-    // active for self.
+    // The FakeFrameState whose camChar is `self` while its fields are
+    // mutated; null if none.
     public static FakeFrameState findMutatedFor(IsoMovingObject self) {
         if (self == null) return null;
         for (int i = 0; i < MAX_PLAYERS; i++) {

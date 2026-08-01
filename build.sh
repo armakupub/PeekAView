@@ -85,35 +85,17 @@ echo "[build] Packaging jar..."
 echo "[build] Staging mod directory..."
 STAGE="$BUILD_DIR/stage/PeekAView"
 rm -rf "$STAGE"
-mkdir -p "$STAGE/42.13/media/java/client"
+mkdir -p "$STAGE/42.20/media/java/client"
 cp "$PROJECT_ROOT/mod_files/mod.info" "$STAGE/mod.info"
-cp "$PROJECT_ROOT/mod_files/42.13/mod.info" "$STAGE/42.13/mod.info"
+cp "$PROJECT_ROOT/mod_files/42.20/mod.info" "$STAGE/42.20/mod.info"
 cp "$PROJECT_ROOT/poster.png" "$STAGE/poster.png"
-cp "$PROJECT_ROOT/poster.png" "$STAGE/42.13/poster.png"
+cp "$PROJECT_ROOT/poster.png" "$STAGE/42.20/poster.png"
 cp "$PROJECT_ROOT/icon.png" "$STAGE/icon.png"
-cp "$PROJECT_ROOT/icon.png" "$STAGE/42.13/icon.png"
-cp "$JAR_OUT" "$STAGE/42.13/media/java/client/peekaview.jar"
+cp "$PROJECT_ROOT/icon.png" "$STAGE/42.20/icon.png"
+cp "$JAR_OUT" "$STAGE/42.20/media/java/client/peekaview.jar"
 
-if [ -d "$PROJECT_ROOT/mod_files/42.13/media/lua" ]; then
-    cp -r "$PROJECT_ROOT/mod_files/42.13/media/lua" "$STAGE/42.13/media/lua"
-fi
-
-# Empty common/ folder — pre-42.15 builds require it next to versioned folders
-mkdir -p "$STAGE/common"
-
-# Generate UI_<LANG>.txt alongside UI.json — pre-42.15 builds parse only the
-# old Lua-table format, 42.15+ parses only JSON. Shipping both keeps the mod
-# working across the format break. UI.json is canonical; the .txt files are
-# build artifacts and not committed.
-TRANSLATE_ROOT="$STAGE/42.13/media/lua/shared/Translate"
-if [ -d "$TRANSLATE_ROOT" ]; then
-    PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || command -v python || true)}"
-    if [ -z "$PYTHON_BIN" ]; then
-        echo "[build] ERROR: python3/python not found — needed to generate .txt translations." >&2
-        echo "        Install Python 3 or set PYTHON_BIN in build.local." >&2
-        exit 1
-    fi
-    "$PYTHON_BIN" "$PROJECT_ROOT/scripts/json_to_lua.py" "$TRANSLATE_ROOT"
+if [ -d "$PROJECT_ROOT/mod_files/42.20/media/lua" ]; then
+    cp -r "$PROJECT_ROOT/mod_files/42.20/media/lua" "$STAGE/42.20/media/lua"
 fi
 
 # --- Install to Zomboid mods dir ---

@@ -1,61 +1,149 @@
-# PeekAView — Technical Documentation
+# PeekAView — Technical Notes
 
-Technical reference for contributors. Not shipped with the mod.
+Contributor reference. This file only records what the source cannot
+say itself — engine facts, cross-file coordination, and why-not-the-
+obvious-way decisions. Everything site-specific lives as comments in
+the code.
 
 ## Architecture
 
-PeekAView patches Project Zomboid render-pipeline methods via
-ZombieBuddy bytecode patches. All runtime state lives on the Java side
-in `PeekAViewMod` (with per-frame and per-position caches in the
-patches) plus `FakeWindow` for the stair feature. The Lua layer
-(`PeekAView_Options.lua` / `_Keybind.lua`) is UI, persistence, and the
-F8 toggle; Java is the read path for the render thread.
+Three independent features (wall cutaway, tree fade, stair view)
+implemented as ZombieBuddy `@Patch` bytecode patches on PZ render
+classes. Java owns all runtime state (`PeekAViewMod` statics,
+`FakeWindow` for stair view); the Lua layer (`PeekAView_Options.lua`,
+`PeekAView_Keybind.lua`) is UI + persistence only and writes through
+setters.
 
-Three feature groups, all flat in `pzmod.peekaview` (ZombieBuddy's
-`@Patch` scanner only matches the package set in `mod.info
-javaPkgName=` exactly, no sub-packages):
+Constraints that shape the layout:
 
-```
-PZAPI.ModOptions ──► Lua ──► applyToJava ──► PeekAViewMod.setXxx()
-                                                  │
-                                                  ▼
-                                         static volatile state
-                                                  │
-              ┌───────────────────────┬──────────┴──────────┬──────────────────┐
-              ▼                       ▼                     ▼                  ▼
-       Wall cutaway             Tree fade             Stair view         Coordination
-       Patch_IsoCell:           Patch_FBORenderCell:  Patch_IsoWorld:    FakeWindow,
-       Patch_GetSquaresAround   Patch_isTranslucent   Patch_renderInt    FakeFrameState
-       Patch_FBORenderCutaways: Patch_IsoCell:        + 8 inner patches
-       Patch_cutawayVisit       Patch_DrawStencilMask across the render
-       Patch_shouldCutaway                            pipeline
-       Patch_isAdjacentToOrphan
-```
+- All patch classes sit flat in `pzmod.peekaview` — ZB's `@Patch`
+  scanner matches `mod.info javaPkgName=` exactly; classes in
+  sub-packages are silently ignored.
+- `@Patch` advice is inlined into the target class's bytecode: any
+  non-constant field or helper method the advice touches must be
+  `public`, or the hot path throws `IllegalAccessError` and the patch
+  silently degrades. Compile-time constants may stay private (javac
+  folds them into literals).
+- Runtime activation checks (`isPeekAViewActive`,
+  `isExternalStairFeatureActive`) read
+  `ZomboidFileSystem.getModIDs()` instead of `Class.forName`: PZ
+  keeps one JVM across world reloads, so classes stay resolvable for
+  the JVM lifetime while the active mod list changes per save. Same
+  root cause as ZB advice persistence
+  ([ZombieBuddy#13](https://github.com/zed-0xff/ZombieBuddy/issues/13)).
+- Kahlua reaches `@Exposer.LuaClass` classes only by simple name
+  (`PeekAViewMod`); package paths error with `non-table: null`.
 
-Plus runtime self-checks via `ZomboidFileSystem.getModIDs()` read on
-the render thread:
-- `isPeekAViewActive()` — fail-closed gate against ZombieBuddy
-  advice persistence (see ZB#13). Self-deactivates rendering when
-  PeekAView leaves the active mod set within the same JVM lifetime.
-- `isExternalStairFeatureActive()` — yield to upstream Staircast or
-  to our own staircast-rp when either is loaded on the same save.
+## Engine geometry
 
-## File Index
+Ground truth behind the quadrant decisions:
 
-| File | Describes |
-|------|-----------|
-| [`iso-geometry.md`](iso-geometry.md) | World coordinates, iso projection, render order (anti-diagonal), sprite extent vs. tile footprint, what we fade beyond vanilla's SE-only natural fade, asymmetric stencil shape |
-| [`PeekAViewMod.md`](PeekAViewMod.md) | Main class, state fields, cutaway / tree-fade gates, per-frame memo, external stair-feature detection (Staircast or StaircastRP), self-check against ZombieBuddy advice persistence, render-state helpers (zombie-cone, tree-fade-cone, clearly-behind classifier) |
-| [`Patch_IsoCell.md`](Patch_IsoCell.md) | POI raster expansion + cache + wall/LOS filter (vanilla pass-through at `MIN_RANGE`); tree-fade stencil-mask extension (asymmetric SE-vs-other coverage); non-FBO stair render-pass swap |
-| [`Patch_FBORenderCutaways.md`](Patch_FBORenderCutaways.md) | cutawayVisit dedup + B42 adjacency-kill fix |
-| [`Patch_FBORenderCell.md`](Patch_FBORenderCell.md) | Tree-fade `isTranslucentTree` extension with bidirectional speed-snap (in-zone DOWN, clearlyBehind UP); FBO stair render-pass swap and inverted player-sprite restore |
-| [`Stair_feature.md`](Stair_feature.md) | Stair view feature: render-time camera uplift while on stairs, the multi-patch coordination via `FakeWindow` ThreadLocal, read-path shadow on `IsoMovingObject` getters, lighting / weather / tree-pass uplift, external stair-feature yield-on-detect, pause-resistant fake-window freeze across in-game pause boundaries |
-| [`PeekAView_Options.md`](PeekAView_Options.md) | Lua options UI + defensive bridge + Java-missing detection |
-| [`TESTING.md`](TESTING.md) | Manual test notes from the 1.2.0 prep cycle plus open split-screen item |
+- World coords: `x` east, `y` south, `z` floor level. Iso projection:
+  `screenX = (x − y)·32·scale`,
+  `screenY = (x + y)·16·scale + (screenZ − z)·96·scale`.
+  The camera sits SE-above looking NW: +x renders down-right, +y
+  down-left, origin at the top of the screen.
+- Render order is `x + y` ascending (anti-diagonal); late draws sit
+  on top. A tree T can occlude the player P only if
+  `T.x + T.y > P.x + P.y` — SE quadrant always, NE/SW partially, NW
+  never (though tall NW sprites still cover screen area above the
+  player).
+- A sprite belongs entirely to its base tile and extends up-screen
+  from it — 3–7 tile-heights for tall trees.
 
-## Build / Deploy
+## Wall cutaway
 
-- Source: `src/pzmod/peekaview/*.java`
-- Mod files: `mod_files/42.13/` (Build 42.13)
-- ZombieBuddy dependency — required for `@Patch` and `@Exposer.LuaClass`
-- Target: PZ Build 42.13 or later
+- Vanilla's per-square occlusion data
+  (`LazyInitializeSoftOccluders`) projects diagonally SE through
+  Z-levels to ~14 tiles. The range slider therefore has
+  direction-dependent visible effect: toward SE it duplicates
+  vanilla's own reach until ~slider 14, toward N/W each +1 adds +1
+  tile of trigger range.
+- `cutawayVisit` dedup keys on `(frameCount, playerIndex)`, not the
+  `currentTimeMillis` argument: Windows' default 15.625 ms timer
+  tick can give two consecutive 60-fps frames the same millisecond,
+  which skipped the population call and produced 1-frame cutaway
+  dropouts.
+
+### B42 adjacency bug (still unfixed in vanilla as of 42.20)
+
+Player-built structures near vanilla buildings make upper-floor
+vanilla walls not render at all. Two vanilla mechanisms combine:
+
+1. `OrphanStructures.shouldCutaway` reads a cell-GLOBAL
+   `occludedByOrphanStructureFlag`, OR-accumulated across every POI —
+   one player-built cluster anywhere on screen flips `playerInRange`
+   for all on-screen clusters (further amplified by the extended POI
+   raster).
+2. `isAdjacentToOrphanStructure` fans the orphan flag
+   8-directionally onto neighboring tiles without re-applying the
+   drop-Z anchor test that excludes vanilla walls from orphan marking
+   itself — the wall next to a player-built stair is then culled by
+   `shouldRenderBuildingSquare`'s orphan-adjacency branch.
+
+Patching `shouldRenderBuildingSquare` directly is not viable: it has
+three indistinguishable `return false` paths, and flipping its exit
+also neutralizes legitimate building cutaway (confirmed
+experimentally — every wall of every approached building vanished).
+The two surgical patch sites and their distance / hoppable /
+climb-stab layering are documented in `Patch_FBORenderCutaways.java`.
+The workaround is opt-in (default off): it alters rendering of
+player-built tiles at vanilla facades even for players the bug never
+hits.
+
+## Tree fade (42.20)
+
+Vehicle-only complement to vanilla 42.20's own tree fade (SE quadrant
+plus aim-gated cursor/player stencil masks). Display is rerouted onto
+vanilla's `transparent` path instead of extending the stencil mask —
+mask extension stamps a visibly oversized dither circle around the
+car. Gates and reroute mechanics in `Patch_FBORenderTrees.java`,
+range/snap classification in `Patch_FBORenderCell.java`.
+
+## Stair view
+
+Render-time camera uplift while climbing stairs. Per-frame flow:
+
+1. `Patch_IsoWorld.computeFake` (on `IsoWorld.renderInternal` enter)
+   runs the hard gates (enabled, stairEnabled, self-check,
+   external-stair yield), pause freeze, strict activation checks,
+   hysteresis + stair latch, and fills the per-player
+   `FakeFrameState` in `FakeWindow`.
+2. `Patch_FBORenderCell.Patch_renderInternal` (FBO) or
+   `Patch_IsoCell.Patch_renderInternal` (non-FBO) swaps
+   `IsoCamera.frameState` and the camChar's `current` square, and
+   reflectively writes fake `x/y/z` for the chunk render.
+3. Nested inverted pairs restore real values mid-window:
+   `Patch_renderPlayers` / `Patch_IsoPlayer.render` (player sprite at
+   real position), `Patch_FBORenderTrees.Patch_init` (trees at real
+   Z), `Patch_IsoGameCharacter.renderlast` (halo/nametag overlays).
+4. `Patch_LightingJNI` and `Patch_WeatherFxMask` uplift lighting and
+   weather FX to the fake plane. `Patch_IsoCell.Patch_update` and the
+   `current`-revert inside `Patch_WeatherFxMask` guard the two known
+   readers that bypass the getter shadow (`updateWeatherFx` reading
+   `camCharacterSquare`, `getMasterRegion` reading the `current`
+   field).
+5. `Patch_IsoMovingObject` shadows `getX/Y/Z/getCurrentSquare`:
+   render thread with ThreadLocal set → fake; background threads
+   during the mutation window → saved real; otherwise vanilla.
+6. `Patch_IsoObject.Patch_getAlpha` makes upper-floor zombies inside
+   the forward cone visible during the climb, gated to the landing
+   room (plus staircase tiles and the landing's immediate ring) so
+   zombies in neighbor rooms stay on vanilla LOS alpha;
+   `Patch_UIManager.getTileFromMouse` +
+   `Patch_IsoCell.Patch_doBuildingInternal` keep the WalkTo click
+   target consistent with the fake-Z projection.
+
+Why the reflective field write exists at all, and the load-bearing
+flag-before-write / write-before-flag ordering on every (de)mutate
+path, are documented in `FakeWindow.java`.
+
+## Build / deploy
+
+`bash build.sh` — compiles against the PZ + ZB jars (Zulu JDK under
+`tools/`), packages `peekaview.jar`, installs to
+`~/Zomboid/mods/PeekAView`, and syncs the Workshop stage if
+`WORKSHOP_STAGE_MOD` is set in `build.local`. Aborts if PZ is running
+(locked JAR would leave the deploy half-done).
+
+Split-screen is untested on real hardware.
