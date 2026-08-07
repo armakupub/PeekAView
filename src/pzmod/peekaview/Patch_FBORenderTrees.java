@@ -1,6 +1,8 @@
 package pzmod.peekaview;
 
 import me.zed_0xff.zombie_buddy.Patch;
+import zombie.core.Core;
+import zombie.core.textures.Texture;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
 
@@ -21,18 +23,57 @@ public class Patch_FBORenderTrees {
 
         @Patch.OnEnter
         public static void enter(
+                @Patch.Argument(0) Texture texture,
+                @Patch.Argument(2) float x,
+                @Patch.Argument(3) float y,
                 @Patch.Argument(value = 10, readOnly = false) boolean bUseStencil,
-                @Patch.Argument(11) float fadeAlpha,
+                @Patch.Argument(value = 11, readOnly = false) float fadeAlpha,
                 @Patch.Argument(value = 12, readOnly = false) boolean transparent,
                 @Patch.Argument(value = 13, readOnly = false) float cutawayAlpha) {
             try {
-                if (!bUseStencil) return;
-                if (transparent) return; // vanilla XL-crown call owns it
                 if (!PeekAViewMod.fadeNWTrees) return;
                 if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
+                if (transparent) {
+                    // Vanilla's XL-crown cutaway (aim key): the crown
+                    // ramps 0.045/frame around two discrete composite
+                    // swaps, and on release the whole tree fades back
+                    // in from invisible. Replace the animation with a
+                    // hard flip — crown gone while aiming, full tree
+                    // the frame the key is released — by pinning the
+                    // DISPLAY alpha to the endpoints. The private
+                    // cutawayAlpha state keeps ramping underneath and
+                    // re-arms vanilla's composite gate.
+                    cutawayAlpha = PeekAViewMod.currentCameraPlayerAiming ? 0.0f : 1.0f;
+                    return;
+                }
+                if (!bUseStencil) return;
                 bUseStencil = false;
                 transparent = true;
+                // Render takes min(cutawayAlpha, fadeAlpha) — lift
+                // both display copies to the visibility floor. When
+                // this sprite covers the char on screen (base at or
+                // below him, crown reaching up over him, laterally
+                // overlapping), blend toward the deep floor so the
+                // char stays readable through the crown — eased over
+                // the footprint border instead of stepping.
+                float floor = PeekAViewMod.TREE_FADE_MIN_VISIBLE_ALPHA;
+                if (texture != null) {
+                    int ts = Core.tileScale;
+                    float cdx = x - IsoCamera.frameState.camCharacterX;
+                    float cdy = y - IsoCamera.frameState.camCharacterY;
+                    float sdx = (cdx - cdy) * 32f * ts;
+                    float sdy = (cdx + cdy) * 16f * ts;
+                    float halfW = texture.getWidth() * 0.5f + 24f * ts;
+                    float inside = Math.min(
+                            Math.min(sdy, texture.getHeight() - 64f * ts - sdy),
+                            Math.min(sdx + halfW, halfW - sdx));
+                    if (inside > 0f) {
+                        float t = Math.min(1f, inside / (PeekAViewMod.TREE_FADE_COVER_BLEND_PX * ts));
+                        floor += (PeekAViewMod.TREE_FADE_COVER_MIN_VISIBLE_ALPHA - floor) * t;
+                    }
+                }
+                fadeAlpha = Math.max(fadeAlpha, floor);
                 cutawayAlpha = fadeAlpha;
             } catch (Throwable t) {
                 PeekAViewMod.trace("Patch_addTree enter failed", t);

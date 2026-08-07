@@ -3,18 +3,22 @@ package pzmod.peekaview;
 import me.zed_0xff.zombie_buddy.Patch;
 import net.bytebuddy.asm.Advice;
 
+import zombie.characters.IsoPlayer;
 import zombie.core.math.PZMath;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
+import zombie.iso.IsoTreeJumbo;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.areas.IsoRoom;
 import zombie.iso.objects.IsoTree;
 
 public class Patch_FBORenderCell {
 
-    // Vehicle-only tree-fade extension: a Euclidean circle of radius
-    // TREE_FADE_RANGE minus the clearly-behind back-cone. Euclidean,
+    // Tree-fade extension: a Euclidean circle (wide radius in a
+    // vehicle, compact radius on foot) minus the clearly-behind
+    // back-cone, gated on the tree-fade cone (360° in a vehicle, the
+    // forward vision cone on foot). Euclidean,
     // not Manhattan — diamonds shrink the reach on diagonal travel.
     // The result flip is additive-only (false→true) and drives
     // renderFlag; IsoTree.fadeAlpha only steps DOWN while it's true,
@@ -30,67 +34,189 @@ public class Patch_FBORenderCell {
         public static void exit(@Patch.Argument(0) IsoObject object,
                                 @Patch.Return(readOnly = false) boolean result) {
             try {
+                // instanceof first: with wind sprite effects off the
+                // layer classifiers call isTranslucentTree for
+                // arbitrary objects (walls, furniture), not just trees.
+                if (!(object instanceof IsoTree)) return;
+                if (object.square == null) return;
                 if (!PeekAViewMod.fadeNWTrees) return;
                 if (!PeekAViewMod.isActiveTreeFadeForCurrentRenderPlayer()) return;
                 // Outdoor-only — mirrors the gate in
                 // Patch_FBORenderTrees.Patch_addTree.
                 if (PeekAViewMod.isCameraPlayerIndoor()) return;
-                if (!(object instanceof IsoTree)) return;
-                if (object.square == null) return;
                 IsoTree tree = (IsoTree) object;
 
-                // clearlyBehind is checked before the radius test: the
-                // fade zone is omnidirectional in a vehicle, so tiles
-                // behind the car must route to refade (snap UP), not
-                // get claimed by the in-zone DOWN path.
+                boolean aiming = PeekAViewMod.currentCameraPlayerAiming;
+
+                // RMB fells registry jumbos as a hard state flip:
+                // pinning cutawayAlpha to its endpoints removes the
+                // 0.045/frame ramp window entirely — no crown
+                // animation on press, no stale felled look waiting
+                // out the ramp on release. canSee mirrors vanilla's
+                // main gate (its obscured-squares fallback is
+                // dropped; those trees stay whole). Aim frames plus
+                // the release frame suffice: outside them vanilla's
+                // own ramp holds the field at the 1.0 endpoint
+                // (transparent=false ramps up, clamped).
+                if ((aiming || PeekAViewMod.aimReleasedThisFrame)
+                        && tree.sprite != null && tree.sprite.name != null
+                        && IsoTreeJumbo.Jumbos.get(tree.sprite.name) != null) {
+                    int pidx = IsoCamera.frameState.playerIndex;
+                    boolean felled = aiming
+                            && pidx >= 0 && pidx < IsoPlayer.MAX
+                            && object.square.lighting[pidx].bCanSee();
+                    PeekAViewMod.writeTreeCutawayAlpha(tree, felled ? 0.0f : 1.0f);
+                }
+
+                int camX = PZMath.fastfloor(IsoCamera.frameState.camCharacterX);
+                int camY = PZMath.fastfloor(IsoCamera.frameState.camCharacterY);
+                int dx = object.square.x - camX;
+                int dy = object.square.y - camY;
+                if (dx == 0 && dy == 0) return;
+
+                boolean inVehicle = PeekAViewMod.currentCameraPlayerInVehicle;
+
+                int distSq = dx * dx + dy * dy;
+                int range = inVehicle
+                        ? PeekAViewMod.TREE_FADE_VEHICLE_RANGE
+                        : PeekAViewMod.onFootTreeFadeRange(tree.size);
+                int exit = range + PeekAViewMod.TREE_FADE_EXIT_HYSTERESIS;
+                // Camera-side corridor eligibility: SE-quadrant tiles,
+                // on foot only while the char faces SE, in a vehicle
+                // without a facing flag (entry still runs through the
+                // travel cone). Vehicle view depth derives from the
+                // fade circle's diagonal reach (~range*sqrt2).
+                boolean seCorridor = dx >= 0 && dy >= 0
+                        && (inVehicle || PeekAViewMod.currentCameraPlayerFacingSE);
+                int seViewDepth = inVehicle
+                        ? (range * 3) / 2
+                        : PeekAViewMod.TREE_FADE_GAZE_VIEW_DEPTH;
+                boolean fading = tree.fadeAlpha < 1.0f;
+
                 boolean inZone = result;
-                boolean clearlyBehind = false;
                 if (!result) {
-                    int camX = PZMath.fastfloor(IsoCamera.frameState.camCharacterX);
-                    int camY = PZMath.fastfloor(IsoCamera.frameState.camCharacterY);
-                    int dx = object.square.x - camX;
-                    int dy = object.square.y - camY;
-
-                    if (dx == 0 && dy == 0) return;
-
-                    int range = PeekAViewMod.TREE_FADE_RANGE;
-                    int exit = PeekAViewMod.TREE_FADE_EXIT_RANGE;
-                    int distSq = dx * dx + dy * dy;
-                    // Common case: outside the circle and fully opaque.
-                    // Neither the DOWN nor the refade path can write —
-                    // skip the cone math (sqrt) entirely.
-                    if (distSq > range * range && tree.fadeAlpha >= 1.0f) return;
-
-                    if (PeekAViewMod.isTileClearlyBehindCameraPlayer(object.square)) {
-                        clearlyBehind = true;
-                    } else if (distSq <= range * range
-                            || (distSq <= exit * exit && tree.fadeAlpha < 1.0f)) {
+                    if (PeekAViewMod.inNearOverlap(dx, dy, tree.size)) {
+                        // Facing-free near-field: the crown covers the
+                        // char, keep him visible in every direction.
                         inZone = true;
                         result = true;
+                    } else {
+                        boolean inReach = distSq <= range * range
+                                || (seCorridor && PeekAViewMod.inSeCorridor(dx, dy, tree.size, fading, seViewDepth));
+                        // Common case: out of reach and either opaque
+                        // or already past the exit ring — membership
+                        // can't change, skip the dot math (sqrt)
+                        // entirely.
+                        if (!inReach && (!fading || distSq > exit * exit)) return;
+                        // Behind blocks membership before the zone
+                        // tests: the fade zone is omnidirectional in
+                        // a vehicle, and without this the exit-ring
+                        // hold would keep passed trees faded behind
+                        // the car instead of starting their refade.
+                        float dot = PeekAViewMod.cameraPlayerDotTo(object.square);
+                        if (!PeekAViewMod.isDotClearlyBehind(dot)
+                                && ((inReach && PeekAViewMod.isDotInTreeFadeCone(dot))
+                                    || (!aiming && distSq <= exit * exit && fading))) {
+                            // Cone gates entry only. A mid-fade tree
+                            // holds its membership via the exit ring
+                            // alone: near a jumbo the base tile swings
+                            // out of the forward cone while the crown
+                            // is overhead, and re-fading there would
+                            // flicker. The hold pauses while aiming —
+                            // the aim reveal must track the cone 1:1,
+                            // not leave a ghost trail behind a cursor
+                            // sweep.
+                            inZone = true;
+                            result = true;
+                        }
+                    }
+                } else if (!inVehicle || !aiming) {
+                    // Vanilla's SE gate is a coarse screen bbox over
+                    // the full mask canvas; its over-trigger used to
+                    // stay invisible outside the mask's alpha circle.
+                    // With the stencil bypassed every trigger ghosts
+                    // the whole tree, so clamp vanilla-true results —
+                    // on foot and while driving — to the union of the
+                    // occlusion band (crowns lean up-screen toward the
+                    // player, 16px per dx+dy step, but pass by quickly
+                    // sideways, 32px per |dx-dy| step), the SE
+                    // corridor, and our own zone. In-vehicle aiming
+                    // falls through untouched.
+                    // While aiming, vanilla-true exists in EVERY
+                    // direction (the full mask bbox), so the band
+                    // needs its SE-quadrant guard — without it the
+                    // depth test is a half-open wedge running off to
+                    // NW and keeps trees behind the char. NW-side
+                    // char cover is the near-zone's job.
+                    int hyst = fading
+                            ? PeekAViewMod.TREE_FADE_EXIT_HYSTERESIS : 0;
+                    boolean covered = (dx >= 0 && dy >= 0
+                            && dx + dy <= PeekAViewMod.seFadeDepth(tree.size) + hyst
+                            && Math.abs(dx - dy) <= PeekAViewMod.seFadeHalfWidth(tree.size) + hyst)
+                            || PeekAViewMod.inNearOverlap(dx, dy, tree.size)
+                            || (seCorridor && PeekAViewMod.inSeCorridor(dx, dy, tree.size, fading, seViewDepth));
+                    if (!covered) {
+                        // Our own zone keeps the tree too: vanilla
+                        // flips true for the one-row stripe at its
+                        // quadrant boundary, and suppressing there
+                        // would pulse a tree the zone entry had just
+                        // faded (ghost → opaque → ghost across the
+                        // crossing).
+                        float dot = PeekAViewMod.cameraPlayerDotTo(object.square);
+                        boolean zoneKeep = !PeekAViewMod.isDotClearlyBehind(dot)
+                                && ((distSq <= range * range
+                                        && PeekAViewMod.isDotInTreeFadeCone(dot))
+                                    || (!aiming && distSq <= exit * exit && fading));
+                        // On-foot aiming ADDS vanilla's aim reveal on
+                        // top of the model: keep along the aim
+                        // direction at any distance, cone-restricted
+                        // (the char turns with the cursor). Band and
+                        // corridor above keep the char himself
+                        // uncovered while aiming elsewhere.
+                        if (!zoneKeep && !inVehicle && aiming) {
+                            zoneKeep = PeekAViewMod.isDotInTreeFadeCone(dot);
+                        }
+                        if (!zoneKeep) {
+                            result = false;
+                            inZone = false;
+                        }
+                    }
+                }
+
+                // RMB tracking: while aiming the reveal follows the
+                // cursor 1:1 — claimed → floor, unclaimed → opaque,
+                // no ghost trail behind a sweep. On release vanilla's
+                // ramp fades unclaimed trees back in; only the jumbo
+                // crown flip stays hard (the composite path exists
+                // only while aiming, so a crown-only fade isn't
+                // available on release).
+                if (!inVehicle && aiming) {
+                    if (result) {
+                        if (tree.fadeAlpha > 0.15f) tree.fadeAlpha = 0.15f;
+                    } else if (tree.fadeAlpha < 1.0f) {
+                        tree.fadeAlpha = 1.0f;
                     }
                 }
 
                 // Speed-proportional boost on top of vanilla's
-                // alphaStep. Below MIN_KMH vanilla owns the animation:
+                // alphaStep, down-fade only — refades always run on
+                // vanilla's ramp so every tree restores with the same
+                // fade. Below MIN_KMH vanilla owns the animation:
                 // isTranslucentTree fires 6-10× per tree per frame, so
                 // even tiny t³ steps would compound. At/above the cap
                 // a single call covers the full range.
                 float speed = PeekAViewMod.currentVehicleSpeedKmh;
                 float minBoost = PeekAViewMod.TREE_FADE_SNAP_MIN_KMH;
-                if (speed > minBoost) {
-                    // Matches vanilla 42.20's outdoor fade floor so the
-                    // snap converges where the alphaStep path would.
+                if (speed > minBoost && inZone && tree.fadeAlpha > 0.15f) {
+                    // 0.15 matches vanilla 42.20's outdoor fade floor
+                    // so the snap converges where the alphaStep path
+                    // would.
                     float minAlpha = 0.15f;
                     float cap = PeekAViewMod.TREE_FADE_SNAP_SPEED_CAP_KMH;
                     float t = speed >= cap ? 1.0f : (speed - minBoost) / (cap - minBoost);
                     float step = (1.0f - minAlpha) * t * t * t;
-                    if (inZone && tree.fadeAlpha > minAlpha) {
-                        tree.fadeAlpha -= step;
-                        if (tree.fadeAlpha < minAlpha) tree.fadeAlpha = minAlpha;
-                    } else if (clearlyBehind && tree.fadeAlpha < 1.0f) {
-                        tree.fadeAlpha += step;
-                        if (tree.fadeAlpha > 1.0f) tree.fadeAlpha = 1.0f;
-                    }
+                    tree.fadeAlpha -= step;
+                    if (tree.fadeAlpha < minAlpha) tree.fadeAlpha = minAlpha;
                 }
             } catch (Throwable t) {
                 PeekAViewMod.trace("Patch_isTranslucentTree exit error", t);

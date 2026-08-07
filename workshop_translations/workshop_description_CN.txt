@@ -1,18 +1,18 @@
-[h1]扩展你的视野[/h1]
+[h1]这个 Mod 能做什么[/h1]
 
-Project Zomboid 把许多你的角色其实看得到的东西藏在墙壁、树木和上层楼之后。PeekAView 扩展了三个渲染通道，让你的屏幕跟上角色的眼睛：
+你的角色看到的其实比屏幕上显示的更多：他正盯着的那个拐角被墙挡住，路上的僵尸被树冠遮住，上楼梯更是一路盲爬，楼上等着你的是什么，只有爬上去才知道。PeekAView 就从这三处把这个差距补上：
 
 [list]
-[*][b]墙壁切除[/b]：墙壁在更远的距离被切除，让转角和门口在你接近时更早显露出后方的内容。
-[*][b]树木淡化[/b]：驾驶时，车辆周围的树木会变为半透明，让你更早看见危险。
-[*][b]楼梯视图[/b]：攀爬楼梯时上层楼面会被渲染，让你在到达之前就看到楼上的情况。僵尸只在你正要进入的那个房间中显露。
+[*][b]墙壁切除[/b]：从更远的距离就开始切除，门口和转角在你靠近的过程中逐渐敞开，不用等到最后一步。
+[*][b]树木淡化[/b]：挡在你视线上的树会变透明，步行和开车时都有效。
+[*][b]楼梯视野[/b]：爬楼梯的过程中就会显示上层楼面，人还没到就能看见楼上的情况。你正要进入的那个房间里的僵尸，整个攀爬过程中都保持可见，不管它们在房间的哪个角落。
 [/list]
 
-与原版相同的规则：无 X 光透视，无透明墙壁，无敌人轮廓。你角色的视线仍然决定什么是可见的。
+先说清楚：这不是透视挂。能看见什么，仍然完全由角色的视线决定；Mod 只是把游戏本来就算你已经看见、却依旧藏着不画的东西显示出来而已。
 
-每项功能在 选项 → Mod → Peek a View 下都有自己的「启用」开关。[b]F8[/b] 在游戏内切换整个 Mod（可重新绑定）。
+每项功能在选项 → 模组 → Peek a View 里都有各自的开关，[b]F8[/b] 则在游戏里一键开关整个 Mod（可重新绑定）。
 
-从 Build 42.20 起，PZ 自带了步行时的树木淡化。在我看来它已经够用了，所以 PeekAView 的树木淡化现在只负责驾驶场景。如果 TIS 重做了他们的版本，或者我自己玩正式版时发现还有改进的余地，我会再回来处理。
+关于原版的树木淡化：Build 42.20 自己加了一套，做得其实不差。我这套把它换成整棵树的淡化，跟着你的视线方向走，也知道每棵树实际有多大，角色周围也不再有那圈点状的圆形遮罩。如果你更喜欢原版的效果，取消勾选「步行时有效」，PeekAView 就只在开车时淡化树木。
 
 [h1]要求[/h1]
 [list]
@@ -22,8 +22,8 @@ Project Zomboid 把许多你的角色其实看得到的东西藏在墙壁、树�
 
 [h1]兼容性[/h1]
 [list]
-[*]仅客户端；可在游戏会话中途安全添加或移除。在多人游戏中，每位想要此效果的玩家都需要安装该 Mod（以及 ZombieBuddy）。
-[*]可与 Staircast Workshop Mod 共同运行：PeekAView 会检测到它，并让出自己的楼梯视图。
+[*]仅客户端（服务器不会运行其任何代码），但在多人游戏中该 Mod 仍需列入服务器的 Mod 列表。可在游戏会话中途安全添加或移除。
+[*]可与 Staircast Workshop Mod 共同运行：PeekAView 会检测到它，并让出自己的楼梯视野。
 [/list]
 
 [h1]常见问题[/h1]
@@ -35,8 +35,7 @@ Project Zomboid 把许多你的角色其实看得到的东西藏在墙壁、树�
 编辑 [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]：在 [noparse]"id": "PeekAView"[/noparse] 代码块中，把 [noparse]"decision": false[/noparse] 改为 [noparse]true[/noparse]（或者删除该代码块以便重新被询问）。然后重启 PZ。
 
 [h1]维护与源代码[/h1]
-本 Mod 对我自己的使用而言已经完成，不再进行主动开发。最后一次测试针对 PZ Build 42.20。采用 MIT 许可证，完全开源：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]。欢迎 fork。如果该 Mod 在未来的 PZ 版本中无法运行而我也不打算修复，我会将其从 Workshop 下架，而不会留下损坏的版本。
-
+这个 Mod 已经定型了。我自己也在玩，所以游戏更新要是弄坏了什么，我碰上了就会修，但不打算再加新功能。最后一次测试用的是 PZ Build 42.20.2。采用 MIT 许可证，完全开源：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]。欢迎 fork。
 [h1]鸣谢[/h1]
 [list]
 [*][b]Cutaway-on-stairs 概念 + FakeFrameState 模式 + 被修补的渲染类选择[/b]：[url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url]（MIT，原始 Workshop Mod）。

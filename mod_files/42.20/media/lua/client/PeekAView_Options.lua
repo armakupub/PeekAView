@@ -138,6 +138,18 @@ fadeNWTreesOpt.onChangeApply = function(self, value)
     applyToJava("setFadeNWTrees", value)
 end
 
+-- Counterpart to the cutaway's "Active in vehicles": vehicle fade is
+-- the baseline, this extends it to on-foot play. Off = vanilla's own
+-- stencil-mask fade on foot.
+local treeFadeActiveOnFootOpt = modOptions:addTickBox(
+    "treeFadeActiveOnFoot",
+    getText("UI_PAV_TreeFadeActiveOnFootLabel"),
+    true,
+    getText("UI_PAV_TreeFadeActiveOnFootTooltip"))
+treeFadeActiveOnFootOpt.onChangeApply = function(self, value)
+    applyToJava("setTreeFadeActiveOnFoot", value)
+end
+
 modOptions:addDescription("UI_PAV_Spacer")
 
 -- == Stairs ==
@@ -178,6 +190,7 @@ local function syncToJava()
     applyToJava("setCutawayActiveInVehicle", cutawayActiveInVehicleOpt:getValue())
     applyToJava("setFixB42Adjacency", fixB42Opt:getValue())
     applyToJava("setFadeNWTrees", fadeNWTreesOpt:getValue())
+    applyToJava("setTreeFadeActiveOnFoot", treeFadeActiveOnFootOpt:getValue())
     applyToJava("setStairEnabled", stairEnabledOpt:getValue())
 end
 
@@ -191,4 +204,5 @@ PeekAView.rangeOpt = rangeOpt
 PeekAView.cutawayActiveInVehicleOpt = cutawayActiveInVehicleOpt
 PeekAView.fixB42Opt = fixB42Opt
 PeekAView.fadeNWTreesOpt = fadeNWTreesOpt
+PeekAView.treeFadeActiveOnFootOpt = treeFadeActiveOnFootOpt
 PeekAView.stairEnabledOpt = stairEnabledOpt

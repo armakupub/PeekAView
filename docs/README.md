@@ -65,7 +65,7 @@ Ground truth behind the quadrant decisions:
   which skipped the population call and produced 1-frame cutaway
   dropouts.
 
-### B42 adjacency bug (still unfixed in vanilla as of 42.20)
+### B42 adjacency bug (still unfixed in vanilla as of 42.20.2)
 
 Player-built structures near vanilla buildings make upper-floor
 vanilla walls not render at all. Two vanilla mechanisms combine:
@@ -93,12 +93,17 @@ hits.
 
 ## Tree fade (42.20)
 
-Vehicle-only complement to vanilla 42.20's own tree fade (SE quadrant
-plus aim-gated cursor/player stencil masks). Display is rerouted onto
-vanilla's `transparent` path instead of extending the stencil mask —
-mask extension stamps a visibly oversized dither circle around the
-car. Gates and reroute mechanics in `Patch_FBORenderTrees.java`,
-range/snap classification in `Patch_FBORenderCell.java`.
+Whole-tree fading in the view direction, on foot and while driving,
+replacing vanilla 42.20's own fade (SE quadrant plus aim-gated
+cursor/player stencil masks); with `treeFadeActiveOnFoot` off, the
+on-foot side stays vanilla. One measured model: radii, occlusion
+bands and crown depths derive from the per-size sprite-sheet heights.
+Vanilla's screen-wide aim fade is clamped to the aim direction.
+Display is rerouted onto vanilla's `transparent` path instead of
+extending the stencil mask — mask extension stamps a visibly
+oversized dither circle. Classification in `Patch_FBORenderCell.java`
+(hot path `Patch_isTranslucentTree`), display reroute and the jumbo
+fell-swap in `Patch_FBORenderTrees.java`.
 
 ## Stair view
 

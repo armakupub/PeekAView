@@ -1,18 +1,18 @@
-[h1]Amplía tu visión[/h1]
+[h1]Qué hace[/h1]
 
-Project Zomboid oculta mucho de lo que tu personaje realmente puede ver, detrás de paredes, árboles y pisos superiores. PeekAView extiende tres pases de renderizado, de modo que tu pantalla se ponga a la altura de lo que ven los ojos de tu personaje:
+Tu personaje ve más de lo que muestra tu pantalla. Las paredes le tapan justo la esquina que está vigilando, la copa de un árbol esconde al zombi que hay en la carretera y subir unas escaleras es meterse a ciegas en lo que sea que te espere arriba. PeekAView cierra esa brecha en tres frentes:
 
 [list]
-[*][b]Corte de paredes[/b]: las paredes se recortan a mayor distancia, para que esquinas y puertas revelen antes lo que hay detrás mientras te acercas.
-[*][b]Difuminado de árboles[/b]: mientras conduces, los árboles alrededor de tu vehículo se vuelven translúcidos para ver los obstáculos con antelación.
-[*][b]Vista de escaleras[/b]: el piso superior se renderiza mientras subes, para que veas lo que hay arriba antes de llegar. Los zombis solo se revelan en la habitación a la que estás subiendo.
+[*][b]Corte de paredes[/b]: las paredes empiezan a recortarse desde más lejos, de modo que puertas y esquinas quedan a la vista mientras te acercas y no en el último paso.
+[*][b]Difuminado de árboles[/b]: los árboles que se interponen entre tú y el punto al que miras se vuelven translúcidos, a pie y al volante.
+[*][b]Vista de escaleras[/b]: el piso superior se dibuja mientras subes, así ves lo que te espera antes de llegar arriba. Los zombis de la habitación a la que subes se mantienen visibles durante toda la subida, estén donde estén dentro de ella.
 [/list]
 
-Las mismas reglas que vanilla: sin rayos X, sin paredes transparentes, sin contornos de enemigos. La línea de visión de tu personaje sigue decidiendo qué es visible.
+Que quede claro: aquí no hay wallhack. La línea de visión de tu personaje sigue decidiéndolo todo, el mod solo dibuja lo que el juego ya da por visto pero te sigue ocultando.
 
-Cada función tiene su propio interruptor de activación en Opciones → Mods → Peek a View. [b]F8[/b] activa o desactiva el mod completo en el juego (reasignable).
+Cada función tiene su propio interruptor en Opciones → Mods → Peek a View, y [b]F8[/b] activa y desactiva el mod entero en partida (reasignable).
 
-Desde la build 42.20, PZ incluye su propio difuminado de árboles a pie. Para mí cumple de sobra, así que el difuminado de árboles de PeekAView ahora solo cubre la conducción. Si TIS rehace el suyo, o si veo margen de mejora jugando yo mismo en la versión estable, le volveré a echar un vistazo.
+Sobre el difuminado de árboles vanilla: la build 42.20 añadió uno y no está mal. El mío lo sustituye por un difuminado del árbol completo, que sigue la dirección en la que miras y tiene en cuenta el tamaño real de cada árbol, sin el círculo de tramado alrededor del personaje. Si prefieres quedarte con la versión vanilla, desmarca "Activo a pie" y PeekAView solo difuminará los árboles cuando conduzcas.
 
 [h1]Requisitos[/h1]
 [list]
@@ -22,7 +22,7 @@ Desde la build 42.20, PZ incluye su propio difuminado de árboles a pie. Para m�
 
 [h1]Compatibilidad[/h1]
 [list]
-[*]Solo del lado del cliente. Seguro de añadir o quitar durante una partida. En multijugador, cada cliente que quiera el efecto necesita el mod (y ZombieBuddy).
+[*]Solo del lado del cliente (el servidor no ejecuta nada del mod), pero en multijugador aun así debe estar en la lista de mods del servidor. Seguro de añadir o quitar durante una partida.
 [*]Funciona junto al mod Staircast del Workshop: PeekAView lo detecta y cede su propia vista de escaleras.
 [/list]
 
@@ -35,8 +35,7 @@ El B42 vanilla puede ocultar paredes del piso superior junto a estructuras const
 Edita [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]: en el bloque [noparse]"id": "PeekAView"[/noparse], cambia [noparse]"decision": false[/noparse] a [noparse]true[/noparse] (o borra el bloque para que te vuelva a preguntar). Reinicia PZ.
 
 [h1]Mantenimiento y Código fuente[/h1]
-Completo para mi propio uso, sin desarrollo activo. Probado por última vez con PZ build 42.20. Con licencia MIT y completamente de código abierto: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Los forks son bienvenidos. Si el mod deja de funcionar en una versión futura de PZ y no voy a arreglarlo, lo retiraré del Workshop antes de dejar una versión rota.
-
+Doy el mod por terminado, esta es su forma definitiva. Yo mismo juego con él, así que si una actualización del juego rompe algo lo arreglo en cuanto me lo encuentro, pero no hay planes de añadir funciones nuevas. Probado por última vez con PZ build 42.20.2. Con licencia MIT y completamente de código abierto: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Los forks son bienvenidos.
 [h1]Atribución[/h1]
 [list]
 [*][b]Concepto cutaway-on-stairs + patrón FakeFrameState + elección de clases de renderizado parcheadas[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, mod original del Workshop).

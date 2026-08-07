@@ -1,24 +1,29 @@
 # Peek a View
 
-> Expand your vision.
+Your character sees more than your screen shows. Walls hide the corner they're staring down, a tree crown covers the zombie on the road, and a staircase is a blind climb into whatever waits at the top. PeekAView closes that gap in three places:
 
-![PeekAView before and after: walls and trees fade from further away](screenshots/0_overview_collage.jpg)
+- **Wall cutaway**: walls start cutting away at greater distance, so doorways and corners open up as you approach instead of at the last step.
+- **Tree fade**: trees between you and where you're looking turn see-through, on foot and behind the wheel.
+- **Stair view**: the upper floor draws while you climb, so you see what's waiting before you get there. Zombies in the room you're climbing into stay visible through the whole climb, anywhere in that room.
 
-Project Zomboid hides a lot of what's actually visible to your character behind walls, trees, and floors above. PeekAView extends three rendering passes so your screen catches up with your character's eyes. Three independent features:
+To be clear: no wallhack. Your character's line of sight still decides everything, the mod only draws what the game already counts as seen but keeps hidden.
 
-- **Wall cutaway**: walls and fences fade earlier as you approach them.
-- **Tree fade**: while driving, trees around your vehicle become translucent.
-- **Stair view**: while climbing stairs, the upper floor already renders.
+Every feature has its own toggle under Options → Mods → Peek a View, and **F8** switches the whole mod on and off in game (rebindable under `[PeekAView]` in PZ's keybind menu).
 
-Each feature is independent. Run all three together, just the one you need, or somewhere in between. Every feature has its own Enable toggle, and the wall cutaway range is tunable in the Options menu.
-
-**F8** toggles the master Enable in-game (rebindable under `[PeekAView]` in PZ's keybind menu).
-
-Same rules as vanilla. No X-ray, no see-through walls, no enemy outlines. Your character's line of sight still decides what's actually visible.
+<table>
+  <tr>
+    <td><img src="screenshots/5_comparison.jpg" alt="Wall cutaway off/on: the storefront opens up and the zombies behind it show"></td>
+    <td><img src="screenshots/6_comparison.jpg" alt="Tree fade off/on while driving: trees ahead of the car turn translucent"></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/3_stairs_collage.jpg" alt="Stair view: the upper floor renders during the climb"></td>
+    <td><img src="screenshots/7_settings.png" alt="Mod options panel"></td>
+  </tr>
+</table>
 
 ## Maintenance status
 
-This mod is feature-complete for my use and no longer actively developed. Last tested against PZ build 42.20.
+This is the mod in its finished shape. I play with it myself, so breakage from game updates gets fixed when I run into it, but no new features are planned. Last tested against PZ build 42.20.2.
 
 Source is MIT-licensed. Forks and improvements are welcome and encouraged. If a maintained successor appears, I'll link to it here.
 
@@ -40,7 +45,7 @@ Because Peek a View ships a Java JAR, the **first** time you launch the game aft
 ## Compatibility
 
 - Safe to add or remove mid-save: no save data touched. Visual effects clear on the next save reload after removing the mod from the mod list.
-- Client-side only: each player who wants the effect needs the mod (and ZombieBuddy) installed.
+- Client-side only (the server runs none of it), but in multiplayer it still has to be on the server's mod list. Each player who wants the effect needs the mod (and ZombieBuddy) installed.
 
 ## Wall cutaway
 
@@ -58,15 +63,22 @@ Also includes an opt-in workaround for a B42 engine bug where player-built struc
 
 ## Tree fade
 
-While you drive, trees around the vehicle become translucent so road hazards and zombies show up before the tree has cleared the bumper. Trees passing behind the vehicle solidify quickly instead of trailing half-faded ghosts. On foot, vanilla's build-42 tree fade (including the aim-key fade) applies unchanged.
+Whole trees fade in your view direction, on foot and behind the wheel. The fade knows tree sizes: reach per class comes from the actual sprite heights (saplings, normal trees, and the three jumbo tiers), so a small fir far down-screen no longer ghosts while a jumbo crown covering you stays solid. Trees right at the character or the car fade regardless of facing, and faded trees keep a readable silhouette, easing down to the deep fade only while they actually cover the character.
+
+Aiming (right mouse button held) reveals along your aim direction instead of fading trees across the whole screen. Releasing the aim key fades revealed trees back in smoothly, and jumbo trees swap cleanly to the cut trunk while aiming.
+
+Driving uses the same model with a travel-direction cone (it flips while reversing): trees drop out quicker the faster you drive, and passed trees always fade back in at the normal rate.
+
+Build 42.20 ships its own on-foot tree fade; PeekAView replaces it with this whole-tree model. If you'd rather keep the vanilla version, untick "Active on foot" and PeekAView will only fade trees while you drive.
 
 | Setting | Default | What it does |
 |---|---|---|
 | Enable | on | Toggles the tree fade feature. |
+| Active on foot | on | Fades trees in your view cone while walking, replacing the round reveal mask around the character. When off, tree fade runs only while driving. |
 
 ## Stair view
 
-While your character is on stairs, the upper floor renders during the climb instead of only after you've topped out. You see what's waiting upstairs before you reach it. Zombies on the upper floor become visible during the climb, limited to your character's forward view and the room you're climbing into.
+While your character is on stairs, the upper floor renders during the climb instead of only after you've topped out. You see what's waiting upstairs before you reach it. Zombies in the room you're climbing into stay visible through the whole climb, anywhere in that room, limited to your character's forward view.
 
 | Setting | Default | What it does |
 |---|---|---|

@@ -1,6 +1,18 @@
 Peek a View - Changelog
 =======================
 
+2.0.0 - 2026-08-07
+  - Tree fade rework: one measured model on foot and behind the wheel, driven by where your character actually looks.
+  - New "Active on foot" option (on by default): replaces the game's round dither reveal around the character with whole-tree fading in your view direction - the ragged stencil circle is gone.
+  - The fade knows tree sizes: reach per class comes from the actual sprite heights (saplings, normal trees, and the three jumbo tiers), so a small fir far down-screen no longer ghosts while a jumbo crown covering you stays solid.
+  - Looking toward the camera opens a view corridor: every tree whose crown hangs into that sightline fades, nearer trees always included.
+  - Aiming (right mouse button held) now reveals along your aim direction instead of fading trees across the whole screen. Releasing the aim key fades revealed trees back in smoothly.
+  - Aiming fells jumbo trees with a clean instant swap to the cut trunk - no crown animation, and no delayed swap back when you release.
+  - Driving uses the same model: a travel-direction cone (flips while reversing), and far-off trees that cannot block the view no longer fade. Trees drop out quicker the faster you drive; passed trees refade smoothly behind the vehicle, with barely any flicker left.
+  - Trees right at the character or the car fade regardless of facing - the near-field stand-in for the old reveal mask.
+  - Faded trees keep a readable silhouette (30% minimum), easing down to the deep fade only while they actually cover the character.
+  - Wall cutaway: the speed-scaled range from 1.5.1 is gone again - it saved almost no frame time but caused visible pop while accelerating and braking. The slider range now applies at any speed.
+
 1.5.1 - 2026-08-01
   - Performance release, no new features.
   - Wall cutaway: the extended range now scales down with driving speed. Above ~25 km/h it eases toward vanilla range, fully vanilla at ~40, and grows back about a second after you slow down. At speed, the extra range was paying frame time for walls you pass in under a second.

@@ -1,18 +1,18 @@
-[h1]Expand your vision[/h1]
+[h1]What it does[/h1]
 
-Project Zomboid hides a lot of what your character can actually see behind walls, trees, and floors above. PeekAView extends three rendering passes so your screen catches up with your character's eyes:
+Your character sees more than your screen shows. Walls hide the corner they're staring down, a tree crown covers the zombie on the road, and a staircase is a blind climb into whatever waits at the top. PeekAView closes that gap in three places:
 
 [list]
-[*][b]Wall cutaway[/b]: walls are cut away at greater range, so corners and doorways reveal what's behind them earlier as you approach.
-[*][b]Tree fade[/b]: while driving, trees around your vehicle become translucent for earlier hazard visibility.
-[*][b]Stair view[/b]: the upper floor renders while you're climbing, so you see what's upstairs before you reach it. Zombies reveal only in the room you're climbing into.
+[*][b]Wall cutaway[/b]: walls start cutting away at greater distance, so doorways and corners open up as you approach instead of at the last step.
+[*][b]Tree fade[/b]: trees between you and where you're looking turn see-through, on foot and behind the wheel.
+[*][b]Stair view[/b]: the upper floor draws while you climb, so you see what's waiting before you get there. Zombies in the room you're climbing into stay visible through the whole climb, anywhere in that room.
 [/list]
 
-Same rules as vanilla: no X-ray, no see-through walls, no enemy outlines. Your character's line of sight still decides what's visible.
+To be clear: no wallhack. Your character's line of sight still decides everything, the mod only draws what the game already counts as seen but keeps hidden.
 
-Each feature has its own Enable toggle under Options → Mods → Peek a View. [b]F8[/b] toggles the whole mod in-game (rebindable).
+Every feature has its own toggle under Options → Mods → Peek a View, and [b]F8[/b] switches the whole mod on and off in game (rebindable).
 
-Since build 42.20, PZ ships its own on-foot tree fade. It does the job in my book, so PeekAView's tree fade now covers driving only. If TIS reworks theirs, or I spot room for improvement while playing stable myself, I'll revisit.
+About the vanilla tree fade: build 42.20 added one, and it's decent. Mine replaces it with whole-tree fading that follows your view direction and knows how big each tree actually is, without the dithered circle around your character. If you'd rather keep the vanilla version, untick "Active on foot" and PeekAView will only fade trees while you drive.
 
 [h1]Requirements[/h1]
 [list]
@@ -22,7 +22,7 @@ Since build 42.20, PZ ships its own on-foot tree fade. It does the job in my boo
 
 [h1]Compatibility[/h1]
 [list]
-[*]Client-side only; safe to add or remove mid-save. In multiplayer, every client that wants the effect needs the mod (and ZombieBuddy).
+[*]Client-side only (the server runs none of it), but in multiplayer it still has to be on the server's mod list. Safe to add or remove mid-save.
 [*]Runs alongside the Staircast Workshop mod: PeekAView detects it and yields its own stair view.
 [/list]
 
@@ -35,8 +35,7 @@ Vanilla B42 can hide upper-floor walls next to player-built structures, leaving 
 Edit [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]: in the [noparse]"id": "PeekAView"[/noparse] block, flip [noparse]"decision": false[/noparse] to [noparse]true[/noparse] (or delete the block to be re-asked). Restart PZ.
 
 [h1]Maintenance & Source[/h1]
-Feature-complete for my use, not actively developed. Last tested against PZ build 42.20. MIT-licensed, fully open source: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forks welcome. If the mod breaks in a future PZ version and I'm not going to fix it, I'll remove it from the Workshop rather than leave a broken version up.
-
+This is the mod in its finished shape. I play with it myself, so breakage from game updates gets fixed when I run into it, but no new features are planned. Last tested against PZ build 42.20.2. MIT-licensed, fully open source: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forks welcome.
 [h1]Attribution[/h1]
 [list]
 [*][b]Cutaway-on-stairs idea + FakeFrameState pattern + choice of patched render classes[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, original Workshop mod).

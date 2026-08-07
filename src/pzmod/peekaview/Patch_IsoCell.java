@@ -85,12 +85,12 @@ public class Patch_IsoCell {
                 int playerIndex = IsoCamera.frameState.playerIndex;
                 if (playerIndex < 0 || playerIndex >= MAX_PLAYERS) return false;
 
-                // Indoor, slider-at-MIN and the speed ramp's floor all
-                // fall through to vanilla's own raster, unmodified.
-                // Snapshot the radius once per call so bounds stay
-                // consistent if Lua flips the slider mid-frame.
+                // Indoor and slider-at-MIN fall through to vanilla's
+                // own raster, unmodified. Snapshot the radius once per
+                // call so bounds stay consistent if Lua flips the
+                // slider mid-frame.
                 if (PeekAViewMod.isCameraPlayerIndoor()) return false;
-                int radius = PeekAViewMod.cutawayEffectiveRange[playerIndex];
+                int radius = PeekAViewMod.range;
                 if (radius <= PeekAViewMod.MIN_RANGE) return false;
                 if (radius > MAX_RADIUS) radius = MAX_RADIUS;
 

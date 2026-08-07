@@ -8,6 +8,7 @@ import zombie.ZomboidFileSystem;
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.objects.IsoTree;
 import zombie.vehicles.BaseVehicle;
 
 // Kahlua global registered by ZombieBuddy from @Exposer.LuaClass under
@@ -20,35 +21,24 @@ public class PeekAViewMod {
     public static final int MAX_RANGE = 20;
     public static final int DEFAULT_RANGE = 10;
 
-    // Fixed vehicle tree-fade radius (was a slider; fixed at its old
-    // minimum). The fade is a complement to normal driving — holding
-    // an aim key opens up more view via vanilla's cursor fade.
-    public static final int TREE_FADE_RANGE = 15;
-    // Exit radius: already-faded trees keep zone membership up to
-    // here, so boundary jitter doesn't flip renderFlag — every flip
-    // invalidates the chunk texture (checkTreeTranslucency).
-    public static final int TREE_FADE_EXIT_RANGE = 17;
+    public static final int TREE_FADE_VEHICLE_RANGE = 15;
+    // On-foot base radius (normal trees), sized to the visible core
+    // of vanilla's player mask (50%-dither boundary ~230px ≈ 5-6
+    // tiles) plus a 6-tile margin. Bigger trees scale up via
+    // onFootTreeFadeRange.
+    public static final int TREE_FADE_ON_FOOT_RANGE = 11;
+    // Exit hysteresis: already-faded trees keep zone membership up to
+    // range+2, so boundary jitter doesn't flip renderFlag — each flip
+    // reverses the fadeAlpha ramp mid-fade and reads as rim pulsing.
+    public static final int TREE_FADE_EXIT_HYSTERESIS = 2;
 
     // Speed range for Patch_isTranslucentTree's fade boost. Below
     // MIN: pure vanilla alphaStep (no boost). Between MIN and CAP:
     // cubic ramp from no-boost to full-snap. At/above CAP: snap in
-    // one call. Applied symmetrically: DOWN when in zone, UP when
-    // clearly behind (refade behind moving vehicle).
+    // one call. Down-fade only; refades run on vanilla's ramp so
+    // every tree restores with the same fade.
     public static final float TREE_FADE_SNAP_MIN_KMH = 10f;
     public static final float TREE_FADE_SNAP_SPEED_CAP_KMH = 50f;
-
-    // Cutaway-extension speed ramp: full slider range up to MIN,
-    // shrinking linearly to the vanilla radius at MAX — the POI
-    // raster's per-frame vanilla consumers scale with the square
-    // count, and the extension loses visual value with speed. A ramp
-    // instead of a threshold: no visible cliff, and the endpoint
-    // values stay uncritical.
-    public static final float CUTAWAY_RANGE_RAMP_MIN_KMH = 25f;
-    public static final float CUTAWAY_RANGE_RAMP_MAX_KMH = 40f;
-    public static final long CUTAWAY_RANGE_GROW_HOLD_MS = 1000L;
-    public static final int[] cutawayEffectiveRange = new int[IsoPlayer.MAX];
-    // 0 = not pending.
-    public static final long[] cutawayRangeGrowSince = new long[IsoPlayer.MAX];
 
     // volatile: render thread reads; Lua UI thread writes via setters.
     public static volatile boolean enabled = true;
@@ -62,11 +52,16 @@ public class PeekAViewMod {
     public static volatile boolean cutawayActiveInVehicle = true;
     public static volatile boolean aimStanceOnly = false;
     public static volatile boolean fadeNWTrees = true;
+    public static volatile boolean treeFadeActiveOnFoot = true;
     public static volatile boolean stairEnabled = true;
     // Per-frame caches, written in refreshActiveCache. Speed is
     // |vehicle.currentSpeedKmHour|, 0f outside a vehicle.
     public static volatile float currentVehicleSpeedKmh = 0f;
     public static volatile boolean isVehicleReversing = false;
+    public static volatile boolean currentCameraPlayerInVehicle = false;
+    public static volatile boolean currentCameraPlayerAiming = false;
+    public static volatile boolean aimReleasedThisFrame = false;
+    public static volatile boolean currentCameraPlayerFacingSE = false;
 
     public static void setEnabled(boolean v) {
         enabled = v;
@@ -97,6 +92,10 @@ public class PeekAViewMod {
 
     public static void setFadeNWTrees(boolean v) {
         fadeNWTrees = v;
+    }
+
+    public static void setTreeFadeActiveOnFoot(boolean v) {
+        treeFadeActiveOnFoot = v;
     }
 
     public static void setStairEnabled(boolean v) {
@@ -183,8 +182,9 @@ public class PeekAViewMod {
         return activeCacheCutaway;
     }
 
-    // Vehicle-only: on foot vanilla 42.20's own tree fade (SE quadrant
-    // + aim-gated cursor/player masks) applies unchanged. The section
+    // Vehicle always; on foot only with treeFadeActiveOnFoot — off,
+    // vanilla 42.20's own tree fade (SE quadrant + aim-gated
+    // cursor/player masks) applies unchanged there. The section
     // toggle fadeNWTrees is checked in the patch bodies.
     public static boolean isActiveTreeFadeForCurrentRenderPlayer() {
         refreshActiveCache();
@@ -203,67 +203,70 @@ public class PeekAViewMod {
         if (!enabled) {
             activeCacheCutaway = false;
             activeCacheTreeFade = false;
+            camPlayerSnapshotValid = false;
             return;
         }
         if (!isPeekAViewActive()) {
             activeCacheCutaway = false;
             activeCacheTreeFade = false;
+            camPlayerSnapshotValid = false;
             return;
         }
         if (pIdx < 0 || pIdx >= IsoPlayer.MAX) {
             activeCacheCutaway = true;
             activeCacheTreeFade = false;
+            camPlayerSnapshotValid = false;
             return;
         }
         IsoPlayer p = IsoPlayer.players[pIdx];
         if (p == null) {
             activeCacheCutaway = true;
             activeCacheTreeFade = false;
+            camPlayerSnapshotValid = false;
             return;
         }
         BaseVehicle vehicle = p.getVehicle();
         boolean inVehicle = vehicle != null;
+        currentCameraPlayerInVehicle = inVehicle;
+        // Same key check vanilla's isTranslucentTree aim gate uses.
+        // Release edge drives the instant snap-back of aim fades.
+        boolean wasAiming = currentCameraPlayerAiming;
+        currentCameraPlayerAiming = p.isAnyAimKeyDown();
+        aimReleasedThisFrame = wasAiming && !currentCameraPlayerAiming;
+        // Facing gate for the SE gaze bonus: both forward components
+        // clearly positive = looking toward the camera; the 0.2f
+        // floor keeps pure-E/pure-S facings and axis wobble out.
+        currentCameraPlayerFacingSE = p.getForwardDirectionX() > 0.2f
+                && p.getForwardDirectionY() > 0.2f;
         float signedSpeed = inVehicle ? vehicle.getCurrentSpeedKmHour() : 0f;
         currentVehicleSpeedKmh = Math.abs(signedSpeed);
         // 1 km/h dead-zone so braking through 0 doesn't oscillate the
         // forward-direction flip; only sustained reverse triggers it.
         isVehicleReversing = signedSpeed < -1.0f;
 
-        int target = range;
-        if (currentVehicleSpeedKmh >= CUTAWAY_RANGE_RAMP_MAX_KMH) {
-            target = MIN_RANGE;
-        } else if (currentVehicleSpeedKmh > CUTAWAY_RANGE_RAMP_MIN_KMH && range > MIN_RANGE) {
-            float t = (currentVehicleSpeedKmh - CUTAWAY_RANGE_RAMP_MIN_KMH)
-                    / (CUTAWAY_RANGE_RAMP_MAX_KMH - CUTAWAY_RANGE_RAMP_MIN_KMH);
-            target = Math.round(range - t * (range - MIN_RANGE));
+        float fwdX = p.getForwardDirectionX();
+        float fwdY = p.getForwardDirectionY();
+        // Flip so the cone follows travel (see isTileInCameraPlayerCone).
+        if (isVehicleReversing) {
+            fwdX = -fwdX;
+            fwdY = -fwdY;
         }
-        // Shrink immediately, grow only after the lower speed held —
-        // in-band speed oscillation in traffic must not pulse the rim
-        // buildings' cutaway.
-        int cur = cutawayEffectiveRange[pIdx];
-        if (!inVehicle || target < cur) {
-            cutawayEffectiveRange[pIdx] = target;
-            cutawayRangeGrowSince[pIdx] = 0L;
-        } else if (target > cur) {
-            long now = System.currentTimeMillis();
-            long since = cutawayRangeGrowSince[pIdx];
-            if (since == 0L) {
-                cutawayRangeGrowSince[pIdx] = now;
-            } else if (now - since >= CUTAWAY_RANGE_GROW_HOLD_MS) {
-                cutawayEffectiveRange[pIdx] = target;
-                cutawayRangeGrowSince[pIdx] = 0L;
-            }
-        } else {
-            cutawayRangeGrowSince[pIdx] = 0L;
-        }
+        camPlayerFwdX = fwdX;
+        camPlayerFwdY = fwdY;
+        camPlayerX = p.getX();
+        camPlayerY = p.getY();
+        camPlayerSnapshotValid = true;
 
         // Cap at 0.0: trait/state modifiers ≤ 0 pass through, the
         // vehicle's 1.0 (360°) must not widen the forward-cone gate.
         try {
             float vanillaCone = p.calculateVisibilityData().getCone();
             currentCameraPlayerConeDot = Math.min(vanillaCone, 0.0f);
+            currentTreeFadeConeDot = inVehicle ? TREE_FADE_VEHICLE_CONE_DOT
+                    : vanillaCone - TREE_FADE_ON_FOOT_CONE_TIGHTEN;
         } catch (Throwable t) {
             currentCameraPlayerConeDot = -0.2f;
+            currentTreeFadeConeDot = -0.2f;
         }
 
         boolean aimBlocks = aimStanceOnly && !p.isAiming();
@@ -274,7 +277,139 @@ public class PeekAViewMod {
         } else {
             activeCacheCutaway = true;
         }
-        activeCacheTreeFade = inVehicle;
+        activeCacheTreeFade = inVehicle || treeFadeActiveOnFoot;
+    }
+
+    // On-foot radius by tree size, measured to the base tile.
+    // Mirrors the crown-reach table vanilla uses in
+    // IsoTree.countObscuredSeenSquares (size→HGT): jumbo crowns
+    // cover the player from far outside the base radius, so their
+    // base must qualify from further out.
+    // On foot the tree-fade cone is pulled in well below the ~162°
+    // LOS cone — the LOS half-plane plus the facing-free SE band
+    // plus the exit-ring hold otherwise add up to a plain radius
+    // with no visible gaze direction. 0.3 → ~127° for the default
+    // char.
+    public static final float TREE_FADE_ON_FOOT_CONE_TIGHTEN = 0.3f;
+
+    // Driving uses a fixed travel-direction cone (~162°, wider than
+    // on foot — at speed the reveal should open earlier toward where
+    // the car is going). Perpendicular trees neither enter nor sit
+    // clearlyBehind, so passing a tree's axis column no longer pulses
+    // its fade. Reversing flips the cone with the travel direction.
+    public static final float TREE_FADE_VEHICLE_CONE_DOT = -0.2f;
+
+    // SE corridor: a view corridor toward the camera. A tree
+    // obstructs it when its crown top pokes above the corridor
+    // bottom, i.e. baseDepth(dx+dy) <= viewDepth + crownSteps(size).
+    // Adding the crown height per size (instead of per-size
+    // Euclidean rings) keeps the reveal inversion-free: along one
+    // sightline, if a far tree fades every nearer occluder fades
+    // too. On foot the corridor opens while the char faces SE, with
+    // this fixed depth; in a vehicle it is always open (the fade is
+    // omnidirectional) with the slider circle's diagonal depth.
+    public static final int TREE_FADE_GAZE_VIEW_DEPTH = 14;
+    public static final int TREE_FADE_GAZE_EXTRA_HALF_WIDTH = 4;
+
+    // Crown heights in 16px diagonal steps, measured from the 1x
+    // texture packs: normal e_ trees <=125px, JUMBO <=256px,
+    // JUMBOXL <=373px, JUMBOXXL <=508px.
+    public static int crownDepthSteps(int treeSize) {
+        if (treeSize >= 8) return 32;
+        if (treeSize == 7) return 24;
+        if (treeSize >= 5) return 16;
+        if (treeSize >= 3) return 8;
+        return 4;
+    }
+
+    public static boolean inSeCorridor(int dx, int dy, int treeSize, boolean fading, int viewDepth) {
+        int hyst = fading ? TREE_FADE_EXIT_HYSTERESIS : 0;
+        return dx + dy <= viewDepth + crownDepthSteps(treeSize) + hyst
+                && Math.abs(dx - dy) <= seFadeHalfWidth(treeSize)
+                        + TREE_FADE_GAZE_EXTRA_HALF_WIDTH + hyst;
+    }
+
+    public static int onFootTreeFadeRange(int treeSize) {
+        if (treeSize >= 8) return 22;
+        if (treeSize == 7) return 18;
+        if (treeSize >= 5) return 14;
+        return TREE_FADE_ON_FOOT_RANGE;
+    }
+
+    // SE occlusion band for clamping vanilla-true on-foot fades. A
+    // tree SE of the player covers the character while its base is
+    // close enough down-screen (16px per dx+dy step; tall normal
+    // sprites reach ~224px ⇒ 14 steps) and laterally aligned (32px
+    // per |dx-dy| step; crown half-width plus the character's own
+    // ~32px). Both axes carry a 6-step margin beyond strict vanilla
+    // parity.
+    public static int seFadeDepth(int treeSize) {
+        if (treeSize >= 8) return 38;
+        if (treeSize == 7) return 28;
+        if (treeSize >= 5) return 24;
+        if (treeSize >= 3) return 20;
+        return 14;
+    }
+
+    public static int seFadeHalfWidth(int treeSize) {
+        if (treeSize >= 8) return 16;
+        if (treeSize == 7) return 13;
+        if (treeSize >= 5) return 11;
+        if (treeSize >= 3) return 9;
+        return 8;
+    }
+
+    // IsoTree.cutawayAlpha is private; reflective write pins it to
+    // its endpoints for the hard jumbo-fell flip (no ramp window).
+    private static volatile java.lang.reflect.Field treeCutawayAlphaField;
+    private static volatile boolean cutawayAlphaWriteFailedLogged = false;
+
+    public static void writeTreeCutawayAlpha(IsoTree tree, float v) {
+        try {
+            java.lang.reflect.Field f = treeCutawayAlphaField;
+            if (f == null) {
+                f = IsoTree.class.getDeclaredField("cutawayAlpha");
+                f.setAccessible(true);
+                treeCutawayAlphaField = f;
+            }
+            f.setFloat(tree, v);
+        } catch (Throwable t) {
+            if (!cutawayAlphaWriteFailedLogged) {
+                cutawayAlphaWriteFailedLogged = true;
+                trace("cutawayAlpha reflective write failed — vanilla crown ramp stays", t);
+            }
+        }
+    }
+
+    // Display floor for rerouted (uniformly faded) trees: vanilla's
+    // 0.15 state floor reads as invisible over green terrain. Only
+    // the shown alpha is lifted; IsoTree.fadeAlpha keeps vanilla's
+    // own floor. Trees whose sprite covers the char on screen drop
+    // to the deep floor instead — the char must stay readable
+    // through the crown.
+    public static final float TREE_FADE_MIN_VISIBLE_ALPHA = 0.3f;
+    public static final float TREE_FADE_COVER_MIN_VISIBLE_ALPHA = 0.15f;
+    // Border depth (1x px) over which the two floors blend — walking
+    // into cover eases down instead of stepping.
+    public static final float TREE_FADE_COVER_BLEND_PX = 64f;
+
+    // Near-field char cover, facing-free — our stand-in for
+    // vanilla's 360° player mask: a tree base within a few steps
+    // up-screen (its trunk/lower crown overlaps the char sprite) or
+    // just below, laterally within crown+char width, covers the
+    // character no matter where they look. Beats cone, clearlyBehind
+    // and the NW rule.
+    public static final int NEAR_OVERLAP_UP_STEPS = 6;
+    public static final int NEAR_OVERLAP_DOWN_STEPS = 8;
+
+    public static int nearOverlapHalfWidth(int treeSize) {
+        return seFadeHalfWidth(treeSize) - TREE_FADE_GAZE_EXTRA_HALF_WIDTH - 2;
+    }
+
+    public static boolean inNearOverlap(int dx, int dy, int treeSize) {
+        return dx + dy >= -NEAR_OVERLAP_UP_STEPS
+                && dx + dy <= NEAR_OVERLAP_DOWN_STEPS
+                && Math.abs(dx - dy) <= nearOverlapHalfWidth(treeSize);
     }
 
     // Outdoor-only gate for the cutaway extension, tree fade and the
@@ -289,6 +424,11 @@ public class PeekAViewMod {
     // refreshActiveCache.
     public static volatile float currentCameraPlayerConeDot = -0.2f;
 
+    // Tree-fade cone: on foot the dynamic forward vision cone minus
+    // the tighten offset (~127°); in a vehicle the fixed travel cone
+    // (~162°).
+    public static volatile float currentTreeFadeConeDot = -0.2f;
+
     // 0.05 keeps the cone boundary clear of axis-aligned tile
     // positions (dot exactly 0 / ±1) where float noise would flip the
     // gate per frame.
@@ -296,9 +436,21 @@ public class PeekAViewMod {
 
     // "Clearly behind" threshold (back ~140° cone). Geometric, not
     // vision-derived — Eagle-Eyed etc. don't change what's physically
-    // behind the vehicle. Partitions the in-vehicle fade zone into
-    // 220° forward DOWN-fade and 140° back UP-refade.
+    // behind the vehicle. Releases zone membership behind the car so
+    // passed trees start their vanilla refade immediately instead of
+    // holding via the exit ring.
     public static final float TREE_REFADE_BEHIND_THRESHOLD_DOT = 0.34f;
+
+    // Per-frame camera-player snapshot for the tree-fade dot math:
+    // world position as the cone apex, forward vector pre-flipped for
+    // reverse travel. The stair path stays on live reads instead —
+    // getAlpha runs on setup threads and inside fake windows, where
+    // the live (possibly fake-mutated) position is the intended apex.
+    public static volatile float camPlayerX = 0f;
+    public static volatile float camPlayerY = 0f;
+    public static volatile float camPlayerFwdX = 0f;
+    public static volatile float camPlayerFwdY = 0f;
+    public static volatile boolean camPlayerSnapshotValid = false;
 
     // Computed per-call instead of reading IsoGridSquare.isCanSee,
     // which lags during fast rotation (LOS updates on a periodic
@@ -332,30 +484,25 @@ public class PeekAViewMod {
         return dot < currentCameraPlayerConeDot + TREE_FADE_CONE_STABILITY_BUFFER;
     }
 
-    public static boolean isTileClearlyBehindCameraPlayer(IsoGridSquare sq) {
-        if (sq == null) return false;
-        int pIdx = IsoCamera.frameState.playerIndex;
-        if (pIdx < 0 || pIdx >= IsoPlayer.MAX) return false;
-        IsoPlayer p = IsoPlayer.players[pIdx];
-        if (p == null) return false;
-
-        float tx = (float) sq.x + 0.5f;
-        float ty = (float) sq.y + 0.5f;
-        float dx = p.getX() - tx;
-        float dy = p.getY() - ty;
+    // Normalized forward-dot from the camera player to the tile
+    // center — one sqrt serves the clearly-behind and cone
+    // thresholds. NEGATIVE_INFINITY on the player's own tile
+    // (in-cone, never behind); NaN without a valid snapshot (every
+    // threshold compare is false).
+    public static float cameraPlayerDotTo(IsoGridSquare sq) {
+        if (sq == null || !camPlayerSnapshotValid) return Float.NaN;
+        float dx = camPlayerX - ((float) sq.x + 0.5f);
+        float dy = camPlayerY - ((float) sq.y + 0.5f);
         float lenSq = dx * dx + dy * dy;
-        if (lenSq < 0.0001f) return false;
-        float invLen = 1.0f / (float) Math.sqrt(lenSq);
-        dx *= invLen;
-        dy *= invLen;
+        if (lenSq < 0.0001f) return Float.NEGATIVE_INFINITY;
+        return (dx * camPlayerFwdX + dy * camPlayerFwdY) / (float) Math.sqrt(lenSq);
+    }
 
-        float fdx = p.getForwardDirectionX();
-        float fdy = p.getForwardDirectionY();
-        if (isVehicleReversing) {
-            fdx = -fdx;
-            fdy = -fdy;
-        }
-        float dot = dx * fdx + dy * fdy;
+    public static boolean isDotInTreeFadeCone(float dot) {
+        return dot < currentTreeFadeConeDot + TREE_FADE_CONE_STABILITY_BUFFER;
+    }
+
+    public static boolean isDotClearlyBehind(float dot) {
         return dot > TREE_REFADE_BEHIND_THRESHOLD_DOT;
     }
 

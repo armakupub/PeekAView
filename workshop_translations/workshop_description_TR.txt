@@ -1,18 +1,18 @@
-[h1]Görüşünüzü genişletin[/h1]
+[h1]Ne işe yarar[/h1]
 
-Project Zomboid, karakterinizin aslında görebileceği pek çok şeyi duvarların, ağaçların ve üst katların ardına saklar. PeekAView üç render geçişini genişletir, böylece ekranınız karakterinizin gözlerine yetişir:
+Karakteriniz ekranınızın gösterdiğinden fazlasını görür. Gözünü diktiği köşeyi duvar kapatır, yoldaki zombinin üstüne bir ağaç tepesi gelir, merdiven ise yukarıda ne varsa ona doğru körlemesine bir tırmanıştır. PeekAView bu açığı üç yerde kapatır:
 
 [list]
-[*][b]Duvar kesimi[/b]: duvarlar daha uzak mesafede kesilir, böylece köşeler ve kapı çerçeveleri yaklaşırken arkalarındaki şeyleri daha erken gösterir.
-[*][b]Ağaç solukluğu[/b]: araç kullanırken aracınızın çevresindeki ağaçlar yarı saydam olur, böylece engelleri daha erken görürsünüz.
-[*][b]Merdiven görüşü[/b]: merdiven çıkarken üst kat render edilir, böylece yukarıda ne olduğunu varmadan önce görürsünüz. Zombiler yalnızca çıktığınız odada görünür olur.
+[*][b]Duvar kesimi[/b]: duvarlar daha uzaktan kesilmeye başlar; kapı boşlukları ve köşeler son adımda değil, siz yaklaşırken açılır.
+[*][b]Ağaç solukluğu[/b]: sizinle baktığınız yer arasında kalan ağaçlar saydamlaşır; yayayken de, direksiyon başındayken de.
+[*][b]Merdiven görüşü[/b]: siz tırmanırken üst kat ekrana çizilir, yani yukarıda sizi neyin beklediğini oraya varmadan görürsünüz. Çıktığınız odadaki zombiler, odanın neresinde olurlarsa olsunlar, tırmanış boyunca görünür kalır.
 [/list]
 
-Vanilla ile aynı kurallar. Röntgen görüşü yok, şeffaf duvar yok, düşman silüeti yok. Neyin görünür olduğuna yine karakterinizin görüş hattı karar verir.
+Şunu netleştireyim: bu bir wallhack değil. Neyi göreceğinize yine karakterinizin görüş hattı karar verir; mod yalnızca oyunun zaten görülmüş saydığı ama gizli tuttuğu şeyleri çizer.
 
-Her özelliğin Seçenekler → Modlar → Peek a View altında kendi Etkinleştir anahtarı vardır. [b]F8[/b] oyun içinde modun tamamını açıp kapatır (yeniden atanabilir).
+Her özelliğin Ayarlar → Modlar → Peek a View altında kendi anahtarı var, [b]F8[/b] ile de modun tamamını oyun içinde açıp kapatabilirsiniz (tuş değiştirilebilir).
 
-Build 42.20'den beri PZ kendi yaya ağaç solukluğuyla geliyor. Bence işi görüyor, bu yüzden PeekAView'in ağaç solukluğu artık yalnızca araç kullanırken devrede. TIS kendi sürümünü elden geçirirse ya da stabil sürümde kendim oynarken iyileştirilecek bir yer görürsem, konuya tekrar dönerim.
+Vanilla ağaç solukluğuna gelince: 42.20 kendi versiyonunu ekledi ve fena da değil. Benimki onun yerine geçer: bakış yönünüzü takip eden, her ağacın gerçekte ne kadar büyük olduğunu bilen ve ağacı bütün olarak soluklaştıran bir yöntem; hem de karakterinizin çevresindeki noktalı daire olmadan. Vanilla halini tercih ediyorsanız "Yayayken aktif" seçeneğinin işaretini kaldırın; PeekAView o zaman ağaçları yalnızca araç kullanırken soluklaştırır.
 
 [h1]Gereksinimler[/h1]
 [list]
@@ -22,7 +22,7 @@ Build 42.20'den beri PZ kendi yaya ağaç solukluğuyla geliyor. Bence işi gör
 
 [h1]Uyumluluk[/h1]
 [list]
-[*]Yalnızca istemci tarafı, oturum sırasında güvenle eklenebilir veya kaldırılabilir. Çok oyunculuda, etkiyi isteyen her istemcide modun (ve ZombieBuddy'nin) yüklü olması gerekir.
+[*]Yalnızca istemci tarafı (sunucu bu modun hiçbir kodunu çalıştırmaz), ancak çok oyunculuda modun yine de sunucunun mod listesinde yer alması gerekir. Oturum sırasında güvenle eklenebilir veya kaldırılabilir.
 [*]Staircast Workshop moduyla birlikte çalışır: PeekAView modu algılar ve kendi merdiven görüşünü devreden çıkarır.
 [/list]
 
@@ -35,8 +35,7 @@ Vanilla B42, oyuncunun inşa ettiği yapıların yanındaki üst kat duvarların
 [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse] dosyasını düzenleyin: [noparse]"id": "PeekAView"[/noparse] bloğunda [noparse]"decision": false[/noparse] değerini [noparse]true[/noparse] olarak değiştirin (ya da tekrar sorulması için bloğu silin). PZ'yi yeniden başlatın.
 
 [h1]Bakım ve Kaynak kodu[/h1]
-Kendi kullanımım için tamamlanmış durumda, aktif olarak geliştirilmiyor. Son test PZ Build 42.20 üzerinde. MIT lisanslı, tamamen açık kaynak: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forklar memnuniyetle karşılanır. Mod gelecekteki bir PZ sürümünde bozulursa ve düzeltmeyeceksem, bozuk bir sürümü öylece bırakmaktansa Workshop'tan kaldırırım.
-
+Mod bu haliyle tamamlanmış sayılır. Kendim de oynadığım için oyun güncellemelerinin bozduğu şeyleri denk geldikçe düzeltiyorum, ama yeni özellik planım yok. En son PZ Build 42.20.2 üzerinde test ettim. MIT lisanslı, tamamen açık kaynak: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forklar memnuniyetle karşılanır.
 [h1]Atıf[/h1]
 [list]
 [*][b]Cutaway-on-stairs konsepti + FakeFrameState deseni + yamalı render sınıflarının seçimi[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, orijinal Workshop modu).
