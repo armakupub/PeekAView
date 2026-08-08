@@ -36,6 +36,7 @@
 
 [h1]维护与源代码[/h1]
 这个 Mod 已经定型了。我自己也在玩，所以游戏更新要是弄坏了什么，我碰上了就会修，但不打算再加新功能。最后一次测试用的是 PZ Build 42.20.2。采用 MIT 许可证，完全开源：[url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]。欢迎 fork。
+
 [h1]鸣谢[/h1]
 [list]
 [*][b]Cutaway-on-stairs 概念 + FakeFrameState 模式 + 被修补的渲染类选择[/b]：[url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url]（MIT，原始 Workshop Mod）。

@@ -36,6 +36,7 @@ Modifica [noparse]%USERPROFILE%\.zombie_buddy\mod_approvals.json[/noparse]: nel 
 
 [h1]Manutenzione e Codice sorgente[/h1]
 La mod è arrivata alla sua forma definitiva. La uso anch'io, quindi se un aggiornamento del gioco rompe qualcosa lo sistemo appena ci sbatto contro, ma non ho in programma nuove funzioni. Ultimo test su PZ build 42.20.2. Licenza MIT, completamente open source: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. I fork sono benvenuti.
+
 [h1]Attribuzione[/h1]
 [list]
 [*][b]Concetto cutaway-on-stairs + pattern FakeFrameState + scelta delle classi di rendering patchate[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, mod originale del Workshop).

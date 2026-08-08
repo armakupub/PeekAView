@@ -36,6 +36,7 @@
 
 [h1]Поддержка и исходный код[/h1]
 Мод в законченном виде. Я сам с ним играю, поэтому поломки после обновлений игры чиню, когда на них натыкаюсь, но новых функций не планирую. Последний раз проверял на PZ build 42.20.2. Лицензия MIT, полностью открытый исходный код: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Форки приветствуются.
+
 [h1]Атрибуция[/h1]
 [list]
 [*][b]Концепт cutaway-on-stairs + паттерн FakeFrameState + выбор патчей классов рендеринга[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, оригинальный мод из Workshop).

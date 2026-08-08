@@ -36,6 +36,7 @@ Vanilla B42, oyuncunun inşa ettiği yapıların yanındaki üst kat duvarların
 
 [h1]Bakım ve Kaynak kodu[/h1]
 Mod bu haliyle tamamlanmış sayılır. Kendim de oynadığım için oyun güncellemelerinin bozduğu şeyleri denk geldikçe düzeltiyorum, ama yeni özellik planım yok. En son PZ Build 42.20.2 üzerinde test ettim. MIT lisanslı, tamamen açık kaynak: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. Forklar memnuniyetle karşılanır.
+
 [h1]Atıf[/h1]
 [list]
 [*][b]Cutaway-on-stairs konsepti + FakeFrameState deseni + yamalı render sınıflarının seçimi[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, orijinal Workshop modu).

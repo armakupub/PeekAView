@@ -36,6 +36,7 @@
 
 [h1]유지보수 및 소스 코드[/h1]
 이 모드는 이제 완성된 형태입니다. 저도 켜고 플레이하는 모드라 게임 업데이트로 뭔가 깨지면 눈에 띄는 대로 고치지만, 새 기능 추가 계획은 없습니다. 마지막으로 PZ Build 42.20.2에서 테스트했습니다. MIT 라이선스이며 완전히 오픈 소스입니다: [url=https://github.com/armakupub/PeekAView]github.com/armakupub/PeekAView[/url]. 포크는 환영합니다.
+
 [h1]저작자 표시[/h1]
 [list]
 [*][b]Cutaway-on-stairs 컨셉 + FakeFrameState 패턴 + 패치된 렌더링 클래스 선택[/b]: [url=https://github.com/copiumsawsed/pz-Staircast]copiumsawsed/pz-Staircast[/url] (MIT, 원본 Workshop 모드).
