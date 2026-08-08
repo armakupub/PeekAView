@@ -38,13 +38,15 @@ public class Patch_FBORenderTrees {
                     // Vanilla's XL-crown cutaway (aim key): the crown
                     // ramps 0.045/frame around two discrete composite
                     // swaps, and on release the whole tree fades back
-                    // in from invisible. Replace the animation with a
-                    // hard flip — crown gone while aiming, full tree
-                    // the frame the key is released — by pinning the
-                    // DISPLAY alpha to the endpoints. The private
-                    // cutawayAlpha state keeps ramping underneath and
-                    // re-arms vanilla's composite gate.
-                    cutawayAlpha = PeekAViewMod.currentCameraPlayerAiming ? 0.0f : 1.0f;
+                    // in from invisible. The bubble-gated field pin
+                    // (Patch_isTranslucentTree) holds cutawayAlpha at
+                    // its endpoints with tile hysteresis; snapping
+                    // the DISPLAY copy to the nearest endpoint
+                    // absorbs the one vanilla ramp step that runs
+                    // between pin and draw. No geometry here — a
+                    // second, screen-space bubble test flipped crowns
+                    // on pixel jitter at the bubble edge.
+                    cutawayAlpha = cutawayAlpha < 0.5f ? 0.0f : 1.0f;
                     return;
                 }
                 if (!bUseStencil) return;

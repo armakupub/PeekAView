@@ -8,7 +8,6 @@ import zombie.core.math.PZMath;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
-import zombie.iso.IsoTreeJumbo;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.areas.IsoRoom;
 import zombie.iso.objects.IsoTree;
@@ -20,11 +19,12 @@ public class Patch_FBORenderCell {
     // back-cone, gated on the tree-fade cone (360° in a vehicle, the
     // forward vision cone on foot). Euclidean,
     // not Manhattan — diamonds shrink the reach on diagonal travel.
-    // The result flip is additive-only (false→true) and drives
-    // renderFlag; IsoTree.fadeAlpha only steps DOWN while it's true,
-    // and vanilla's own aim-time fade keeps working on top. Display is
-    // handled by Patch_FBORenderTrees.Patch_addTree; this patch is
-    // purely the render-layer flip plus the speed snap.
+    // The result drives renderFlag; IsoTree.fadeAlpha only steps
+    // DOWN while it's true. Vanilla's aim-time reveal (all-direction
+    // stencil bbox) is replaced by the aim bubble around the reticle
+    // (inAimCursorZone). Display is handled by
+    // Patch_FBORenderTrees.Patch_addTree; this patch is purely the
+    // render-layer flip plus the speed snap.
 
     @Patch(className = "zombie.iso.fboRenderChunk.FBORenderCell",
            methodName = "isTranslucentTree")
@@ -47,22 +47,41 @@ public class Patch_FBORenderCell {
                 IsoTree tree = (IsoTree) object;
 
                 boolean aiming = PeekAViewMod.currentCameraPlayerAiming;
+                boolean fading = tree.fadeAlpha < 1.0f;
 
-                // RMB fells registry jumbos as a hard state flip:
-                // pinning cutawayAlpha to its endpoints removes the
+                // Aim reveal is a bubble around the reticle's world
+                // point — RMB no longer claims the whole vision cone
+                // (or, in a vehicle, vanilla's all-direction stencil
+                // bbox, whose moving edge pulsed trees at speed).
+                boolean inAimZone = false;
+                if (aiming && PeekAViewMod.aimPointValid) {
+                    inAimZone = PeekAViewMod.inAimCursorZone(
+                            object.square.x - PeekAViewMod.aimTileX,
+                            object.square.y - PeekAViewMod.aimTileY,
+                            tree.size, fading);
+                }
+
+                // RMB fells XL crowns as a hard state flip: pinning
+                // cutawayAlpha to its endpoints removes the
                 // 0.045/frame ramp window entirely — no crown
                 // animation on press, no stale felled look waiting
-                // out the ramp on release. canSee mirrors vanilla's
-                // main gate (its obscured-squares fallback is
-                // dropped; those trees stay whole). Aim frames plus
-                // the release frame suffice: outside them vanilla's
-                // own ramp holds the field at the 1.0 endpoint
+                // out the ramp on release. Bubble-gated: only crowns
+                // covering the aim point fell; out-of-bubble XLs
+                // stay pinned whole while aiming. Scope mirrors
+                // vanilla's transparent-param gate (name "XL"), not
+                // just the jumbo registry — unpinned XLs would ramp
+                // to invisible through the display snap in
+                // Patch_addTree. canSee mirrors vanilla's main gate
+                // (its obscured-squares fallback is dropped; those
+                // trees stay whole). Aim frames plus the release
+                // frame suffice: outside them vanilla's own ramp
+                // holds the field at the 1.0 endpoint
                 // (transparent=false ramps up, clamped).
                 if ((aiming || PeekAViewMod.aimReleasedThisFrame)
                         && tree.sprite != null && tree.sprite.name != null
-                        && IsoTreeJumbo.Jumbos.get(tree.sprite.name) != null) {
+                        && tree.sprite.name.contains("XL")) {
                     int pidx = IsoCamera.frameState.playerIndex;
-                    boolean felled = aiming
+                    boolean felled = inAimZone
                             && pidx >= 0 && pidx < IsoPlayer.MAX
                             && object.square.lighting[pidx].bCanSee();
                     PeekAViewMod.writeTreeCutawayAlpha(tree, felled ? 0.0f : 1.0f);
@@ -91,13 +110,15 @@ public class Patch_FBORenderCell {
                 int seViewDepth = inVehicle
                         ? (range * 3) / 2
                         : PeekAViewMod.TREE_FADE_GAZE_VIEW_DEPTH;
-                boolean fading = tree.fadeAlpha < 1.0f;
 
                 boolean inZone = result;
                 if (!result) {
-                    if (PeekAViewMod.inNearOverlap(dx, dy, tree.size)) {
-                        // Facing-free near-field: the crown covers the
-                        // char, keep him visible in every direction.
+                    if (inAimZone || PeekAViewMod.inNearOverlap(dx, dy, tree.size)) {
+                        // Bubble beats reach, cone and behind — the
+                        // reveal must work wherever the reticle
+                        // points, including behind the vehicle.
+                        // Near-field: the crown covers the char, keep
+                        // him visible in every direction.
                         inZone = true;
                         result = true;
                     } else {
@@ -116,32 +137,34 @@ public class Patch_FBORenderCell {
                         float dot = PeekAViewMod.cameraPlayerDotTo(object.square);
                         if (!PeekAViewMod.isDotClearlyBehind(dot)
                                 && ((inReach && PeekAViewMod.isDotInTreeFadeCone(dot))
-                                    || (!aiming && distSq <= exit * exit && fading))) {
+                                    || ((!aiming || inVehicle) && distSq <= exit * exit && fading))) {
                             // Cone gates entry only. A mid-fade tree
                             // holds its membership via the exit ring
                             // alone: near a jumbo the base tile swings
                             // out of the forward cone while the crown
                             // is overhead, and re-fading there would
-                            // flicker. The hold pauses while aiming —
-                            // the aim reveal must track the cone 1:1,
-                            // not leave a ghost trail behind a cursor
-                            // sweep.
+                            // flicker. On foot the hold pauses while
+                            // aiming so the release snap-back tracks
+                            // the bubble 1:1; in a vehicle it stays
+                            // active — dropping it there let boundary
+                            // trees pulse at speed with RMB held.
                             inZone = true;
                             result = true;
                         }
                     }
-                } else if (!inVehicle || !aiming) {
+                } else {
                     // Vanilla's SE gate is a coarse screen bbox over
                     // the full mask canvas; its over-trigger used to
                     // stay invisible outside the mask's alpha circle.
                     // With the stencil bypassed every trigger ghosts
                     // the whole tree, so clamp vanilla-true results —
-                    // on foot and while driving — to the union of the
+                    // including in-vehicle aiming, where the raw
+                    // moving bbox used to fall through and pulse
+                    // trees at its edges — to the union of the
                     // occlusion band (crowns lean up-screen toward the
                     // player, 16px per dx+dy step, but pass by quickly
                     // sideways, 32px per |dx-dy| step), the SE
-                    // corridor, and our own zone. In-vehicle aiming
-                    // falls through untouched.
+                    // corridor, the aim bubble, and our own zone.
                     // While aiming, vanilla-true exists in EVERY
                     // direction (the full mask bbox), so the band
                     // needs its SE-quadrant guard — without it the
@@ -154,7 +177,8 @@ public class Patch_FBORenderCell {
                             && dx + dy <= PeekAViewMod.seFadeDepth(tree.size) + hyst
                             && Math.abs(dx - dy) <= PeekAViewMod.seFadeHalfWidth(tree.size) + hyst)
                             || PeekAViewMod.inNearOverlap(dx, dy, tree.size)
-                            || (seCorridor && PeekAViewMod.inSeCorridor(dx, dy, tree.size, fading, seViewDepth));
+                            || (seCorridor && PeekAViewMod.inSeCorridor(dx, dy, tree.size, fading, seViewDepth))
+                            || inAimZone;
                     if (!covered) {
                         // Our own zone keeps the tree too: vanilla
                         // flips true for the one-row stripe at its
@@ -166,16 +190,7 @@ public class Patch_FBORenderCell {
                         boolean zoneKeep = !PeekAViewMod.isDotClearlyBehind(dot)
                                 && ((distSq <= range * range
                                         && PeekAViewMod.isDotInTreeFadeCone(dot))
-                                    || (!aiming && distSq <= exit * exit && fading));
-                        // On-foot aiming ADDS vanilla's aim reveal on
-                        // top of the model: keep along the aim
-                        // direction at any distance, cone-restricted
-                        // (the char turns with the cursor). Band and
-                        // corridor above keep the char himself
-                        // uncovered while aiming elsewhere.
-                        if (!zoneKeep && !inVehicle && aiming) {
-                            zoneKeep = PeekAViewMod.isDotInTreeFadeCone(dot);
-                        }
+                                    || ((!aiming || inVehicle) && distSq <= exit * exit && fading));
                         if (!zoneKeep) {
                             result = false;
                             inZone = false;
@@ -184,7 +199,7 @@ public class Patch_FBORenderCell {
                 }
 
                 // RMB tracking: while aiming the reveal follows the
-                // cursor 1:1 — claimed → floor, unclaimed → opaque,
+                // bubble 1:1 — claimed → floor, unclaimed → opaque,
                 // no ghost trail behind a sweep. On release vanilla's
                 // ramp fades unclaimed trees back in; only the jumbo
                 // crown flip stays hard (the composite path exists

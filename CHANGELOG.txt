@@ -1,6 +1,19 @@
 Peek a View - Changelog
 =======================
 
+2.0.1 - 2026-08-08
+  - Fixed: trees pulsing between solid and faded while driving with the
+    aim key held (strongest at the screen edges and ahead of the
+    vehicle). The game's own aim-time fade trigger - a moving
+    screen-space test - was fighting the mod's fade model every frame.
+  - Aiming now reveals a zone around your cursor instead of the whole
+    vision cone - on foot and while driving. Only trees whose crown can
+    cover the spot you aim at fade; everything else follows the normal
+    fade rules.
+  - Fixed: XL and jumbo crowns no longer flicker at the edge of the
+    cursor zone while the vehicle moves - the crown flip is anchored to
+    the world and carries hysteresis.
+
 2.0.0 - 2026-08-07
   - Tree fade rework: one measured model on foot and behind the wheel, driven by where your character actually looks.
   - New "Active on foot" option (on by default): replaces the game's round dither reveal around the character with whole-tree fading in your view direction - the ragged stencil circle is gone.

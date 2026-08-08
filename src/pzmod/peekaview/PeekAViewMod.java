@@ -6,8 +6,11 @@ import java.util.ArrayList;
 
 import zombie.ZomboidFileSystem;
 import zombie.characters.IsoPlayer;
+import zombie.core.math.PZMath;
+import zombie.input.AimingReticle;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.IsoUtils;
 import zombie.iso.objects.IsoTree;
 import zombie.vehicles.BaseVehicle;
 
@@ -197,25 +200,35 @@ public class PeekAViewMod {
         if (fCount == activeCacheFrameCount && pIdx == activeCachePlayerIndex) {
             return;
         }
-        activeCacheFrameCount = fCount;
-        activeCachePlayerIndex = pIdx;
+        // Memo key commits LAST (payload-before-key): a concurrent
+        // caller mid-refresh recomputes redundantly instead of
+        // reading a half-written cache.
 
         if (!enabled) {
             activeCacheCutaway = false;
             activeCacheTreeFade = false;
             camPlayerSnapshotValid = false;
+            aimPointValid = false;
+            activeCacheFrameCount = fCount;
+            activeCachePlayerIndex = pIdx;
             return;
         }
         if (!isPeekAViewActive()) {
             activeCacheCutaway = false;
             activeCacheTreeFade = false;
             camPlayerSnapshotValid = false;
+            aimPointValid = false;
+            activeCacheFrameCount = fCount;
+            activeCachePlayerIndex = pIdx;
             return;
         }
         if (pIdx < 0 || pIdx >= IsoPlayer.MAX) {
             activeCacheCutaway = true;
             activeCacheTreeFade = false;
             camPlayerSnapshotValid = false;
+            aimPointValid = false;
+            activeCacheFrameCount = fCount;
+            activeCachePlayerIndex = pIdx;
             return;
         }
         IsoPlayer p = IsoPlayer.players[pIdx];
@@ -223,6 +236,9 @@ public class PeekAViewMod {
             activeCacheCutaway = true;
             activeCacheTreeFade = false;
             camPlayerSnapshotValid = false;
+            aimPointValid = false;
+            activeCacheFrameCount = fCount;
+            activeCachePlayerIndex = pIdx;
             return;
         }
         BaseVehicle vehicle = p.getVehicle();
@@ -233,6 +249,33 @@ public class PeekAViewMod {
         boolean wasAiming = currentCameraPlayerAiming;
         currentCameraPlayerAiming = p.isAnyAimKeyDown();
         aimReleasedThisFrame = wasAiming && !currentCameraPlayerAiming;
+        // Reticle → world via the vanilla mouse pattern (reticle
+        // coords are already offscreen-space: Mouse × zoom, gamepad
+        // handled inside AimingReticle). Floor anchors the +3/level
+        // iso shift; trees live at ground level, camZ covers the
+        // driving and on-foot cases alike.
+        boolean aimValid = false;
+        if (currentCameraPlayerAiming) {
+            try {
+                int rx = AimingReticle.getX(pIdx);
+                int ry = AimingReticle.getY(pIdx);
+                float floor = PZMath.fastfloor(IsoCamera.frameState.camCharacterZ);
+                float ax = IsoUtils.XToIso(pIdx, rx, ry, floor);
+                float ay = IsoUtils.YToIso(pIdx, rx, ry, floor);
+                float ddx = ax - aimPointX;
+                float ddy = ay - aimPointY;
+                if (!aimPointValid || ddx * ddx + ddy * ddy > AIM_ANCHOR_DEADBAND_SQ) {
+                    aimPointX = ax;
+                    aimPointY = ay;
+                    aimTileX = PZMath.fastfloor(ax);
+                    aimTileY = PZMath.fastfloor(ay);
+                }
+                aimValid = true;
+            } catch (Throwable t) {
+                // leave invalid — aim reveal off beats everything-on
+            }
+        }
+        aimPointValid = aimValid;
         // Facing gate for the SE gaze bonus: both forward components
         // clearly positive = looking toward the camera; the 0.2f
         // floor keeps pure-E/pure-S facings and axis wobble out.
@@ -278,6 +321,9 @@ public class PeekAViewMod {
             activeCacheCutaway = true;
         }
         activeCacheTreeFade = inVehicle || treeFadeActiveOnFoot;
+
+        activeCacheFrameCount = fCount;
+        activeCachePlayerIndex = pIdx;
     }
 
     // On-foot radius by tree size, measured to the base tile.
@@ -310,6 +356,42 @@ public class PeekAViewMod {
     // omnidirectional) with the slider circle's diagonal depth.
     public static final int TREE_FADE_GAZE_VIEW_DEPTH = 14;
     public static final int TREE_FADE_GAZE_EXTRA_HALF_WIDTH = 4;
+
+    // Aim reveal bubble: while an aim key is held, tree reveal is
+    // confined to the area around the reticle's world point instead
+    // of the whole vision cone (on foot) or vanilla's all-direction
+    // stencil bbox (in a vehicle — the moving bbox edge against our
+    // stencil-less display and asymmetric fade rates is what made
+    // trees pulse while driving with RMB held). 128 (1x px) matches
+    // the visible core of vanilla's 512px cursor mask.
+    public static final float AIM_BUBBLE_RADIUS_PX = 128f;
+    // Screen-geometry steps: 16px per dx+dy, 32px per |dx-dy|.
+    public static final int AIM_BUBBLE_UP_STEPS = (int) (AIM_BUBBLE_RADIUS_PX / 16f);
+    public static final int AIM_BUBBLE_LATERAL_STEPS = (int) (AIM_BUBBLE_RADIUS_PX / 32f);
+
+    // Reticle world point, cached per frame in refreshActiveCache.
+    // The published anchor moves only when the raw sample leaves a
+    // 0.75-tile deadband: the sample carries pixel jitter
+    // (int-truncated camera offsets, mouse micro-motion) that would
+    // otherwise dither the fastfloor'd tile across a boundary and
+    // pulse every tree at the bubble edge.
+    public static volatile boolean aimPointValid = false;
+    private static volatile float aimPointX = 0f;
+    private static volatile float aimPointY = 0f;
+    public static volatile int aimTileX = 0;
+    public static volatile int aimTileY = 0;
+    private static final float AIM_ANCHOR_DEADBAND_SQ = 0.75f * 0.75f;
+
+    // A tree covers the aim point when its sprite can overlap the
+    // bubble: base down-screen up to crown reach (16px per dx+dy
+    // step), laterally within crown half-width plus the bubble
+    // radius. Same crown model as the SE corridor.
+    public static boolean inAimCursorZone(int adx, int ady, int treeSize, boolean fading) {
+        int hyst = fading ? TREE_FADE_EXIT_HYSTERESIS : 0;
+        return adx + ady >= -AIM_BUBBLE_UP_STEPS - hyst
+                && adx + ady <= AIM_BUBBLE_UP_STEPS + crownDepthSteps(treeSize) + hyst
+                && Math.abs(adx - ady) <= AIM_BUBBLE_LATERAL_STEPS + nearOverlapHalfWidth(treeSize) + hyst;
+    }
 
     // Crown heights in 16px diagonal steps, measured from the 1x
     // texture packs: normal e_ trees <=125px, JUMBO <=256px,
